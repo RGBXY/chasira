@@ -9,20 +9,22 @@
                         <div
                             class="w-[300px] h-12 border flex items-center px-3 gap-3 bg-white rounded-md overflow-hidden"
                         >
-                            <div
-                                class="flex items-center justify-center rounded-full"
-                            >
-                                <PhMagnifyingGlass class="text-lg" />
-                            </div>
                             <input
                                 type="text"
+                                v-model="search"
                                 placeholder="Search Category..."
                                 class="h-full outline-none w-full"
                             />
+                            <button
+                                @click="handleSearch()"
+                                class="flex items-center justify-center rounded-full"
+                            >
+                                <PhMagnifyingGlass class="text-lg" />
+                            </button>
                         </div>
 
                         <Link
-                            href="/categories/add"
+                            href="/categories/create"
                             class="text-white border rounded-lg bg-violet-400 flex items-center justify-center gap-2 px-4"
                         >
                             <PhPlus weight="bold" />
@@ -43,7 +45,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="category in categories">
+                            <tr
+                                v-for="category in categories"
+                                :key="category.id"
+                            >
                                 <td class="border-2 p-3 border-gray-200">
                                     {{ category.name }}
                                 </td>
@@ -57,12 +62,18 @@
 
                                 <td class="border-2 p-3 border-gray-200">
                                     <div class="flex items-start gap-2">
-                                        <button
+                                        <Link
+                                            :href="`/categories/${category.id}/edit`"
                                             class="bg-blue-100 px-2.5 py-1.5 font-medium text-blue-500 text-sm rounded-md"
                                         >
                                             Edit
-                                        </button>
+                                        </Link>
                                         <button
+                                            @click="
+                                                method.modalDeactiveFnc(
+                                                    category.id
+                                                )
+                                            "
                                             class="bg-red-100 px-2.5 py-1.5 font-medium text-red-500 text-sm rounded-md"
                                         >
                                             Delete
@@ -75,20 +86,59 @@
                 </div>
             </div>
         </div>
+
+        <ModalDeactive>
+            <template #header> Are you absolutly sure? </template>
+            <template #description>
+                Are you sure you want to delete this category? Once deleted,
+                this action cannot be undone and the category will be
+                permanently removed.</template
+            >
+            <template #action>
+                <PrimButtonModal
+                    @click="method.modalDeactiveFnc()"
+                    text="Cancel"
+                    class="border-2"
+                />
+                <PrimButtonModal
+                    @click="destroy(method.deleteId)"
+                    text="Delete"
+                    class="bg-red-500 text-white"
+                />
+            </template>
+        </ModalDeactive>
     </Layout>
 </template>
 
 <script setup>
-import {
-    PhDownloadSimple,
-    PhFunnelSimple,
-    PhMagnifyingGlass,
-    PhPlus,
-} from "@phosphor-icons/vue";
+import { PhMagnifyingGlass, PhPlus } from "@phosphor-icons/vue";
 import Layout from "../../Layouts/Layout.vue";
-import categories from "../../../core/data/categories";
-import formatPrice from "../../../core/helper/formatPrice";
-import { Link } from "@inertiajs/vue3";
+import { Link, router } from "@inertiajs/vue3";
+import ModalDeactive from "../../components/modal/ModalDeactive.vue";
+import { useMethodStore } from "../../stores/method";
+import PrimButtonModal from "../../components/ui/primButtonModal.vue";
+import { ref } from "vue";
+
+const method = useMethodStore();
+
+const search = ref("" || new URL(document.location).searchParams.get("search"));
+
+//define method search
+const handleSearch = () => {
+    router.get("/categories", {
+        //send params "q" with value from state "search"
+        search: search.value,
+    });
+};
+
+const destroy = (id) => {
+    router.delete(`/categories/${id}`);
+    method.modalDeactiveFnc();
+};
+
+defineProps({
+    categories: Object,
+});
 </script>
 
 <style lang="scss" scoped></style>

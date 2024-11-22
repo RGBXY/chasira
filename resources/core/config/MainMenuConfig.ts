@@ -1,6 +1,8 @@
 import {
     PhCashRegister,
+    PhCoins,
     PhGauge,
+    PhHandCoins,
     PhPackage,
     PhSquaresFour,
     PhStorefront,
@@ -25,6 +27,16 @@ const MainMenuConfig: Array<MenuItem> = [
         PhIcon: PhGauge,
     },
     {
+        heading: "Report Sales",
+        route: "/sales",
+        PhIcon: PhCoins,
+    },
+    {
+        heading: "Report Profit",
+        route: "/profit",
+        PhIcon: PhHandCoins,
+    },
+    {
         heading: "Products",
         route: "/products",
         PhIcon: PhPackage,
@@ -35,14 +47,19 @@ const MainMenuConfig: Array<MenuItem> = [
         PhIcon: PhSquaresFour,
     },
     {
-        heading: "Employees",
-        route: "/employees",
-        PhIcon: PhUser,
-    },
-    {
         heading: "Outlets",
         route: "/outlets",
         PhIcon: PhStorefront,
+    },
+    {
+        heading: "Role",
+        route: "/role",
+        PhIcon: PhUser,
+    },
+    {
+        heading: "Employees",
+        route: "/employees",
+        PhIcon: PhUser,
     },
 ];
 

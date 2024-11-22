@@ -6,6 +6,8 @@ use App\Models\User;
 // use Illuminate\Container\Attributes\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth ;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
@@ -19,6 +21,14 @@ class AuthController extends Controller
 
         // Register
         $user = User::create($fields);
+
+        $permissions = Permission::all();
+
+        $role = Role::find(1);
+
+        $role->syncPermissions($permissions);
+
+        $user->assignRole($role);
 
         // Login
         Auth::login($user);

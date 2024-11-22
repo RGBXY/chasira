@@ -1,17 +1,18 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 
 
-Route::middleware('auth')->group(function () {
+Route::group(['middleware' => ['auth']], function () {
     Route::inertia('/', 'HomeView')->name('home');
 
     Route::inertia('/products', 'Product/index')->name('products');
     Route::inertia('/products/add', 'Product/CreateEdit')->name('add-products');
 
-    Route::inertia('/categories', 'Categories/index')->name('categories');
-    Route::inertia('/categories/add', 'Categories/CreateEdit')->name('add-category');
+    Route::resource('/categories', CategoryController::class)
+    ->middleware('permission:categories.index|categories.create|categories.edit|categories.delete');
 
     Route::inertia('/employees', 'Employees/index')->name('employees');
     Route::inertia('/employee/add', 'Employees/CreateEdit')->name('add-employe');
@@ -21,7 +22,7 @@ Route::middleware('auth')->group(function () {
     Route::inertia('/outlets/add', 'Outlets/CreateEdit')->name('add-outlets');
 
     Route::inertia('/dashboard', 'DashboardView')->name('dashboard');
-    
+
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 
