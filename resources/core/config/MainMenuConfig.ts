@@ -4,9 +4,10 @@ import {
     PhGauge,
     PhHandCoins,
     PhPackage,
+    PhShieldCheck,
     PhSquaresFour,
     PhStorefront,
-    PhUser,
+    PhUsers,
 } from "@phosphor-icons/vue";
 
 export interface MenuItem {
@@ -54,12 +55,12 @@ const MainMenuConfig: Array<MenuItem> = [
     {
         heading: "Role",
         route: "/role",
-        PhIcon: PhUser,
+        PhIcon: PhShieldCheck,
     },
     {
         heading: "Employees",
         route: "/employees",
-        PhIcon: PhUser,
+        PhIcon: PhUsers,
     },
 ];
 

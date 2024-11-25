@@ -2,14 +2,15 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 
 Route::group(['middleware' => ['auth']], function () {
     Route::inertia('/', 'HomeView')->name('home');
 
-    Route::inertia('/products', 'Product/index')->name('products');
-    Route::inertia('/products/add', 'Product/CreateEdit')->name('add-products');
+    Route::resource('/products', ProductController::class)
+    ->middleware('permission:products.index|products.create|products.edit|products.delete');
 
     Route::resource('/categories', CategoryController::class)
     ->middleware('permission:categories.index|categories.create|categories.edit|categories.delete');

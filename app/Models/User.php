@@ -25,7 +25,11 @@ class User extends Authenticatable
     ];
 
     public function category(){
-        return $this->hasMany(User::class);
+        return $this->hasMany(Category::class);
+    }
+
+    public function product(){
+        return $this->hasMany(Product::class);
     }
 
     /**
