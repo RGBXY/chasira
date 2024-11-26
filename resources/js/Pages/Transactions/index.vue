@@ -4,7 +4,7 @@
             <div
                 class="flex items-center w-full gap-2.5 py-3 overflow-x-auto no-scrollbar"
             >
-                <CategoryCard />
+                <CategoryCard :data="props.categories" />
             </div>
 
             <div
@@ -14,8 +14,11 @@
                     type="text"
                     placeholder="Search Product..."
                     class="w-full h-full outline-none px-5"
+                    v-model="search"
                 />
+
                 <button
+                    @click="handleSearch()"
                     class="w-[40px] flex items-center bg-gray-100 justify-center rounded-full h-[40px]"
                 >
                     <PhMagnifyingGlass class="text-xl" />
@@ -24,9 +27,9 @@
 
             <div class="w-full">
                 <div
-                    class="mt-2 flex items-center justify-start gap-3 flex-wrap"
+                    class="mt-2 flex items-start justify-center gap-3 flex-wrap"
                 >
-                    <Card />
+                    <Card :data="props.products" />
                 </div>
             </div>
         </div>
@@ -35,7 +38,23 @@
 
 <script setup>
 import { PhMagnifyingGlass } from "@phosphor-icons/vue";
-import Card from "../components/card/Card.vue";
-import CategoryCard from "../components/card/CategoryCard.vue";
-import MainLayout from "../Layouts/MainLayout.vue";
+import Card from "../../components/card/Card.vue";
+import CategoryCard from "../../components/card/CategoryCard.vue";
+import MainLayout from "../../Layouts/MainLayout.vue";
+import { ref } from "vue";
+import { router } from "@inertiajs/vue3";
+
+const props = defineProps({
+    products: Object,
+    categories: Object,
+});
+
+const search = ref("" || new URL(document.location).searchParams.get("search"));
+
+const handleSearch = () => {
+    router.get("/", {
+        //send params "q" with value from state "search"
+        search: search.value,
+    });
+};
 </script>

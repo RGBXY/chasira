@@ -17,7 +17,7 @@
             >
                 <PhX class="text-2xl" />
             </button>
-            <div class="bg-white w-full max-w-xl">
+            <form @submit.prevent="pay()" class="bg-white w-full max-w-xl">
                 <div
                     class="h-16 mb-5 flex items-center justify-between border-b"
                 >
@@ -25,7 +25,7 @@
                         <h1 class="text-xl font-semibold">Payment Method</h1>
                     </div>
                     <button
-                        @click="pay()"
+                        type="submit"
                         class="h-9 px-4 font-semibold text-sm border border-violet-400 hover:bg-violet-400 rounded-md text-violet-400 hover:text-white"
                     >
                         Charge
@@ -97,7 +97,7 @@
                         />
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </template>
@@ -108,6 +108,7 @@ import formatPrice from "../../../core/helper/formatPrice";
 import { onMounted, ref, watch } from "vue";
 import { PhX } from "@phosphor-icons/vue";
 import { useReceiptStore } from "../../stores/receipt";
+import { useForm } from "@inertiajs/vue3";
 
 const method = useMethodStore();
 const receipt = useReceiptStore();
@@ -115,7 +116,30 @@ const receipt = useReceiptStore();
 const cash = ref(null);
 const cash2 = ref(0);
 const cash3 = ref(null);
+const discount = ref(0);
 const notEnoughCash = ref(false);
+
+const props = defineProps({
+    total: Number,
+});
+
+const pay = () => {
+    const form = useForm({
+        cash: cash3.value,
+        change: cash3.value - props.total,
+        discount: discount.value,
+        grand_total: cash3.value - props.total - discount.value,
+    });
+
+    if (cash3.value > props.total) {
+        form.post("/");
+        receipt.change = cash3.value - props.total;
+        method.modalPrintFnc(cash3.value);
+        method.modalPaymentFnc();
+    } else {
+        notEnoughCash.value = true;
+    }
+};
 
 const cashInput = () => {
     const price1Input = document.getElementById("price1");
@@ -138,39 +162,6 @@ const cashPrice = () => {
         cash2.value = 10000;
     }
 };
-
-const pay = () => {
-    console.log("cash : " + cash.value);
-    console.log("cash2 : " + cash2.value);
-    console.log("cash3 : " + cash3.value);
-
-    const price1Input = document.getElementById("price1");
-    const price2Input = document.getElementById("price2");
-
-    if (price2Input.checked === true) {
-        receipt.change = cash2.value - props.total;
-        method.modalPrintFnc(cash2.value);
-        method.modalPaymentFnc();
-    } else if (price1Input.checked === true || cash3.value === props.total) {
-        receipt.change = 0;
-        if (cash3.value === null || cash3.value === "") {
-            method.modalPrintFnc(cash.value);
-        } else {
-            method.modalPrintFnc(cash3.value);
-        }
-        method.modalPaymentFnc();
-    } else if (cash3.value > props.total) {
-        receipt.change = cash3.value - props.total;
-        method.modalPrintFnc(cash3.value);
-        method.modalPaymentFnc();
-    } else {
-        notEnoughCash.value = true;
-    }
-};
-
-const props = defineProps({
-    total: Number,
-});
 
 watch(
     () => props.total,

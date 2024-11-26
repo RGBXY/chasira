@@ -3,11 +3,13 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 
 Route::group(['middleware' => ['auth']], function () {
-    Route::inertia('/', 'HomeView')->name('home');
+    Route::resource('/', TransactionController::class)
+    ->middleware('permission:transactions.index|transactions.create|transactions.edit|transactions.delete');
 
     Route::resource('/products', ProductController::class)
     ->middleware('permission:products.index|products.create|products.edit|products.delete');

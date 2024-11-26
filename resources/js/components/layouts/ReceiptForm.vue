@@ -36,7 +36,7 @@
                             <div class="w-[150px] h-[80px]">
                                 <img
                                     class="w-full h-full object-cover rounded-xl"
-                                    :src="product.image"
+                                    :src="'storage/' + product.image"
                                     alt=""
                                 />
                             </div>
@@ -45,7 +45,7 @@
                                     {{ product.name }}
                                 </h1>
                                 <p class="text-sm mb-2 text-gray-500">
-                                    {{ formatPrice(product.price) }}
+                                    {{ formatPrice(product.sell_price) }}
                                 </p>
                                 <div class="flex items-center justify-between">
                                     <button
@@ -122,9 +122,11 @@ import { ref, watch } from "vue";
 import { useMethodStore } from "../../stores/method.js";
 import ModalPayment from "../modal/ModalPayment.vue";
 import ModalPrint from "../modal/ModalPrint.vue";
+import { useForm } from "@inertiajs/vue3";
 
 const receiptStore = useReceiptStore();
 const method = useMethodStore();
+const receipt = useReceiptStore();
 
 const total = ref(null);
 
@@ -164,7 +166,7 @@ const decrement = (id) => {
 
 const totalPrice = () => {
     total.value = receiptStore.products.reduce(
-        (acc, item) => acc + item.price * item.total,
+        (acc, item) => acc + item.sell_price * item.total,
         0
     );
 };
