@@ -12,7 +12,7 @@
             class="w-full bg-white flex relative transition-all overflow-y-auto duration-500 justify-center p-10 rounded-t-[80px]"
         >
             <button
-                @click="method.modalPaymentFnc"
+                @click="modalClose"
                 class="rounded-full p-1 absolute right-14 border border-black"
             >
                 <PhX class="text-2xl" />
@@ -108,7 +108,7 @@ import formatPrice from "../../../core/helper/formatPrice";
 import { onMounted, ref, watch } from "vue";
 import { PhX } from "@phosphor-icons/vue";
 import { useReceiptStore } from "../../stores/receipt";
-import { useForm } from "@inertiajs/vue3";
+import { router, useForm } from "@inertiajs/vue3";
 
 const method = useMethodStore();
 const receipt = useReceiptStore();
@@ -122,6 +122,11 @@ const notEnoughCash = ref(false);
 const props = defineProps({
     total: Number,
 });
+
+const modalClose = () => {
+    router.post("/transactions/destroyCart");
+    method.modalPaymentFnc();
+};
 
 const pay = () => {
     const form = useForm({

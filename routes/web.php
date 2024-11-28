@@ -3,7 +3,10 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProfitController;
+use App\Http\Controllers\SaleController;
 use App\Http\Controllers\TransactionController;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\Route;
 
 
@@ -16,6 +19,14 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::resource('/categories', CategoryController::class)
     ->middleware('permission:categories.index|categories.create|categories.edit|categories.delete');
+
+    Route::get('/', [TransactionController::class, 'index'])->middleware('permission:transactions.index');
+    Route::post('/transactions/addToCart', [TransactionController::class, 'cart'])->middleware('permission:transactions.index');
+    Route::post('/transactions/destroyCart', [TransactionController::class, 'destroyCart'])->middleware('permission:transactions.index');
+
+    Route::get('/sales', [SaleController::class, 'index'])->middleware('permission:sales.index');
+
+    Route::get('/profits', [ProfitController::class, 'index'])->middleware('permission:profits.index');
 
     Route::inertia('/employees', 'Employees/index')->name('employees');
     Route::inertia('/employee/add', 'Employees/CreateEdit')->name('add-employe');

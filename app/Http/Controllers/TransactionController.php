@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cart;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Transaction;
@@ -34,6 +35,34 @@ class TransactionController extends Controller
         'products' => $products,
         'categories' => $categories, // Opsional, untuk dropdown kategori
         ]); 
+    }
+
+    public function cart(Request $request){
+        $items = $request->all();
+
+        foreach ($items['products'] as $item) {
+            // Cek stok produk
+            
+            $product = Product::findOrFail($item['id']);
+            if ($product->stock < $item['total']) {
+                return redirect()->back()->with('error', "Product {$product->name} is out of stock!");
+            }
+    
+            // Masukkan ke tabel Cart
+            Cart::create([
+                'chasier_id' => Auth::id(),
+                'product_id' => $item['id'],
+                'qty'        => $item['total'],
+                'price'      => $product->sell_price * $item['total'],
+            ]);
+        }
+
+    }
+
+    public function destroyCart(){
+        Cart::where('chasier_id', Auth::id())->delete();
+
+        return redirect()->back()->with('success', 'Product Removed Successfully!.');
     }
 
     public function store(Request $request){

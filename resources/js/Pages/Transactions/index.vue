@@ -41,7 +41,7 @@ import { PhMagnifyingGlass } from "@phosphor-icons/vue";
 import Card from "../../components/card/Card.vue";
 import CategoryCard from "../../components/card/CategoryCard.vue";
 import MainLayout from "../../Layouts/MainLayout.vue";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { router } from "@inertiajs/vue3";
 
 const props = defineProps({
@@ -57,4 +57,8 @@ const handleSearch = () => {
         search: search.value,
     });
 };
+
+onMounted(() => {
+    router.post("/transactions/destroyCart");
+});
 </script>

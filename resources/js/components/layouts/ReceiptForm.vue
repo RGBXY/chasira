@@ -101,7 +101,7 @@
 
             <button
                 :disabled="receiptStore.products.length < 1"
-                @click="method.modalPaymentFnc"
+                @click="submit"
                 class="bg-violet-400 font-semibold text-xl text-white w-full h-[8%] border-t"
             >
                 Place Order
@@ -118,7 +118,7 @@
 import { PhMinus, PhPlus, PhReceipt, PhTrash } from "@phosphor-icons/vue";
 import { useReceiptStore } from "../../stores/receipt.js";
 import formatPrice from "../../../core/helper/formatPrice.js";
-import { ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useMethodStore } from "../../stores/method.js";
 import ModalPayment from "../modal/ModalPayment.vue";
 import ModalPrint from "../modal/ModalPrint.vue";
@@ -129,6 +129,17 @@ const method = useMethodStore();
 const receipt = useReceiptStore();
 
 const total = ref(null);
+
+const form = useForm({
+    products: [],
+});
+
+const submit = async () => {
+    form.products = receipt.products;
+    console.log(form);
+    form.post("/transactions/addToCart");
+    method.modalPaymentFnc();
+};
 
 const clearData = () => {
     receiptStore.products.forEach((item) => {

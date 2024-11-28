@@ -34,7 +34,7 @@ const MainMenuConfig: Array<MenuItem> = [
     },
     {
         heading: "Report Profit",
-        route: "/profit",
+        route: "/profits",
         PhIcon: PhHandCoins,
     },
     {
