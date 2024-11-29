@@ -27,9 +27,17 @@
 
             <div class="w-full">
                 <div
+                    v-if="props.products"
                     class="mt-2 flex items-start justify-center gap-3 flex-wrap"
                 >
                     <Card :data="props.products" />
+                </div>
+
+                <div
+                    v-else
+                    class="w-full flex items-center justify-center h-[400px]"
+                >
+                    <h1 class="text-2xl font-semibold">No Products Here</h1>
                 </div>
             </div>
         </div>

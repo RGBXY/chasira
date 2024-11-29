@@ -83,5 +83,32 @@ class TransactionController extends Controller
             'discount'      => $request->discount,
             'grand_total'   => $request->grand_total,
         ]);
+
+        $carts = Cart::where('chasier_id', Auth::id())->get();
+
+        foreach ($carts as $cart) {
+            
+            $total_buy_price = $cart->product->buy_price * $cart->qty;
+            $total_sell_price = $cart->product->sell_price * $cart->qty;
+            $discount = $cart->product->discount;
+
+            $profits = $total_sell_price - $total_buy_price - $discount;
+
+            $transaction->profits()->create([
+                'transaction_id' => $transaction->id,
+                'total' => $profits
+            ]);
+
+            $product = Product::find($cart->product_id);
+            $product->stock = $product->stock - $cart->qty;
+            $product->save();
+        }
+
+        Cart::where('chasier_id', Auth::id())->delete();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $transaction
+        ]);
     } 
 }

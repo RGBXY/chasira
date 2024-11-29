@@ -5,7 +5,10 @@
                 <div class="mb-7 flex items-center justify-between pb-4">
                     <h1 class="text-3xl font-bold mb-1">Report Sales</h1>
 
-                    <div class="flex gap-3 justify-between">
+                    <form
+                        @submit.prevent="filter"
+                        class="flex gap-3 justify-between"
+                    >
                         <div
                             class="w-[300px] h-12 border flex items-center pe-3 gap-3 bg-white rounded-md overflow-hidden"
                         >
@@ -18,7 +21,8 @@
                             <input
                                 type="date"
                                 id="start-date"
-                                v-model="search1"
+                                required
+                                v-model="start_date"
                                 placeholder="Search Category..."
                                 class="h-full outline-none w-full"
                             />
@@ -35,20 +39,21 @@
                             <input
                                 id="end-date"
                                 type="date"
-                                v-model="search"
+                                required
+                                v-model="end_date"
                                 placeholder="Search Category..."
                                 class="h-full outline-none w-full"
                             />
                         </div>
 
                         <button
-                            @click="handleSearch()"
+                            type="submit"
                             class="flex items-center h-12 justify-center px-4 gap-2 bg-violet-400 text-white rounded-md text-sm"
                         >
                             <PhFunnel weight="bold" />
                             Filter
                         </button>
-                    </div>
+                    </form>
                 </div>
 
                 <div class="w-full">
@@ -64,33 +69,52 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
+                            <tr v-for="sale in props.sales">
+                                <td class="border-2 p-3 border-gray-200">
+                                    <div
+                                        class="px-2.5 py-1.5 uppercase inline-block rounded-md"
+                                    >
+                                        {{ formatDate(sale.created_at) }}
+                                    </div>
+                                </td>
+                                <td class="border-2 p-3 border-gray-200">
+                                    <div
+                                        class="px-2.5 py-1.5 uppercase inline-block rounded-md"
+                                    >
+                                        {{ sale.invoice }}
+                                    </div>
+                                </td>
                                 <td class="border-2 p-3 border-gray-200">
                                     <div
                                         class="bg-gray-100 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
                                     >
-                                        20-11-2024, 08:50
+                                        {{ sale.chasier.name }}
                                     </div>
                                 </td>
                                 <td class="border-2 p-3 border-gray-200">
                                     <div
                                         class="px-2.5 py-1.5 uppercase inline-block rounded-md"
                                     >
-                                        TRX-J53U13F5M0
+                                        {{ formatPrice(sale.grand_total) }}
                                     </div>
                                 </td>
-                                <td class="border-2 p-3 border-gray-200">
+                            </tr>
+                            <tr class="bg-gray-100">
+                                <td
+                                    colspan="3"
+                                    class="border-2 p-3 border-gray-200 text-end"
+                                >
                                     <div
-                                        class="px-2.5 py-1.5 inline-block rounded-md"
+                                        class="px-2.5 py-1.5 font-semibold text-end uppercase inline-block rounded-md"
                                     >
-                                        Admin
+                                        Total Sum :
                                     </div>
                                 </td>
-                                <td class="border-2 p-3 border-gray-200">
+                                <td class="border-2 p-3 border-gray-200 text-end">
                                     <div
-                                        class="px-2.5 py-1.5 uppercase inline-block rounded-md"
+                                        class="px-2.5 py-1.5 font-semibold uppercase inline-block rounded-md"
                                     >
-                                        Rp.30.000
+                                        {{ formatPrice(props.total) }}
                                     </div>
                                 </td>
                             </tr>
@@ -99,58 +123,51 @@
                 </div>
             </div>
         </div>
-
-        <ModalDeactive>
-            <template #header> Are you absolutly sure? </template>
-            <template #description>
-                Are you sure you want to delete this category? Once deleted,
-                this action cannot be undone and the category will be
-                permanently removed.</template
-            >
-            <template #action>
-                <PrimButtonModal
-                    @click="method.modalDeactiveFnc()"
-                    text="Cancel"
-                    class="border-2"
-                />
-                <PrimButtonModal
-                    @click="destroy(method.deleteId)"
-                    text="Delete"
-                    class="bg-red-500 text-white"
-                />
-            </template>
-        </ModalDeactive>
     </Layout>
 </template>
 
 <script setup>
-import { PhFunnel, PhMagnifyingGlass, PhPlus } from "@phosphor-icons/vue";
+import { PhFunnel } from "@phosphor-icons/vue";
 import Layout from "../../Layouts/Layout.vue";
-import { Link, router } from "@inertiajs/vue3";
-import ModalDeactive from "../../components/modal/ModalDeactive.vue";
+import { router, useForm } from "@inertiajs/vue3";
 import { useMethodStore } from "../../stores/method";
-import PrimButtonModal from "../../components/ui/primButtonModal.vue";
+import formatPrice from "../../../core/helper/formatPrice";
 import { ref } from "vue";
 
-const method = useMethodStore();
+const start_date = ref(
+    "" || new URL(document.location).searchParams.get("start_date")
+);
 
-const search = ref("" || new URL(document.location).searchParams.get("search"));
+const end_date = ref(
+    "" || new URL(document.location).searchParams.get("end_date")
+);
 
 //define method search
-const handleSearch = () => {
-    router.get("/categories", {
-        //send params "q" with value from state "search"
-        search: search.value,
+const filter = () => {
+    //HTTP request
+    router.get("/sales/filter", {
+        //send data to server
+        start_date: start_date.value,
+        end_date: end_date.value,
     });
 };
 
-const destroy = (id) => {
-    router.delete(`/categories/${id}`);
-    method.modalDeactiveFnc();
+const formatDate = (date) => {
+    const options = {
+        day: "2-digit", // Tanggal
+        month: "2-digit", // Bulan
+        year: "numeric", // Tahun
+        hour: "2-digit", // Jam
+        minute: "2-digit", // Menit
+        hourCycle: "h23", // Format 24-jam
+    };
+
+    return new Intl.DateTimeFormat("en-US", options).format(new Date(date));
 };
 
-defineProps({
-    categories: Object,
+const props = defineProps({
+    sales: Array,
+    total: Number,
 });
 </script>
 

@@ -133,10 +133,10 @@ const pay = () => {
         cash: cash3.value,
         change: cash3.value - props.total,
         discount: discount.value,
-        grand_total: cash3.value - props.total - discount.value,
+        grand_total: props.total - discount.value,
     });
 
-    if (cash3.value > props.total) {
+    if (cash3.value >= props.total) {
         form.post("/");
         receipt.change = cash3.value - props.total;
         method.modalPrintFnc(cash3.value);

@@ -25,8 +25,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/transactions/destroyCart', [TransactionController::class, 'destroyCart'])->middleware('permission:transactions.index');
 
     Route::get('/sales', [SaleController::class, 'index'])->middleware('permission:sales.index');
+    Route::get('/sales/filter', [SaleController::class, 'filter']);
 
     Route::get('/profits', [ProfitController::class, 'index'])->middleware('permission:profits.index');
+    Route::get('/profits/filter', [ProfitController::class, 'filter']);
 
     Route::inertia('/employees', 'Employees/index')->name('employees');
     Route::inertia('/employee/add', 'Employees/CreateEdit')->name('add-employe');
