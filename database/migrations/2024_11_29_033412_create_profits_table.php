@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('transaction_id');
             $table->integer('total');
             $table->timestamps();
+            $table->foreign('transaction_id')->references('id')->on('transactions')->onDelete('cascade');
         });
     }
 

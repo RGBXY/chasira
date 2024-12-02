@@ -20,6 +20,7 @@ return new class extends Migration
             $table->bigInteger('discount');
             $table->bigInteger('grand_total');
             $table->timestamps();
+            $table->foreign('chasier_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

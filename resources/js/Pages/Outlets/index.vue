@@ -9,16 +9,18 @@
                         <div
                             class="w-[300px] h-12 border flex items-center px-3 gap-3 bg-white rounded-md overflow-hidden"
                         >
-                            <div
+                            <input
+                                type="text"
+                                v-model="search"
+                                placeholder="Search Outlets..."
+                                class="h-full outline-none w-full"
+                            />
+                            <button
+                                @click="handleSearch()"
                                 class="flex items-center justify-center rounded-full"
                             >
                                 <PhMagnifyingGlass class="text-lg" />
-                            </div>
-                            <input
-                                type="text"
-                                placeholder="Search Product..."
-                                class="h-full outline-none w-full"
-                            />
+                            </button>
                         </div>
 
                         <div class="h-12 rounded-md bg-white px-2 border">
@@ -26,14 +28,19 @@
                                 name=""
                                 id=""
                                 class="h-full w-full bg-transparent rounded-lg border-none outline-none"
+                                v-model="searchStat"
+                                @change="statusChange"
                             >
-                                <option value="">Active Outlets</option>
-                                <option value="">Inactive Outlets</option>
+                                <option value="" selected>All</option>
+                                <option value="active">Active Outlets</option>
+                                <option value="inactive">
+                                    Inactive Outlets
+                                </option>
                             </select>
                         </div>
 
                         <Link
-                            href="/outlets/add"
+                            href="/outlets/create"
                             class="text-white border rounded-lg bg-violet-400 flex items-center justify-center gap-2 px-4"
                         >
                             <PhPlus weight="bold" />
@@ -51,36 +58,72 @@
                                 <th class="text-start p-3">Outlets Name</th>
                                 <th class="text-start p-3">Address</th>
                                 <th class="text-start p-3">Phone</th>
+                                <th class="text-start p-3">Status</th>
                                 <th class="text-start p-3">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="outlet in outlets">
                                 <td class="border-2 p-3 border-gray-200">
-                                    {{ outlet.outlets_name }}
+                                    {{ outlet.name }}
+                                </td>
+                                <td class="border-2 p-3 border-gray-200">
+                                    {{ outlet.address }}
+                                </td>
+                                <td class="border-2 p-3 border-gray-200">
+                                    {{ outlet.phone }}
                                 </td>
                                 <td class="border-2 p-3 border-gray-200">
                                     <div
-                                        class="bg-gray-100 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
+                                        :class="
+                                            outlet.status === 'inactive'
+                                                ? 'bg-red-100 text-red-500'
+                                                : 'bg-blue-100 text-blue-500 '
+                                        "
+                                        class="px-2.5 py-1.5 uppercase font-bold inline-block text-sm rounded-md"
                                     >
-                                        {{ outlet.address }}
+                                        {{ outlet.status }}
                                     </div>
-                                </td>
-                                <td class="border-2 p-3 border-gray-200">
-                                    {{ outlet.phone_number }}
                                 </td>
                                 <td class="border-2 p-3 border-gray-200">
                                     <div class="flex items-start gap-2">
                                         <button
-                                            class="bg-blue-100 px-2.5 py-1.5 font-medium text-blue-500 text-sm rounded-md"
+                                            @click="
+                                                statusModal(
+                                                    outlet.status,
+                                                    outlet.id
+                                                )
+                                            "
+                                            :class="
+                                                outlet.status === 'active'
+                                                    ? 'border-red-300 text-red-500 hover:bg-red-50'
+                                                    : 'border-blue-300 text-blue-500 hover:bg-blue-50'
+                                            "
+                                            class="px-2.5 py-1.5 min-w-[100px] border-2 font-semibold text-sm rounded-md"
                                         >
-                                            Edit
+                                            {{
+                                                outlet.status === "active"
+                                                    ? "Deactivate"
+                                                    : "Activate"
+                                            }}
                                         </button>
-                                        <button
-                                            @click="method.modalDeactiveFnc()"
-                                            class="bg-red-100 px-2.5 py-1.5 font-medium text-red-500 text-sm rounded-md"
+
+                                        <Link
+                                            :href="`/outlets/${outlet.id}/edit`"
+                                            class="px-2.5 py-1.5 font-semibold text-blue-500 hover:bg-blue-50 border-blue-300 border-2 flex items-center gap-1.5 text-sm rounded-md"
                                         >
-                                            Deactive
+                                            <PhPencilLine />
+                                            <p>Edit</p>
+                                        </Link>
+
+                                        <button
+                                            @click="
+                                                statusModal(null, outlet.id)
+                                            "
+                                            class="px-2.5 py-1.5 font-semibold border-2 hover:bg-red-50 text-red-500 flex items-center gap-1.5 border-red-300 text-sm rounded-md"
+                                        >
+                                            <PhTrash />
+                                            <p>Delete</p>
                                         </button>
                                     </div>
                                 </td>
@@ -92,39 +135,108 @@
         </div>
 
         <!-- Modal -->
-        <ModalDeactive>
+        <ModalDelete>
             <template #header>Are you absolutely sure?</template>
-            <template #description
-                >Deactivating an outlets will remove them. Are you sure you want
-                to continue deactivating?</template
-            >
+            <template #description>
+                {{
+                    status === "inactive"
+                        ? "Are you sure you want to activate this outlet?"
+                        : status === "active"
+                        ? "Are you sure you want to deactivate this outlet?"
+                        : "Delete this outlet will remove it permanently."
+                }}
+            </template>
             <template #action>
                 <PrimButtonModal
-                    @click="method.modalDeactiveFnc"
+                    @click="method.modalDeleteFnc()"
                     class="bg-gray-200"
                     text="Close"
                 />
                 <PrimButtonModal
+                    v-if="status === 'inactive'"
+                    @click="activate(method.deleteId)"
+                    class="bg-blue-200 text-blue-600"
+                    text="Activate"
+                />
+                <PrimButtonModal
+                    v-else-if="status === 'active'"
+                    @click="deactivate(method.deleteId)"
                     class="bg-red-200 text-red-600"
-                    text="Deactive"
+                    text="Deactivate"
+                />
+                <PrimButtonModal
+                    v-else
+                    @click="destroy(method.deleteId)"
+                    class="bg-red-200 text-red-600"
+                    text="Delete"
                 />
             </template>
-        </ModalDeactive>
+        </ModalDelete>
+
         <!-- Modal -->
     </Layout>
 </template>
 
 <script setup>
-import { PhMagnifyingGlass, PhPlus } from "@phosphor-icons/vue";
+import {
+    PhMagnifyingGlass,
+    PhPencilLine,
+    PhPlus,
+    PhTrash,
+} from "@phosphor-icons/vue";
 import Layout from "../../Layouts/Layout.vue";
-import employees from "../../../core/data/employees";
-import { Link } from "@inertiajs/vue3";
-import outlets from "../../../core/data/outlets";
-import ModalDeactive from "../../components/modal/ModalDeactive.vue";
+import { Link, router } from "@inertiajs/vue3";
 import PrimButtonModal from "../../components/ui/primButtonModal.vue";
 import { useMethodStore } from "../../stores/method";
+import ModalDelete from "../../components/modal/ModalDelete.vue";
+import { ref } from "vue";
 
 const method = useMethodStore();
+const status = ref(null);
+
+const props = defineProps({
+    outlets: Object,
+});
+
+const search = ref(new URL(document.location).searchParams.get("search")) || "";
+const searchStat = ref(
+    new URL(document.location).searchParams.get("status") || ""
+);
+
+//define method search
+const handleSearch = () => {
+    router.get("/outlets", {
+        //send params "q" with value from state "search"
+        search: search.value,
+    });
+};
+
+const statusChange = () => {
+    router.get("/outlets", {
+        //send params "q" with value from state "search"
+        status: searchStat.value,
+    });
+};
+
+const statusModal = (data, id) => {
+    status.value = data;
+    method.modalDeleteFnc(id);
+};
+
+const activate = (id) => {
+    router.put(`/outlets/${id}/activate`);
+    method.modalDeleteFnc();
+};
+
+const deactivate = (id) => {
+    router.put(`/outlets/${id}/deactivate`);
+    method.modalDeleteFnc();
+};
+
+const destroy = (id) => {
+    router.delete(`/outlets/${id}`);
+    method.modalDeleteFnc();
+};
 </script>
 
 <style lang="scss" scoped></style>

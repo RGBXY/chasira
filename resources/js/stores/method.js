@@ -4,6 +4,8 @@ import { useReceiptStore } from "./receipt";
 export const useMethodStore = defineStore("method", {
     state: () => ({
         modalDeactive: false,
+        modalDelete: false,
+        deactiveId: null,
         deleteId: null,
         modalPyamentStat: false,
         modalPrintStat: false,
@@ -29,6 +31,10 @@ export const useMethodStore = defineStore("method", {
         },
         modalDeactiveFnc(id) {
             this.modalDeactive = !this.modalDeactive;
+            this.deactiveId = id;
+        },
+        modalDeleteFnc(id) {
+            this.modalDelete = !this.modalDelete;
             this.deleteId = id;
         },
     },

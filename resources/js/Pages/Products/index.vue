@@ -98,19 +98,21 @@
                                     <div class="flex items-start gap-2">
                                         <Link
                                             :href="`/products/${product.id}/edit`"
-                                            class="bg-blue-100 px-2.5 py-1.5 font-medium text-blue-500 text-sm rounded-md"
+                                            class="border-blue-300 border-2 px-2.5 py-1.5 flex items-center gap-1.5 hover:bg-blue-50 font-semibold text-blue-500 text-sm rounded-md"
                                         >
-                                            Edit
+                                            <PhPencilLine />
+                                            <p>Edit</p>
                                         </Link>
                                         <button
                                             @click="
-                                                method.modalDeactiveFnc(
+                                                method.modalDeleteFnc(
                                                     product.id
                                                 )
                                             "
-                                            class="bg-red-100 px-2.5 py-1.5 font-medium text-red-500 text-sm rounded-md"
+                                            class="border-red-300 border-2 px-2.5 py-1.5 flex items-center gap-1.5 hover:bg-red-50 font-semibold text-red-500 text-sm rounded-md"
                                         >
-                                            Delete
+                                            <PhTrash />
+                                            <p>Delete</p>
                                         </button>
                                     </div>
                                 </td>
@@ -121,7 +123,7 @@
             </div>
         </div>
 
-        <ModalDeactive>
+        <ModalDelete>
             <template #header> Are you absolutly sure? </template>
             <template #description>
                 Are you sure you want to delete this product? Once deleted, this
@@ -130,7 +132,7 @@
             >
             <template #action>
                 <PrimButtonModal
-                    @click="method.modalDeactiveFnc()"
+                    @click="method.modalDeleteFnc()"
                     text="Cancel"
                     class="border-2"
                 />
@@ -140,19 +142,24 @@
                     class="bg-red-500 text-white"
                 />
             </template>
-        </ModalDeactive>
+        </ModalDelete>
     </Layout>
 </template>
 
 <script setup>
-import { PhMagnifyingGlass, PhPlus } from "@phosphor-icons/vue";
+import {
+    PhMagnifyingGlass,
+    PhPencilLine,
+    PhPlus,
+    PhTrash,
+} from "@phosphor-icons/vue";
 import Layout from "../../Layouts/Layout.vue";
 import formatPrice from "../../../core/helper/formatPrice";
 import { Link, router } from "@inertiajs/vue3";
-import ModalDeactive from "../../components/modal/ModalDeactive.vue";
 import { useMethodStore } from "../../stores/method";
 import PrimButtonModal from "../../components/ui/primButtonModal.vue";
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
+import ModalDelete from "../../components/modal/ModalDelete.vue";
 
 const method = useMethodStore();
 
@@ -183,7 +190,7 @@ const props = defineProps({
 
 const destroy = (id) => {
     router.delete(`/products/${id}`);
-    method.modalDeactiveFnc();
+    method.modalDeleteFnc();
 };
 </script>
 

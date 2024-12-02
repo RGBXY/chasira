@@ -105,10 +105,5 @@ class TransactionController extends Controller
         }
 
         Cart::where('chasier_id', Auth::id())->delete();
-
-        return response()->json([
-            'success' => true,
-            'data'    => $transaction
-        ]);
     } 
 }
