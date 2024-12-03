@@ -22,6 +22,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'asigned_outlet',
+        'role',
+        'user_id',
     ];
 
     public function category(){

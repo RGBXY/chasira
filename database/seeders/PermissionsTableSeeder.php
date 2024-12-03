@@ -33,6 +33,16 @@ class PermissionsTableSeeder extends Seeder
         Permission::create(['name' => 'outlets.edit']);
         Permission::create(['name' => 'outlets.status']);
 
+        Permission::create(['name' => 'roles.index']);
+        Permission::create(['name' => 'roles.create']);
+        Permission::create(['name' => 'roles.edit']);
+        Permission::create(['name' => 'roles.delete']);
+
+        Permission::create(['name' => 'employees.index']);
+        Permission::create(['name' => 'employees.create']);
+        Permission::create(['name' => 'employees.edit']);
+        Permission::create(['name' => 'employees.delete']);
+
         Permission::create(['name' => 'sales.index']);
 
         Permission::create(['name' => 'profits.index']);

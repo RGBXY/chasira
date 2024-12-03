@@ -3,7 +3,7 @@
         <div class="py-8 px-7 flex items-center justify-center">
             <div class="px-10 py-8 w-full max-w-7xl border bg-white rounded-lg">
                 <div class="mb-7 flex items-center justify-between pb-4">
-                    <h1 class="text-3xl font-bold mb-1">Employees</h1>
+                    <h1 class="text-3xl font-bold mb-1">Roles</h1>
 
                     <div class="flex gap-3 justify-between">
                         <div
@@ -12,7 +12,7 @@
                             <input
                                 type="text"
                                 v-model="search"
-                                placeholder="Search Employees..."
+                                placeholder="Search Roles..."
                                 class="h-full outline-none w-full"
                             />
                             <button
@@ -24,11 +24,11 @@
                         </div>
 
                         <Link
-                            href="/employees/create"
+                            href="/roles/create"
                             class="text-white border rounded-lg bg-violet-400 flex items-center justify-center gap-2 px-4"
                         >
                             <PhPlus weight="bold" />
-                            <p>Add Employees</p>
+                            <p>Add Roles</p>
                         </Link>
                     </div>
                 </div>
@@ -40,45 +40,40 @@
                         <thead>
                             <tr class="">
                                 <th class="text-start p-3">Name</th>
-                                <th class="text-start p-3">Asigned Outlet</th>
-                                <th class="text-start p-3">Role</th>
-                                <th class="text-start p-3">Status</th>
+                                <th class="text-start p-3 w-[65%]">
+                                    Permissions
+                                </th>
                                 <th class="text-start p-3">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="item in user">
+                            <tr v-for="role in roles">
                                 <td class="border-2 p-3 border-gray-200">
-                                    <p>{{ item.name }}</p>
-                                </td>
-                                <td class="border-2 p-3 border-gray-200">
-                                    <p>{{ item.asigned_outlet }}</p>
+                                    <p>{{ role.name }}</p>
                                 </td>
                                 <td class="border-2 p-3 gap-3 border-gray-200">
-                                    <div
-                                        class="bg-gray-100 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
-                                    >
-                                        <p>{{ item.role }}</p>
-                                    </div>
-                                </td>
-                                <td class="border-2 p-3 border-gray-200">
-                                    <div
-                                        class="px-2.5 py-1.5 bg-red-100 text-red-500 uppercase font-bold inline-block text-sm rounded-md"
-                                    >
-                                        {{ item.status }}
+                                    <div class="flex gap-2 flex-wrap">
+                                        <div
+                                            v-for="permission in role.permissions"
+                                            class="bg-gray-100 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
+                                        >
+                                            <p>{{ permission.name }}</p>
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="border-2 p-3 border-gray-200">
                                     <div class="flex items-start gap-2">
                                         <Link
-                                            :href="``"
+                                            :href="`/roles/${role.id}/edit`"
                                             class="border-blue-300 border-2 px-2.5 py-1.5 flex items-center gap-1.5 hover:bg-blue-50 font-semibold text-blue-500 text-sm rounded-md"
                                         >
                                             <PhPencilLine />
                                             <p>Edit</p>
                                         </Link>
                                         <button
-                                            @click="method.modalDeleteFnc()"
+                                            @click="
+                                                method.modalDeleteFnc(role.id)
+                                            "
                                             class="border-red-300 border-2 px-2.5 py-1.5 flex items-center gap-1.5 hover:bg-red-50 font-semibold text-red-500 text-sm rounded-md"
                                         >
                                             <PhTrash />
@@ -142,10 +137,8 @@ const handleSearch = () => {
 };
 
 const props = defineProps({
-    user: Object,
+    roles: Object,
 });
-
-console.log(props.user);
 
 const destroy = (id) => {
     router.delete(`/roles/${id}`);

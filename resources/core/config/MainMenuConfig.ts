@@ -54,7 +54,7 @@ const MainMenuConfig: Array<MenuItem> = [
     },
     {
         heading: "Role",
-        route: "/role",
+        route: "/roles",
         PhIcon: PhShieldCheck,
     },
     {
