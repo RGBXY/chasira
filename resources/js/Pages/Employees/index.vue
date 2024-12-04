@@ -35,7 +35,7 @@
 
                 <div class="w-full">
                     <table
-                        class="table-fixed w-full rounded-lg border-2 border-gray-200 overflow-hidden"
+                        class="table-auto w-full rounded-lg border-2 border-gray-200 overflow-hidden"
                     >
                         <thead>
                             <tr class="">
@@ -52,33 +52,70 @@
                                     <p>{{ item.name }}</p>
                                 </td>
                                 <td class="border-2 p-3 border-gray-200">
-                                    <p>{{ item.asigned_outlet }}</p>
+                                    <p>
+                                        {{
+                                            item.outlet
+                                                ? item.outlet.name
+                                                : "null"
+                                        }}
+                                    </p>
                                 </td>
                                 <td class="border-2 p-3 gap-3 border-gray-200">
                                     <div
                                         class="bg-gray-100 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
                                     >
-                                        <p>{{ item.role }}</p>
+                                        <p>
+                                            {{
+                                                item.role
+                                                    ? item.role.name
+                                                    : "null"
+                                            }}
+                                        </p>
                                     </div>
                                 </td>
                                 <td class="border-2 p-3 border-gray-200">
                                     <div
-                                        class="px-2.5 py-1.5 bg-red-100 text-red-500 uppercase font-bold inline-block text-sm rounded-md"
+                                        :class="
+                                            item.status === 'active'
+                                                ? 'bg-blue-100 text-blue-500'
+                                                : 'bg-red-100 text-red-500'
+                                        "
+                                        class="px-2.5 py-1.5 uppercase font-bold inline-block text-sm rounded-md"
                                     >
                                         {{ item.status }}
                                     </div>
                                 </td>
                                 <td class="border-2 p-3 border-gray-200">
                                     <div class="flex items-start gap-2">
+                                        <button
+                                            @click="
+                                                statusModal(
+                                                    item.status,
+                                                    item.id
+                                                )
+                                            "
+                                            :class="
+                                                item.status === 'active'
+                                                    ? 'border-red-300 text-red-500 hover:bg-red-50'
+                                                    : 'border-blue-300 text-blue-500 hover:bg-blue-50'
+                                            "
+                                            class="px-2.5 py-1.5 min-w-[100px] border-2 font-semibold text-sm rounded-md"
+                                        >
+                                            {{
+                                                item.status === "active"
+                                                    ? "Deactivate"
+                                                    : "Activate"
+                                            }}
+                                        </button>
                                         <Link
-                                            :href="``"
+                                            :href="`/employees/${item.id}/edit`"
                                             class="border-blue-300 border-2 px-2.5 py-1.5 flex items-center gap-1.5 hover:bg-blue-50 font-semibold text-blue-500 text-sm rounded-md"
                                         >
                                             <PhPencilLine />
                                             <p>Edit</p>
                                         </Link>
                                         <button
-                                            @click="method.modalDeleteFnc()"
+                                            @click="statusModal(null, item.id)"
                                             class="border-red-300 border-2 px-2.5 py-1.5 flex items-center gap-1.5 hover:bg-red-50 font-semibold text-red-500 text-sm rounded-md"
                                         >
                                             <PhTrash />
@@ -93,26 +130,46 @@
             </div>
         </div>
 
+        <!-- Modal -->
         <ModalDelete>
-            <template #header> Are you absolutly sure? </template>
+            <template #header>Are you absolutely sure?</template>
             <template #description>
-                Are you sure you want to delete this Role? Once deleted, this
-                action cannot be undone and the role will be permanently
-                removed.</template
-            >
+                {{
+                    status === "inactive"
+                        ? "Are you sure you want to activate this employee?"
+                        : status === "active"
+                        ? "Are you sure you want to deactivate this employee?"
+                        : "Delete this employee will remove it permanently."
+                }}
+            </template>
             <template #action>
                 <PrimButtonModal
                     @click="method.modalDeleteFnc()"
-                    text="Cancel"
-                    class="border-2"
+                    class="bg-gray-200"
+                    text="Close"
                 />
                 <PrimButtonModal
+                    v-if="status === 'inactive'"
+                    @click="activate(method.deleteId)"
+                    class="bg-blue-200 text-blue-600"
+                    text="Activate"
+                />
+                <PrimButtonModal
+                    v-else-if="status === 'active'"
+                    @click="deactivate(method.deleteId)"
+                    class="bg-red-200 text-red-600"
+                    text="Deactivate"
+                />
+                <PrimButtonModal
+                    v-else
                     @click="destroy(method.deleteId)"
+                    class="bg-red-200 text-red-600"
                     text="Delete"
-                    class="bg-red-500 text-white"
                 />
             </template>
         </ModalDelete>
+
+        <!-- Modal -->
     </Layout>
 </template>
 
@@ -131,11 +188,12 @@ import ModalDelete from "../../components/modal/ModalDelete.vue";
 import { ref } from "vue";
 
 const method = useMethodStore();
+const status = ref(null);
 
 const search = ref("" || new URL(document.location).searchParams.get("search"));
 
 const handleSearch = () => {
-    router.get("/roles", {
+    router.get("/employees", {
         //send params "q" with value from state "search"
         search: search.value,
     });
@@ -145,10 +203,23 @@ const props = defineProps({
     user: Object,
 });
 
-console.log(props.user);
+const statusModal = (data, id) => {
+    status.value = data;
+    method.modalDeleteFnc(id);
+};
 
 const destroy = (id) => {
-    router.delete(`/roles/${id}`);
+    router.delete(`/employees/${id}`);
+    method.modalDeleteFnc();
+};
+
+const activate = (id) => {
+    router.put(`/employees/${id}/activate`);
+    method.modalDeleteFnc();
+};
+
+const deactivate = (id) => {
+    router.put(`/employees/${id}/deactivate`);
     method.modalDeleteFnc();
 };
 </script>

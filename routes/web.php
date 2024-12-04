@@ -50,6 +50,8 @@ Route::group(['middleware' => ['auth']], function () {
     // Employe Route
     Route::resource('/employees', EmployeeController::class)
     ->middleware('permission:employees.index|employees.create|employees.edit|employees.delete');
+    Route::put('/employees/{id}/activate', [EmployeeController::class, 'activate']);
+    Route::put('/employees/{id}/deactivate', [EmployeeController::class, 'deactivate']);
 
     Route::inertia('/dashboard', 'DashboardView')->name('dashboard');
 

@@ -236,7 +236,7 @@ const deactivate = (id) => {
 const destroy = (id) => {
     router.delete(`/outlets/${id}`);
     method.modalDeleteFnc();
-};
+};  
 </script>
 
 <style lang="scss" scoped></style>

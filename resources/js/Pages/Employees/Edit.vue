@@ -3,7 +3,7 @@
         <div class="py-8 px-7 flex items-center justify-center">
             <div class="px-10 py-8 w-full max-w-7xl border bg-white rounded-lg">
                 <div class="mb-6 flex items-center justify-between">
-                    <h1 class="text-3xl font-bold mb-1">Add Employee</h1>
+                    <h1 class="text-3xl font-bold mb-1">Edit Employee</h1>
                 </div>
 
                 <form
@@ -127,23 +127,27 @@ import Layout from "../../Layouts/Layout.vue";
 import TextInput from "../../components/ui/TextInput.vue";
 import { useForm } from "@inertiajs/vue3";
 
-const form = useForm({
-    name: "",
-    email: "",
-    password: "",
-    outlet_id: "",
-    role_id: "",
-    status: "active",
+const props = defineProps({
+    user: Object,
+    roles: Object,
+    outlets: Object,
 });
 
-const props = defineProps({
-    outlets: Object,
-    roles: Object,
+console.log(props.user);
+
+const form = useForm({
+    name: props.user.name,
+    email: props.user.email,
+    password: props.user.password,
+    outlet_id: props.user.outlet_id,
+    role_id: props.user.role_id,
+    status: props.user.status,
 });
 
 const submit = () => {
-    form.post("/employees");
+    form.put(`/employees/${props.user.id}`);
 };
+
 </script>
 
 <style lang="scss" scoped></style>

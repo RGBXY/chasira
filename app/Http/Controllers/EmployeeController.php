@@ -6,13 +6,19 @@ use App\Models\Outlet;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
 
 class EmployeeController extends Controller
 {
     public function index(){
-        $user = User::where('user_id', Auth::id())->latest()->get();
+        $user = User::where('parent_id', Auth::id())
+        ->when(request()->search, function ($query) {
+            $query->where('name', 'like', '%' . request()->search . '%'); 
+        })
+        ->with('outlet')->with('role')
+        ->latest()->get();
 
         return Inertia::render("Employees/index", [
             'user' => $user
@@ -20,7 +26,7 @@ class EmployeeController extends Controller
     }
 
     public function create(){
-        $outlets = Outlet::where('user_id', Auth::id())->get();
+        $outlets = Outlet::where('user_id', Auth::id())->where('status', 'active')->get();
         $roles = Role::where('created_by', Auth::id())->get();
 
         return Inertia::render("Employees/Create", [
@@ -33,24 +39,72 @@ class EmployeeController extends Controller
 
         $request->validate([
             'name' => ['required', 'max:225'],
-            'email' => ['required', 'email', 'max:225', 'unique:users'],
+            'email' => ['required', 'email', 'max:225', 'unique:users,email'],
             'password' => ['required'],
-            'asigned_outlet' => ['required'],
-            'role' => ['required'],
+            'role_id' => ['required'],
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
-            'asigned_outlet' => $request->asigned_outlet,
+            'outlet_id' => $request->outlet_id,
             'status' => $request->status,
-            'user_id' => Auth::id(),
-            'role' => $request->role
+            'parent_id' => Auth::id(),
+            'role_id' => $request->role_id
         ]);
 
-        $user->assignRole($request->roles);
+        $user->assignRole($request->role_id);
 
         return redirect('/employees');
+    }
+
+    public function edit($id){
+        $employee = User::findOrFail($id);
+        $outlets = Outlet::where('user_id', Auth::id())->where('status', 'active')->get();
+        $roles = Role::where('created_by', Auth::id())->get();
+
+        return Inertia::render('Employees/Edit', [
+            'user' => $employee,
+            'outlets' => $outlets,
+            'roles' => $roles
+        ]);
+    }
+
+    public function update(Request $request, User $employee){
+        $request->validate([
+            'name' => ['required', 'max:225'],
+            'email' => ['required', 'email', 'max:225', Rule::unique('users')->ignore($employee->id)],
+            'role_id' => ['required'],
+        ]);
+
+         $employee->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+            'outlet_id' => $request->outlet_id,
+            'status' => $request->status,
+            'role_id' => $request->role_id
+        ]);
+
+        return redirect("/employees");
+    }
+
+    public function destroy($id){
+        $employee = User::findOrFail($id);
+
+        $employee->delete();
+    }
+
+    public function deactivate($id){
+        $employee = User::findOrFail($id);
+
+        $employee->update(['status' => 'inactive']);
+    }
+
+    public function activate($id){
+        $employee = User::findOrFail($id);
+
+        $employee->update(['status' => 'active']);
     }
 }
