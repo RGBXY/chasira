@@ -1,6 +1,6 @@
 <template>
     <div
-        class="h-16 w-full flex sticky top-0 bg-gray-50 items-center px-7 justify-between"
+        class="h-16 w-full flex sticky top-0 bg-gray-50 z-40 items-center px-7 justify-between"
     >
         <div class="flex items-center gap-3">
             <button

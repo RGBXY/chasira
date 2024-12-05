@@ -25,7 +25,7 @@
                             />
                         </div>
                         <div>
-                            <h1 class="font-semibold">Budiono Sirergar</h1>
+                            <h1 class="font-semibold">{{ logedUser.name }}</h1>
                             <p class="text-sm text-gray-500 font-semibold">
                                 Owner
                             </p>
@@ -102,6 +102,8 @@ import { Link, usePage } from "@inertiajs/vue3";
 import MainMenuConfig from "../../../core/config/MainMenuConfig";
 
 const page = usePage();
+const logedUser = page.props.auth.user;
+console.log(logedUser);
 
 const method = useMethodStore();
 </script>
