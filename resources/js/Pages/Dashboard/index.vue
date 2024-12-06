@@ -105,16 +105,15 @@
                     </div>
                 </div>
 
-                <div class="py-8 flex w-full items-center justify-center">
+                <div class="py-8 flex gap-5 w-full justify-center">
                     <div
-                        class="px-10 py-8 w-full border border-gray-300 bg-white rounded-lg"
+                        class="px-10 py-8 flex-1 border border-gray-300 bg-white rounded-lg"
                     >
-                        <div
-                            class="mb-3 flex items-center justify-between pb-4"
-                        >
-                            <h1 class="text-3xl font-bold mb-1">
+                        <div class="mb-3 flex flex-col pb-4">
+                            <h1 class="text-2xl font-bold mb-1">
                                 Best Seller Products
                             </h1>
+                            <p class="text-gray-500">Product best seller</p>
                         </div>
 
                         <div class="w-full">
@@ -125,51 +124,78 @@
                                     <tr class="">
                                         <th class="text-start p-3">No</th>
                                         <th class="text-start p-3">Name</th>
-                                        <th class="text-start p-3">Category</th>
                                         <th class="text-start p-3">
-                                            Buy Price
+                                            Total Sell
                                         </th>
-                                        <th class="text-start p-3">
-                                            Sell Price
-                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        v-for="(product, index) in best_product"
+                                    >
+                                        <td
+                                            class="border-2 p-3 border-gray-200"
+                                        >
+                                            <p>{{ index + 1 }}</p>
+                                        </td>
+                                        <td
+                                            class="border-2 p-3 border-gray-200"
+                                        >
+                                            <p>{{ product.name }}</p>
+                                        </td>
+                                        <td
+                                            class="border-2 p-3 border-gray-200"
+                                        >
+                                            <p>{{ product.total }}</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div
+                        class="px-10 py-8 flex-1 border border-gray-300 bg-white rounded-lg"
+                    >
+                        <div class="mb-3 flex flex-col pb-4">
+                            <h1 class="text-2xl font-bold mb-1">
+                                Should Restock Product
+                            </h1>
+                            <p class="text-gray-500">
+                                Product that need to restock
+                            </p>
+                        </div>
+
+                        <div class="w-full">
+                            <table
+                                class="table-auto w-full rounded-lg border-2 border-gray-200 overflow-hidden"
+                            >
+                                <thead>
+                                    <tr class="">
+                                        <th class="text-start p-3">No</th>
+                                        <th class="text-start p-3">Name</th>
                                         <th class="text-start p-3">Stock</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
+                                    <tr
+                                        v-for="(
+                                            product, index
+                                        ) in stock_product"
+                                    >
                                         <td
                                             class="border-2 p-3 border-gray-200"
                                         >
-                                            <p>1</p>
+                                            <p>{{ index + 1 }}</p>
                                         </td>
                                         <td
                                             class="border-2 p-3 border-gray-200"
                                         >
-                                            <p>Buku Sidu</p>
+                                            <p>{{ product.name }}</p>
                                         </td>
                                         <td
                                             class="border-2 p-3 border-gray-200"
                                         >
-                                            <p>Books</p>
-                                        </td>
-                                        <td
-                                            class="border-2 p-3 gap-3 border-gray-200"
-                                        >
-                                            Rp 10.000
-                                        </td>
-                                        <td
-                                            class="border-2 p-3 border-gray-200"
-                                        >
-                                            Rp 12.000
-                                        </td>
-                                        <td
-                                            class="border-2 p-3 border-gray-200"
-                                        >
-                                            <div
-                                                class="bg-gray-100 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
-                                            >
-                                                <p>40</p>
-                                            </div>
+                                            <p>{{ product.stock }}</p>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -225,11 +251,29 @@ import formatPrice from "../../../core/helper/formatPrice";
 import { ref } from "vue";
 
 const props = defineProps({
-    total_sales: Object,
-    profit: Object,
-    total_employees: Object,
-    total_outlets: Object,
+    total_sales: String,
+    profit: String,
+    total_employees: Number,
+    total_outlets: Number,
+
+    sales_date_week: Array,
+    grand_total_week: Array,
+
+    profits_date_week: Array,
+    profits_total_week: Array,
+
+    best_outlets: Array,
+    best_outlets_transaction: Array,
+
+    best_employees: Array,
+    transaction_count_employees: Array,
+
+    best_product: Array,
+
+    stock_product: Array,
 });
+
+console.log(props.best_employees);
 
 Chart.register(...registerables);
 
@@ -247,52 +291,44 @@ const options = ref({
 });
 
 const sales = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    labels: props.sales_date_week,
     datasets: [
         {
             label: ["Sales"],
-            data: [3000, 10000, 7000, 20000, 30000],
+            data: props.grand_total_week,
             backgroundColor: ["#7c3aed"],
         },
     ],
 };
 
 const profits = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    labels: props.profits_date_week,
     datasets: [
         {
             label: ["Sales"],
-            data: [3000, 10000, 7000, 20000, 30000],
+            data: props.profits_total_week,
             backgroundColor: ["#7c3aed"],
         },
     ],
 };
 
 const outlets = {
-    labels: [
-        "Oulet1",
-        "Outlet2",
-        "Outlet3",
-        "Outlet4",
-        "Outlet5",
-        "Outlet6",
-        "Outlet7",
-    ],
+    labels: props.best_outlets,
     datasets: [
         {
             label: ["Transaction"],
-            data: [80, 60, 47, 30, 20, 15, 10],
+            data: props.best_outlets_transaction,
             backgroundColor: ["#7c3aed"],
         },
     ],
 };
 
 const employees = {
-    labels: ["Budi", "Tina", "Addie", "Udin", "Irpan", "Robby", "Abas"],
+    labels: props.best_employees,
     datasets: [
         {
             label: ["Transaction"],
-            data: [80, 60, 47, 30, 20, 15, 10],
+            data: props.transaction_count_employees,
             backgroundColor: ["#7c3aed"],
         },
     ],

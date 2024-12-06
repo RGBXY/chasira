@@ -14,9 +14,9 @@ use Inertia\Inertia;
 class TransactionController extends Controller
 {
     public function index(){
-        $products = Product::where('user_id', Auth::id())
+        $products = Product::where('user_id', getUserIdForQuery())
+        ->orWhereIn('user_id', Auth::user()->employees->pluck('id'))
         ->with('category')
-
         ->when(request()->search, function ($query) {
             $query->where('name', 'like', '%' . request()->search . '%');
         })
@@ -26,7 +26,7 @@ class TransactionController extends Controller
         ->latest()
         ->get();
 
-        $categories = Category::where('user_id', Auth::id())
+        $categories = Category::where('user_id', getUserIdForQuery())
         ->withCount('products') 
         ->latest()
         ->get();
@@ -61,7 +61,7 @@ class TransactionController extends Controller
 
     public function destroyCart(){
         Cart::where('chasier_id', Auth::id())->delete();
-
+        
         return redirect()->back()->with('success', 'Product Removed Successfully!.');
     }
 
@@ -87,6 +87,12 @@ class TransactionController extends Controller
         $carts = Cart::where('chasier_id', Auth::id())->get();
 
         foreach ($carts as $cart) {
+            $transaction->details()->create([
+                'transaction_id'    => $transaction->id,
+                'product_id'        => $cart->product_id,
+                'qty'               => $cart->qty,
+                'price'             => $cart->price,
+            ]);
             
             $total_buy_price = $cart->product->buy_price * $cart->qty;
             $total_sell_price = $cart->product->sell_price * $cart->qty;

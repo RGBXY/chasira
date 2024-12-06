@@ -13,7 +13,8 @@ class RoleController extends Controller
     
     public function index()
     {
-        $roles = Role::where('created_by', Auth::id()) 
+        $roles = Role::where('created_by', getUserIdForQuery())
+            ->orWhereIn('created_by', Auth::user()->employees->pluck('id'))
             ->with('permissions') 
             ->when(request()->search, function ($query) {
                 $query->where('name', 'like', '%' . request()->search . '%'); 

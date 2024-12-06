@@ -14,6 +14,8 @@ class EmployeeController extends Controller
 {
     public function index(){
         $user = User::where('parent_id', Auth::id())
+        ->orWhereIn('id', Auth::user()->employees->pluck('id'))
+
         ->when(request()->search, function ($query) {
             $query->where('name', 'like', '%' . request()->search . '%'); 
         })
@@ -26,8 +28,8 @@ class EmployeeController extends Controller
     }
 
     public function create(){
-        $outlets = Outlet::where('user_id', Auth::id())->where('status', 'active')->get();
-        $roles = Role::where('created_by', Auth::id())->get();
+        $outlets = Outlet::where('user_id', getUserIdForQuery())->where('status', 'active')->get();
+        $roles = Role::where('created_by', getUserIdForQuery())->get();
 
         return Inertia::render("Employees/Create", [
             'outlets' => $outlets,
@@ -61,8 +63,8 @@ class EmployeeController extends Controller
 
     public function edit($id){
         $employee = User::findOrFail($id);
-        $outlets = Outlet::where('user_id', Auth::id())->where('status', 'active')->get();
-        $roles = Role::where('created_by', Auth::id())->get();
+        $outlets = Outlet::where('user_id', getUserIdForQuery())->where('status', 'active')->get();
+        $roles = Role::where('created_by', getUserIdForQuery())->get();
 
         return Inertia::render('Employees/Edit', [
             'user' => $employee,

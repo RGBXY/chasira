@@ -4,7 +4,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\EmployeesController;
 use App\Http\Controllers\OutletController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfitController;
@@ -54,7 +53,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::put('/employees/{id}/activate', [EmployeeController::class, 'activate']);
     Route::put('/employees/{id}/deactivate', [EmployeeController::class, 'deactivate']);
 
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware('permission:dashboard.index')
+    ->name('dashboard');
 
     Route::post('/logout', [AuthController::class, 'logout']);
 });

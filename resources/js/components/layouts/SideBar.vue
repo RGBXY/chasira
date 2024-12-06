@@ -103,7 +103,6 @@ import MainMenuConfig from "../../../core/config/MainMenuConfig";
 
 const page = usePage();
 const logedUser = page.props.auth.user;
-console.log(logedUser);
 
 const method = useMethodStore();
 </script>

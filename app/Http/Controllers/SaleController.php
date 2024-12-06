@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class SaleController extends Controller
 {
     public function index(){
         $sales = Transaction::with('chasier')
+        ->where('chasier_id', getUserIdForQuery())
+        ->orWhereIn('chasier_id', Auth::user()->employees->pluck('id'))
         ->whereDate('created_at', Carbon::today())
         ->get();
 

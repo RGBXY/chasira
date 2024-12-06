@@ -29,16 +29,16 @@ class User extends Authenticatable
         'parent_id',
     ];
 
+    public function employees(){
+        return $this->hasMany(User::class, 'parent_id', 'id');
+    }
+
     public function category(){
         return $this->hasMany(Category::class);
     }
 
     public function product(){
         return $this->hasMany(Product::class);
-    }
-
-    public function childs(){
-        return $this->hasMany(User::class, 'parent_id');
     }
 
     public function outlet(){

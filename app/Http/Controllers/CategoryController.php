@@ -11,7 +11,7 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::where('user_id', Auth::id())
+        $categories = Category::where('user_id', getUserIdForQuery())
         ->withCount('products')
         ->when(request()->search, function($categories) {
             $categories = $categories->where('name', 'like', '%'. request()->search . '%');

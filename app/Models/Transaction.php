@@ -15,6 +15,10 @@ class Transaction extends Model
         'grand_total',
     ];
 
+    public function details(){
+        return $this->hasMany(TransactionDetail::class);
+    }
+
     public function chasier(){
         return $this->belongsTo(User::class, 'chasier_id');
     }

@@ -46,6 +46,9 @@ class PermissionsTableSeeder extends Seeder
         Permission::create(['name' => 'sales.index']);
 
         Permission::create(['name' => 'profits.index']);
+
+        Permission::create(['name' => 'dashboard.index']);
+
         
     }
 }
