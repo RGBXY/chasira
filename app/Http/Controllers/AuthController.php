@@ -13,14 +13,20 @@ class AuthController extends Controller
 {
     public function register(Request $request){
         // Vallidate
-        $fields = $request->validate([
+        $request->validate([
             'name' => ['required', 'max:225'],
             'email' => ['required', 'email', 'max:225', 'unique:users'],
-            'password' => ['required']
+            'password' => ['required'],
         ]);
 
         // Register
-        $user = User::create($fields);
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => $request->password,
+        ]);
+
+        $user->update(['family_id' => $user->id]);
 
         $permissions = Permission::all();
 

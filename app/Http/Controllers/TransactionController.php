@@ -14,8 +14,7 @@ use Inertia\Inertia;
 class TransactionController extends Controller
 {
     public function index(){
-        $products = Product::where('user_id', getUserIdForQuery())
-        ->orWhereIn('user_id', Auth::user()->employees->pluck('id'))
+        $products = Product::where('family_id', Auth::user()->family_id)
         ->with('category')
         ->when(request()->search, function ($query) {
             $query->where('name', 'like', '%' . request()->search . '%');
@@ -26,7 +25,7 @@ class TransactionController extends Controller
         ->latest()
         ->get();
 
-        $categories = Category::where('user_id', getUserIdForQuery())
+        $categories = Category::where('family_id', Auth::user()->family_id)
         ->withCount('products') 
         ->latest()
         ->get();
@@ -51,6 +50,7 @@ class TransactionController extends Controller
             // Masukkan ke tabel Cart
             Cart::create([
                 'chasier_id' => Auth::id(),
+                'family_id' => Auth::user()->family_id,
                 'product_id' => $item['id'],
                 'qty'        => $item['total'],
                 'price'      => $product->sell_price * $item['total'],
@@ -76,7 +76,8 @@ class TransactionController extends Controller
         $invoice = 'TRX-'.Str::upper($random);
 
         $transaction = Transaction::create([
-            'chasier_id' => Auth::id(),
+            'chasier_id'    => Auth::id(),
+            'family_id'     => Auth::user()->family_id,
             'invoice'       => $invoice,
             'cash'          => $request->cash,
             'change'        => $request->change,
@@ -89,6 +90,7 @@ class TransactionController extends Controller
         foreach ($carts as $cart) {
             $transaction->details()->create([
                 'transaction_id'    => $transaction->id,
+                'family_id'         => Auth::user()->family_id,
                 'product_id'        => $cart->product_id,
                 'qty'               => $cart->qty,
                 'price'             => $cart->price,
@@ -101,6 +103,7 @@ class TransactionController extends Controller
             $profits = $total_sell_price - $total_buy_price - $discount;
 
             $transaction->profits()->create([
+                'family_id' => Auth::user()->family_id,
                 'transaction_id' => $transaction->id,
                 'total' => $profits
             ]);

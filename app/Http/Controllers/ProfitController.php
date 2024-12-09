@@ -5,16 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Profit;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class ProfitController extends Controller
 {
     public function index(){
-        $profits = Profit::with('transaction')
+        $profits = Profit::where('family_id', Auth::user()->family_id)->with('transaction')
         ->whereDate('created_at', Carbon::today())
         ->get();
 
-        $total = Profit::whereDate('created_at', Carbon::today())
+        $total = Profit::where('family_id', Auth::user()->family_id)->whereDate('created_at', Carbon::today())
         ->sum('total');
 
         return Inertia::render('Profits/index', [
@@ -33,13 +34,15 @@ class ProfitController extends Controller
         ]);
 
         //get data sales by range date
-        $profits = Profit::with('transaction')
+        $profits = Profit::where('family_id', Auth::user()->family_id)
+            ->with('transaction')
             ->whereDate('created_at', '>=', $request->start_date)
             ->whereDate('created_at', '<=', $request->end_date)
             ->get();
 
         //get total sales by range date
-        $total = Profit::whereDate('created_at', '>=', $request->start_date)
+        $total = Profit::where('family_id', Auth::user()->family_id)
+            ->whereDate('created_at', '>=', $request->start_date)
             ->whereDate('created_at', '<=', $request->end_date)
             ->sum('total');
 

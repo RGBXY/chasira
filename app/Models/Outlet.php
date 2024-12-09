@@ -14,7 +14,8 @@ class Outlet extends Model
         'email',
         'description',
         'status',
-        'user_id'
+        'user_id',
+        'family_id',
     ];
 
     public function user(){

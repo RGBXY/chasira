@@ -41,7 +41,7 @@
 
                 <div class="mt-5 overflow-y-auto h-[85%] no-scrollbar">
                     <Link
-                        v-for="menu in MainMenuConfig"
+                        v-for="menu in filteredMenu"
                         @click="method.sideBarStatFnc()"
                         :href="menu.route"
                         :class="
@@ -103,6 +103,16 @@ import MainMenuConfig from "../../../core/config/MainMenuConfig";
 
 const page = usePage();
 const logedUser = page.props.auth.user;
+
+const permissions = page.props.auth.permissions;
+
+// Memfilter MainMenuConfig berdasarkan permissions yang dimiliki pengguna
+const filteredMenu = MainMenuConfig.filter((menu) => {
+    // Mengecek apakah user memiliki permission sesuai dengan menu
+    const hasPermission = permissions[menu.permissions];
+
+    return hasPermission; // Jika true, menu akan dimasukkan ke dalam filteredMenu
+});
 
 const method = useMethodStore();
 </script>

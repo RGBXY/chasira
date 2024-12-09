@@ -15,20 +15,20 @@ use Inertia\Inertia;
 class DashboardController extends Controller
 {
     public function index(){
-        $total_sales = Transaction::where('chasier_id', getUserIdForQuery())
+        $total_sales = Transaction::where('family_id', Auth::user()->family_id)
         ->whereDate('created_at', Carbon::today())->sum('grand_total');
 
         $profit = Profit::whereDate('created_at', Carbon::today())->sum('total');
         
-        $total_employees = User::where('parent_id', getUserIdForQuery())->count();
-        $total_outlets = Outlet::where('user_id', getUserIdForQuery())->count();
-        $stock_product = Product::where('user_id', getUserIdForQuery())->where('stock', '<=', '10')->limit(5)->get();
+        $total_employees = User::where('parent_id', Auth::user()->family_id)->count();
+        $total_outlets = Outlet::where('family_id', Auth::user()->family_id)->count();
+        $stock_product = Product::where('family_id', Auth::user()->family_id)->where('stock', '<=', '10')->limit(5)->get();
 
         $week = Carbon::now()->subDays(7);
 
         // Chart Sales Seminggu Terakhir
         $chart_sales_week = DB::table('transactions')->
-        where('chasier_id', getUserIdForQuery())
+        where('family_id', Auth::user()->family_id)
         ->addSelect(DB::raw('DATE(created_at) as date, SUM(grand_total) as grand_total'))
         ->where('created_at', '>=', $week)
         ->groupBy('date')
@@ -46,6 +46,7 @@ class DashboardController extends Controller
 
         // Chart Profits Seminggu Terakhir
         $chart_profits_week = DB::table('profits')
+        ->where('family_id', Auth::user()->family_id)
         ->addSelect(DB::raw('DATE(created_at) as date, SUM(total) as profits_total'))
         ->where('created_at', '>=', $week)
         ->groupBy('date')
@@ -63,17 +64,18 @@ class DashboardController extends Controller
 
         // Best Outltes
         $best_outlets = DB::table('outlets')
-        ->where('user_id', getUserIdForQuery())
         ->select(
             'outlets.name as outlet_name',  // Mengambil nama outlet
             DB::raw('COUNT(transactions.id) as transaction_count')  // Menghitung jumlah transaksi
         )
         ->join('users', 'outlets.id', '=', 'users.outlet_id')  // Menggabungkan tabel outlets dengan users berdasarkan outlet_id
         ->join('transactions', 'users.id', '=', 'transactions.chasier_id')  // Menggabungkan tabel users dengan transactions berdasarkan cashier_id
+        ->where('users.family_id', Auth::user()->family_id)  // Menyebutkan tabel users untuk menghindari ambiguitas
         ->groupBy('outlets.id', 'outlets.name')  // Kelompokkan berdasarkan id outlet dan nama outlet
         ->orderByDesc('transaction_count')  // Urutkan berdasarkan jumlah transaksi terbanyak
         ->limit(5)  // Batasi hasilnya hanya 5 yang terbanyak
         ->get();  // Ambil hasil query
+    
     
         if(count($best_outlets)) {
             foreach ($best_outlets as $result) {
@@ -87,19 +89,17 @@ class DashboardController extends Controller
 
         // Best Product
         $best_products = DB::table('transaction_details')
-            ->where('user_id', getUserIdForQuery())
-            ->addSelect(DB::raw('products.name as name, SUM(transaction_details.qty) as total'))
-            ->join('products', 'products.id', '=', 'transaction_details.product_id')
-            ->groupBy('transaction_details.product_id')
-            ->orderBy('total', 'DESC')
-            ->limit(5)
-            ->get();
-
+        ->where('transaction_details.family_id', Auth::user()->family_id)  // Menyebutkan tabel transaction_details untuk menghindari ambiguitas
+        ->addSelect(DB::raw('products.name as name, SUM(transaction_details.qty) as total'))
+        ->join('products', 'products.id', '=', 'transaction_details.product_id')
+        ->groupBy('transaction_details.product_id')
+        ->orderBy('total', 'DESC')
+        ->limit(5)
+        ->get();
+    
         // Best Employees
         $best_employees = DB::table('transactions')
-        ->where('chasier_id', getUserIdForQuery())
-        ->orWhereIn('chasier_id', Auth::user()->employees->pluck('id'))
-
+        ->where('transactions.family_id', Auth::user()->family_id)  // Menyebutkan tabel transactions untuk menghindari ambiguitas
         ->select(
             'users.name as name',
             DB::raw('COUNT(transactions.id) as total')  // Menghitung jumlah transaksi yang dilakukan oleh karyawan
@@ -108,7 +108,8 @@ class DashboardController extends Controller
         ->groupBy('users.id')  // Mengelompokkan berdasarkan ID karyawan
         ->orderBy('total', 'DESC')  // Mengurutkan berdasarkan jumlah transaksi terbanyak
         ->limit(5)
-        ->get();   
+        ->get();
+    
         
         
         if(count($best_employees)) {

@@ -12,8 +12,7 @@ use Inertia\Inertia;
 class ProductController extends Controller
 {
     public function index(){
-        $products = Product::where('user_id', getUserIdForQuery())
-        ->orWhereIn('user_id', Auth::user()->employees->pluck('id'))
+        $products = Product::where('family_id', Auth::user()->family_id)
         ->with('category')
         ->when(request()->search, function ($query) {
             $query->where('name', 'like', '%' . request()->search . '%');
@@ -31,8 +30,7 @@ class ProductController extends Controller
     }
 
     public function create(){
-        $categories = Category::where('user_id', getUserIdForQuery())
-        ->orWhereIn('user_id', Auth::user()->employees->pluck('id'))
+        $categories = Category::where('family_id', Auth::user()->family_id)
         ->latest()->get();
 
         return Inertia::render('Products/Create', [
@@ -64,15 +62,15 @@ class ProductController extends Controller
             'description' => $request->description,
             'image' => $image,
             'category_id' => $request->category_id,
-            'user_id' => Auth::id()
+            'user_id' => Auth::id(),
+            'family_id' => Auth::user()->family_id
         ]);
 
         return redirect('/products');
     }
 
     public function edit(Product $product){
-        $categories = Category::where('user_id', getUserIdForQuery())
-        ->orWhereIn('user_id', Auth::user()->employees->pluck('id'))
+        $categories = Category::where('family_id', Auth::user()->family_id)
         ->latest()->get();
 
         return Inertia::render('Products/Edit', [

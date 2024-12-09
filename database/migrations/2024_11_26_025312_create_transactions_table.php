@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('chasier_id');
+            $table->unsignedBigInteger('family_id');
             $table->string('invoice');
             $table->bigInteger('cash');
             $table->bigInteger('change');
@@ -21,6 +22,7 @@ return new class extends Migration
             $table->bigInteger('grand_total');
             $table->timestamps();
             $table->foreign('chasier_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('family_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

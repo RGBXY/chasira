@@ -10,8 +10,7 @@ use Inertia\Inertia;
 class OutletController extends Controller
 {
     public function index(){
-        $outlets = Outlet::where('user_id', getUserIdForQuery())
-        ->orWhereIn('user_id', Auth::user()->employees->pluck('id'))
+        $outlets = Outlet::where('family_id', Auth::user()->family_id)
         ->when(request()->search, function ($query) {
             $query->where('name', 'like', '%' . request()->search . '%');
         })->when(request()->status, function ($query) {
@@ -45,7 +44,8 @@ class OutletController extends Controller
             'email' => $request->email,
             'description' => $request->description,
             'status' => $request->status,
-            'user_id' => Auth::id()
+            'user_id' => Auth::id(),
+            'family_id' => Auth::user()->family_id
         ]);
 
         return redirect('/outlets');

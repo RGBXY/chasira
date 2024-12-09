@@ -13,8 +13,8 @@ use Spatie\Permission\Models\Role;
 class EmployeeController extends Controller
 {
     public function index(){
-        $user = User::where('parent_id', Auth::id())
-        ->orWhereIn('id', Auth::user()->employees->pluck('id'))
+        $user = User::where('family_id', Auth::user()->family_id)
+        ->where('parent_id', Auth::user()->family_id)
 
         ->when(request()->search, function ($query) {
             $query->where('name', 'like', '%' . request()->search . '%'); 
@@ -28,8 +28,8 @@ class EmployeeController extends Controller
     }
 
     public function create(){
-        $outlets = Outlet::where('user_id', getUserIdForQuery())->where('status', 'active')->get();
-        $roles = Role::where('created_by', getUserIdForQuery())->get();
+        $outlets = Outlet::where('family_id', Auth::user()->family_id)->where('status', 'active')->get();
+        $roles = Role::where('family_id', Auth::user()->family_id)->get();
 
         return Inertia::render("Employees/Create", [
             'outlets' => $outlets,
@@ -52,7 +52,8 @@ class EmployeeController extends Controller
             'password' => bcrypt($request->password),
             'outlet_id' => $request->outlet_id,
             'status' => $request->status,
-            'parent_id' => Auth::id(),
+            'parent_id' => Auth::user()->family_id,
+            'family_id' => Auth::user()->family_id,
             'role_id' => $request->role_id
         ]);
 

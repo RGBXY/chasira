@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::table('roles', function (Blueprint $table) {
             $table->unsignedBigInteger('created_by')->nullable(); // Menambahkan kolom created_by
+            $table->unsignedBigInteger('family_id')->nullable(); // Menambahkan kolom created_by
             $table->foreign('created_by')->references('id')->on('users')->onDelete('set null'); // Relasi ke tabel users
+            $table->foreign('family_id')->references('id')->on('users')->onDelete('set null'); // Relasi ke tabel users
         });
     }
 
