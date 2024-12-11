@@ -64,9 +64,16 @@
                             Back
                         </button>
                         <button
+                            type="submit"
+                            :disabled="form.processing"
+                            :class="
+                                form.processing
+                                    ? 'cursor-not-allowed bg-violet-300 text-gray-200'
+                                    : ''
+                            "
                             class="h-10 px-3 bg-violet-400 rounded-lg font-semibold text-white"
                         >
-                            Submit
+                            {{ form.processing ? "Loading..." : "Submit" }}
                         </button>
                     </div>
                 </form>

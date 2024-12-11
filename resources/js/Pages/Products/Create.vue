@@ -13,8 +13,12 @@
                     <div class="mb-2">
                         <label for="" class="mb-1 text-[13px]">Category</label>
                         <div
-                            :class="form.errors.category_id ? 'border-red-500' : 'border-gray-300'"
-                            class="h-10 rounded-lg bg-white px-2 border-[1.5px] "
+                            :class="
+                                form.errors.category_id
+                                    ? 'border-red-500'
+                                    : 'border-gray-300'
+                            "
+                            class="h-10 rounded-lg bg-white px-2 border-[1.5px]"
                         >
                             <select
                                 v-model="form.category_id"
@@ -100,9 +104,15 @@
                         </Link>
                         <button
                             type="submit"
+                            :disabled="form.processing"
+                            :class="
+                                form.processing
+                                    ? 'cursor-not-allowed bg-violet-300 text-gray-200'
+                                    : ''
+                            "
                             class="h-10 px-3 bg-violet-400 rounded-lg font-semibold text-white"
                         >
-                            Submit
+                            {{ form.processing ? "Loading..." : "Submit" }}
                         </button>
                     </div>
                 </form>

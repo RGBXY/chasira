@@ -3,6 +3,7 @@ import { useReceiptStore } from "./receipt";
 
 export const useMethodStore = defineStore("method", {
     state: () => ({
+        toasterStat: false,
         modalDeactive: false,
         modalDelete: false,
         deactiveId: null,
@@ -36,6 +37,12 @@ export const useMethodStore = defineStore("method", {
         modalDeleteFnc(id) {
             this.modalDelete = !this.modalDelete;
             this.deleteId = id;
+        },
+        toasterFnc() {
+            this.toasterStat = true;
+        },
+        toasterFncClose() {
+            this.toasterStat = false;
         },
     },
 });

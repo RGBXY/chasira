@@ -50,7 +50,7 @@ class RoleController extends Controller
 
         $role->givePermissionTo($request->permissions);
 
-        return redirect("/roles");
+        return redirect("/roles")->with('message', 'Role Created Succesfully');;
     }
 
     public function edit($id){
@@ -75,7 +75,7 @@ class RoleController extends Controller
 
         $role->syncPermissions($request->permissions);
 
-        return redirect('/roles');
+        return redirect('/roles')->with('message', 'Role Edited Succesfully');;
     }
 
     public function destroy($id)

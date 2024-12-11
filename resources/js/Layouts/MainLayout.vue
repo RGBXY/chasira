@@ -12,6 +12,7 @@
 
         <ReceiptForm />
         <SideBar />
+        <Toaster />
     </div>
 </template>
 
@@ -19,4 +20,5 @@
 import ReceiptForm from "../components/layouts/ReceiptForm.vue";
 import SideBar from "../components/layouts/SideBar.vue";
 import TopBar from "../components/layouts/TopBar.vue";
+import Toaster from "../components/modal/Toaster.vue";
 </script>

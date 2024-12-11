@@ -59,7 +59,7 @@ class EmployeeController extends Controller
 
         $user->assignRole($request->role_id);
 
-        return redirect('/employees');
+        return redirect('/employees')->with('message', 'New Employee Added Successfully');
     }
 
     public function edit($id){
@@ -90,19 +90,20 @@ class EmployeeController extends Controller
             'role_id' => $request->role_id
         ]);
 
-        return redirect("/employees");
+        return redirect("/employees")->with('message', 'Employee Edited Successfully');
     }
 
     public function destroy($id){
         $employee = User::findOrFail($id);
 
-        $employee->delete();
+        $employee->delete()->with('message', 'Employee Deleted Successfully');
     }
 
     public function deactivate($id){
         $employee = User::findOrFail($id);
 
         $employee->update(['status' => 'inactive']);
+
     }
 
     public function activate($id){

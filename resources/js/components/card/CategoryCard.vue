@@ -10,7 +10,7 @@
         v-for="category in data"
         :key="category.id"
         @click="handleSearchCat(category.id)"
-        class="w-[155px] flex flex-col justify-center px-4 py-3 bg-white rounded-xl flex-shrink-0 border border-gray-200"
+        class="min-w-[155px] flex flex-col justify-center px-4 py-3 text-start bg-white rounded-xl flex-shrink-0 border border-gray-200"
     >
         <h1 class="font-semibold">{{ category.name }}</h1>
         <p class="text-sm text-gray-400">

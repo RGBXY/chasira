@@ -102,7 +102,12 @@
             <button
                 :disabled="receiptStore.products.length < 1"
                 @click="submit"
-                class="bg-violet-400 font-semibold text-xl text-white w-full h-[8%] border-t"
+                :class="
+                    receiptStore.products.length < 1
+                        ? 'bg-violet-300'
+                        : 'bg-violet-400 '
+                "
+                class="font-semibold text-xl text-white w-full h-[8%] border-t"
             >
                 Place Order
             </button>
@@ -161,7 +166,9 @@ const removeOrder = (id) => {
 
 const increment = (id) => {
     const product = receiptStore.products.find((item) => item.id === id);
-    product.total++;
+    if (product.stock > product.total) {
+        product.total++;
+    }
 };
 
 const decrement = (id) => {

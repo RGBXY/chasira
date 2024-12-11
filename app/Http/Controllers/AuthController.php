@@ -40,7 +40,7 @@ class AuthController extends Controller
         Auth::login($user);
 
         // Redirect
-        return redirect("/");
+        return redirect("/")->with('message', 'Register Success');
         
     }
 
@@ -52,7 +52,7 @@ class AuthController extends Controller
 
         if(Auth::attempt($fields, $request->remember)){
             $request->session()->regenerate();
-            return redirect()->intended('/');
+            return redirect()->intended('/')->with('message', 'Login Success');
         };
 
         return back()->withErrors([
@@ -64,6 +64,6 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/login');
+        return redirect('/login')->with('message', 'Logout Success') ;
     }
 }

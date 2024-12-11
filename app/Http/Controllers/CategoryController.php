@@ -39,7 +39,7 @@ class CategoryController extends Controller
             'family_id' => Auth::user()->family_id
         ]);
 
-        return redirect('/categories');
+        return redirect('/categories')->with('message', 'New Category Created Successfully');
     }
 
     public function edit(Category $category){
@@ -59,7 +59,7 @@ class CategoryController extends Controller
             'description' => $request->description 
         ]);
 
-        return redirect('/categories');
+        return redirect('/categories')->with('message', 'Category Edited Successfully');
     }
 
     public function destroy($id){
@@ -67,6 +67,6 @@ class CategoryController extends Controller
 
         $category->delete();
 
-        return redirect('/categories');
+        return redirect('/categories')->with('message', 'Category Deleted Successfully');
     }
 }

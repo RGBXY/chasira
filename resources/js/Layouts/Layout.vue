@@ -8,10 +8,12 @@
         <TopBar />
         <SideBar />
         <slot></slot>
+        <Toaster />
     </div>
 </template>
 
 <script setup>
 import SideBar from "../components/layouts/SideBar.vue";
 import TopBar from "../components/layouts/TopBar.vue";
+import Toaster from "../components/modal/Toaster.vue";
 </script>

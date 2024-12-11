@@ -28,7 +28,7 @@
             <div class="w-full">
                 <div
                     v-if="props.products"
-                    class="mt-2 flex items-start justify-center gap-3 flex-wrap"
+                    class="mt-2 flex justify-center gap-3 flex-wrap"
                 >
                     <Card :data="props.products" />
                 </div>

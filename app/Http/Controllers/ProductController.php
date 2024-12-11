@@ -66,7 +66,7 @@ class ProductController extends Controller
             'family_id' => Auth::user()->family_id
         ]);
 
-        return redirect('/products');
+        return redirect('/products')->with('message', 'Product Added Succesfully');
     }
 
     public function edit(Product $product){
@@ -114,7 +114,7 @@ class ProductController extends Controller
             'category_id' => $request->category_id,
         ]);
 
-        return redirect('/products');
+        return redirect('/products')->with('message', 'Product Edited Succesfully');
     }
 
 
@@ -123,6 +123,6 @@ class ProductController extends Controller
         
         $product->delete();
 
-        return redirect('/products');
+        return redirect('/products')->with('message', 'Product Deleted Succesfully');
     }
 }

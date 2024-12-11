@@ -48,7 +48,7 @@ class OutletController extends Controller
             'family_id' => Auth::user()->family_id
         ]);
 
-        return redirect('/outlets');
+        return redirect('/outlets')->with('message', 'Oulet Created Succesfully');
     }
 
     public function edit(Outlet $outlet){
@@ -78,7 +78,7 @@ class OutletController extends Controller
             'user_id' => Auth::id()
         ]);
 
-        return redirect('/outlets');
+        return redirect('/outlets')->with('message', 'Oulet Edited Succesfully');
 
     }
 
