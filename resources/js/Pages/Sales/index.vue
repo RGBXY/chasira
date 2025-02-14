@@ -58,6 +58,7 @@
 
                 <div class="w-full">
                     <table
+                        v-if="props.sales.data.length > 0"
                         class="table-auto w-full rounded-lg border-2 border-gray-200 overflow-hidden"
                     >
                         <thead>
@@ -69,7 +70,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="sale in props.sales">
+                            <tr v-for="sale in props.sales.data">
                                 <td class="border-2 p-3 border-gray-200">
                                     <div
                                         class="px-2.5 py-1.5 uppercase inline-block rounded-md"
@@ -88,7 +89,7 @@
                                     <div
                                         class="bg-gray-100 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
                                     >
-                                        {{ sale.chasier.name }}
+                                        {{ sale.cashier.name }}
                                     </div>
                                 </td>
                                 <td class="border-2 p-3 border-gray-200">
@@ -110,7 +111,9 @@
                                         Total Sum :
                                     </div>
                                 </td>
-                                <td class="border-2 p-3 border-gray-200 text-end">
+                                <td
+                                    class="border-2 p-3 border-gray-200 text-end"
+                                >
                                     <div
                                         class="px-2.5 py-1.5 font-semibold uppercase inline-block rounded-md"
                                     >
@@ -120,6 +123,16 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <NoData
+                        v-else
+                        header="No Data Sales Found"
+                        sub="Start by making a transaction on the cashier page. After that, you can see your data"
+                        button="Make a Transaction"
+                        link="/"
+                    />
+
+                    <Pagination :pagination="props.sales" />
                 </div>
             </div>
         </div>
@@ -129,10 +142,11 @@
 <script setup>
 import { PhFunnel } from "@phosphor-icons/vue";
 import Layout from "../../Layouts/Layout.vue";
-import { router, useForm } from "@inertiajs/vue3";
-import { useMethodStore } from "../../stores/method";
+import { router } from "@inertiajs/vue3";
 import formatPrice from "../../../core/helper/formatPrice";
 import { ref } from "vue";
+import Pagination from "../../components/ui/Pagination.vue";
+import NoData from "../../components/card/NoData.vue";
 
 const start_date = ref(
     "" || new URL(document.location).searchParams.get("start_date")
@@ -170,5 +184,3 @@ const props = defineProps({
     total: Number,
 });
 </script>
-
-<style lang="scss" scoped></style>

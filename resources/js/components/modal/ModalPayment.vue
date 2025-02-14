@@ -119,13 +119,18 @@ const cash3 = ref(null);
 const discount = ref(0);
 const notEnoughCash = ref(false);
 
+const formGlob = useForm({});
+
 const props = defineProps({
     total: Number,
 });
 
 const modalClose = () => {
-    router.post("/transactions/destroyCart");
-    method.modalPaymentFnc();
+    formGlob.post("/transactions/destroyCart", {
+        onSuccess: () => {
+            method.modalPaymentFnc();
+        },
+    });
 };
 
 const pay = () => {
@@ -137,10 +142,13 @@ const pay = () => {
     });
 
     if (cash3.value >= props.total) {
-        form.post("/");
-        receipt.change = cash3.value - props.total;
-        method.modalPrintFnc(cash3.value);
-        method.modalPaymentFnc();
+        form.post("/", {
+            onSuccess: () => {
+                receipt.change = cash3.value - props.total;
+                method.modalPrintFnc(cash3.value);
+                method.modalPaymentFnc();
+            },
+        });
     } else {
         notEnoughCash.value = true;
     }

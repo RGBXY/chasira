@@ -12,7 +12,7 @@
                     alt="hai"
                 />
                 <h1 class="text-xl font-semibold">Welcome back</h1>
-                <p class="text-[11px]">Please enter your details to sign in</p>
+                <p class="text-sm">Please enter your details to sign in</p>
             </div>
 
             <form @submit.prevent="submit" class="p-5">
@@ -35,14 +35,12 @@
                 <div class="flex items-center justify-between mt-3 mb-5">
                     <div class="flex items-center gap-1.5">
                         <input type="checkbox" v-model="form.remember" />
-                        <label class="text-[10px] font-semibold"
-                            >Remember me</label
-                        >
+                        <label class="text-xs font-semibold">Remember me</label>
                     </div>
 
                     <Link>
                         <p
-                            class="text-[10px] text-violet-700 font-semibold underline"
+                            class="text-xs text-violet-700 font-semibold underline"
                         >
                             Forgot Password?
                         </p>
@@ -58,13 +56,6 @@
                     <p v-if="form.processing">Loading...</p>
                     <p v-else>Sign in</p>
                 </button>
-
-                <p class="text-xs text-center">
-                    Don't have an account?
-                    <Link href="/register" class="text-violet-700"
-                        >Create account</Link
-                    >
-                </p>
             </form>
         </div>
     </div>

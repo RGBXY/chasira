@@ -1,6 +1,6 @@
 <template>
     <div
-        class="h-16 w-full flex sticky top-0 bg-gray-50 z-40 items-center px-7 justify-between"
+        class="flex sticky z-30 top-0 h-20 items-center px-7 bg-gray-50 justify-between"
     >
         <div class="flex items-center gap-3">
             <button
@@ -31,21 +31,20 @@
             </div>
         </div>
 
-        <button
-            class="bg-white hover:bg-violet-50 transition-all group border h-12 py-2 pe-2 ps-6 gap-4 flex items-center justify-center rounded-full"
+        <Link
+            as="button"
+            type="button"
+            method="post"
+            href="/logout"
+            class="bg-white hover:bg-violet-50 transition-all group border h-12 py-2 pe-1.5 ps-5 gap-4 flex items-center justify-center rounded-full"
         >
-            <h1
-                class="text-sm font-semibold text-violet-500 group-hover:text-violet-400"
-            >
-                Open Order
+            <h1 class="font-semibold text-sm text-red-500 group-hover:text-red-400">
+                Log Out
             </h1>
-
-            <div
-                class="bg-violet-50 group-hover:bg-violet-100 p-2 rounded-full"
-            >
-                <PhPower class="text-lg text-violet-500" />
-            </div>
-        </button>
+            <button class="bg-red-400 p-2 text-xl rounded-full text-white">
+                <PhSignOut />
+            </button>
+        </Link>
     </div>
 </template>
 
@@ -54,8 +53,8 @@ import {
     PhCalendarDots,
     PhClock,
     PhList,
-    PhMagnifyingGlass,
     PhPower,
+    PhSignOut,
 } from "@phosphor-icons/vue";
 import { onMounted, ref } from "vue";
 import { useMethodStore } from "../../stores/method";

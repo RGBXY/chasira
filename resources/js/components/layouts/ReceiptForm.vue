@@ -1,11 +1,11 @@
 <template>
-    <div class="w-[30%] border-l border-gray-300 bg-white shadow-lg z-30">
+    <div class="w-[25%] border-l bg-white right-0 z-30">
         <div
-            class="fixed top-0 right-0 overflow-y-auto flex flex-col justify-between w-[30%] h-full"
+            class="fixed top-0 right-0 overflow-y-auto flex flex-col justify-between w-[25%] h-full"
         >
             <div class="h-[80%]">
                 <div
-                    class="h-16 px-3 border-b flex items-center justify-between"
+                    class="h-20 px-3 border-b flex items-center justify-between"
                 >
                     <div class="flex items-center gap-1.5">
                         <PhReceipt class="text-2xl" />
@@ -100,7 +100,7 @@
             </div>
 
             <button
-                :disabled="receiptStore.products.length < 1"
+                :disabled="receiptStore.products.length < 1 || form.processing"
                 @click="submit"
                 :class="
                     receiptStore.products.length < 1
@@ -123,7 +123,7 @@
 import { PhMinus, PhPlus, PhReceipt, PhTrash } from "@phosphor-icons/vue";
 import { useReceiptStore } from "../../stores/receipt.js";
 import formatPrice from "../../../core/helper/formatPrice.js";
-import { onMounted, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { useMethodStore } from "../../stores/method.js";
 import ModalPayment from "../modal/ModalPayment.vue";
 import ModalPrint from "../modal/ModalPrint.vue";
@@ -131,7 +131,6 @@ import { useForm } from "@inertiajs/vue3";
 
 const receiptStore = useReceiptStore();
 const method = useMethodStore();
-const receipt = useReceiptStore();
 
 const total = ref(null);
 
@@ -140,10 +139,12 @@ const form = useForm({
 });
 
 const submit = async () => {
-    form.products = receipt.products;
-    console.log(form);
-    form.post("/transactions/addToCart");
-    method.modalPaymentFnc();
+    form.products = receiptStore.products;
+    form.post("/transactions/addToCart", {
+        onSuccess: () => {
+            method.modalPaymentFnc();
+        },
+    });
 };
 
 const clearData = () => {

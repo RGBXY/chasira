@@ -35,6 +35,7 @@
 
                 <div class="w-full">
                     <table
+                        v-if="props.user.data.length > 0"
                         class="table-auto w-full rounded-lg border-2 border-gray-200 overflow-hidden"
                     >
                         <thead>
@@ -47,7 +48,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="item in user">
+                            <tr v-for="item in user.data">
                                 <td class="border-2 p-3 border-gray-200">
                                     <p>{{ item.name }}</p>
                                 </td>
@@ -126,6 +127,16 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <NoData
+                        v-else
+                        header="No Data Employees Found"
+                        sub="Get started by adding your first employee. Manage your team more efficiently"
+                        button="Add Employee"
+                        link="/employees/create"
+                    />
+
+                    <Pagination :pagination="props.user" />
                 </div>
             </div>
         </div>
@@ -186,6 +197,8 @@ import { useMethodStore } from "../../stores/method";
 import PrimButtonModal from "../../components/ui/primButtonModal.vue";
 import ModalDelete from "../../components/modal/ModalDelete.vue";
 import { ref } from "vue";
+import Pagination from "../../components/ui/Pagination.vue";
+import NoData from "../../components/card/NoData.vue";
 
 const method = useMethodStore();
 const status = ref(null);

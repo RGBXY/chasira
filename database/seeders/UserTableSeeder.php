@@ -20,10 +20,7 @@ class UserTableSeeder extends Seeder
             'name' => 'admin',
             'email' => 'admin@gmail.com',
             'password' => bcrypt('123123'),
-            'family_id' => 0
         ]);
-
-        $user->update(['family_id' => $user->id]);
 
         $permissions = Permission::all();
 

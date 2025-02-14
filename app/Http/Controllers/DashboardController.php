@@ -15,8 +15,7 @@ use Inertia\Inertia;
 class DashboardController extends Controller
 {
     public function index(){
-        $total_sales = Transaction::where('family_id', Auth::user()->family_id)
-        ->whereDate('created_at', Carbon::today())->sum('grand_total');
+        $total_sales = Transaction::whereDate('created_at', Carbon::today())->sum('grand_total');
 
         $profit = Profit::whereDate('created_at', Carbon::today())->sum('total');
         

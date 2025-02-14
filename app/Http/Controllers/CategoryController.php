@@ -5,17 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::where('family_id', Auth::user()->family_id)
-        ->withCount('products')
+        $categories = Category::withCount('products')
         ->when(request()->search, function($categories) {
             $categories = $categories->where('name', 'like', '%'. request()->search . '%');
-        })->latest()->get();
+        })->latest()->paginate(20);
 
         return Inertia::render('Categories/index', [
             'categories' => $categories
@@ -28,15 +28,17 @@ class CategoryController extends Controller
 
     public function store(Request $request){
         $request->validate([
-            'name' => ['required','unique:categories,name,', 'max:225'],
+            'name' => [
+                'required',
+                'max:225',
+               'unique:categories,name'
+            ],
             'description' => ['required', 'max:225']
         ]);
 
         Category::create([
             'name' => $request->name,
             'description' => $request->description,
-            'user_id' => Auth::id(),
-            'family_id' => Auth::user()->family_id
         ]);
 
         return redirect('/categories')->with('message', 'New Category Created Successfully');
@@ -50,7 +52,11 @@ class CategoryController extends Controller
 
     public function update(Request $request, Category $category){
         $request->validate([
-            'name' => 'required|unique:categories,name,'.$category->id,
+            'name' => [
+            'required',
+            'max:225',
+            'unique:categories,name' .$category->id
+        ],
             'description' => 'required'
         ]);
 

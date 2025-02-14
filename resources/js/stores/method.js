@@ -10,7 +10,7 @@ export const useMethodStore = defineStore("method", {
         deleteId: null,
         modalPyamentStat: false,
         modalPrintStat: false,
-        sideBarStat: false,
+        sideBarStat: true,
         pay: 0,
     }),
 

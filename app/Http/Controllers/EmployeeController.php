@@ -20,7 +20,7 @@ class EmployeeController extends Controller
             $query->where('name', 'like', '%' . request()->search . '%'); 
         })
         ->with('outlet')->with('role')
-        ->latest()->get();
+        ->latest()->paginate(20);
 
         return Inertia::render("Employees/index", [
             'user' => $user
@@ -28,11 +28,9 @@ class EmployeeController extends Controller
     }
 
     public function create(){
-        $outlets = Outlet::where('family_id', Auth::user()->family_id)->where('status', 'active')->get();
         $roles = Role::where('family_id', Auth::user()->family_id)->get();
 
         return Inertia::render("Employees/Create", [
-            'outlets' => $outlets,
             'roles' => $roles
         ]);
     }
@@ -40,8 +38,8 @@ class EmployeeController extends Controller
     public function store(Request $request){
 
         $request->validate([
-            'name' => ['required', 'max:225'],
-            'email' => ['required', 'email', 'max:225', 'unique:users,email'],
+            'name' => ['required', 'max:225', Rule::unique('users')],
+            'email' => ['required', 'email', 'max:225', 'unique:users,email,'],
             'password' => ['required'],
             'role_id' => ['required'],
         ]);
@@ -52,9 +50,6 @@ class EmployeeController extends Controller
             'password' => bcrypt($request->password),
             'outlet_id' => $request->outlet_id,
             'status' => $request->status,
-            'parent_id' => Auth::user()->family_id,
-            'family_id' => Auth::user()->family_id,
-            'role_id' => $request->role_id
         ]);
 
         $user->assignRole($request->role_id);
@@ -64,20 +59,24 @@ class EmployeeController extends Controller
 
     public function edit($id){
         $employee = User::findOrFail($id);
-        $outlets = Outlet::where('user_id', getUserIdForQuery())->where('status', 'active')->get();
         $roles = Role::where('created_by', getUserIdForQuery())->get();
 
         return Inertia::render('Employees/Edit', [
             'user' => $employee,
-            'outlets' => $outlets,
             'roles' => $roles
         ]);
     }
 
     public function update(Request $request, User $employee){
         $request->validate([
-            'name' => ['required', 'max:225'],
-            'email' => ['required', 'email', 'max:225', Rule::unique('users')->ignore($employee->id)],
+            'name' => [
+                'required',
+                'max:225',
+                Rule::unique('users')
+                ->where('family_id', Auth::user()->family_id)
+                ->ignore($employee->id)
+            ],
+            'email' => ['required', 'email', 'max:225', 'unique:users,email,'.$employee->id],
             'role_id' => ['required'],
         ]);
 
@@ -90,13 +89,17 @@ class EmployeeController extends Controller
             'role_id' => $request->role_id
         ]);
 
+        $employee->syncRoles($request->role_id);
+
         return redirect("/employees")->with('message', 'Employee Edited Successfully');
     }
 
     public function destroy($id){
         $employee = User::findOrFail($id);
 
-        $employee->delete()->with('message', 'Employee Deleted Successfully');
+        $employee->delete();
+
+        return redirect()->back()->with('message', 'Employee Deleted Successfully');
     }
 
     public function deactivate($id){

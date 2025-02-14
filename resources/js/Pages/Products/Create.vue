@@ -45,6 +45,14 @@
                     </div>
 
                     <TextInput
+                        name="Barcode"
+                        type="text"
+                        v-model="form.barcode"
+                        placeholder="Your Barcode"
+                        :message="form.errors.barcode"
+                    />
+
+                    <TextInput
                         name="Product Name"
                         type="text"
                         v-model="form.name"
@@ -66,14 +74,6 @@
                         v-model="form.sell_price"
                         placeholder="Product sell price"
                         :message="form.errors.sell_price"
-                    />
-
-                    <TextInput
-                        name="Product Stock"
-                        type="number"
-                        v-model="form.stock"
-                        placeholder="Product stock"
-                        :message="form.errors.stock"
                     />
 
                     <TextAreaInput
@@ -130,9 +130,10 @@ import { Link, useForm } from "@inertiajs/vue3";
 const form = useForm({
     name: "",
     category_id: "",
+    barcode: "",
     buy_price: null,
     sell_price: null,
-    stock: null,
+    stock: 0,
     description: "",
     image: null,
 });
@@ -148,6 +149,7 @@ const submit = () => {
 
 const props = defineProps({
     categories: Object,
+    outlets: Object,
 });
 </script>
 

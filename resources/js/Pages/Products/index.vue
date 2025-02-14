@@ -1,7 +1,7 @@
 <template>
     <Layout>
-        <div class="py-8 px-7 flex items-center justify-center">
-            <div class="px-10 py-8 w-full max-w-7xl border bg-white rounded-lg">
+        <div class="py-8 px-7 flex items-center justify-center w-full">
+            <div class="px-10 py-8 w-full border bg-white rounded-lg">
                 <div class="mb-7 flex items-center justify-between pb-4">
                     <h1 class="text-3xl font-bold mb-1">Products</h1>
 
@@ -51,74 +51,57 @@
                     </div>
                 </div>
 
-                <div class="w-full">
-                    <table
-                        class="table-auto w-full rounded-lg border-2 border-gray-200 overflow-hidden"
+                <div class="w-full">    
+                    <DataTable
+                        v-if="props.products.data.length > 0"
+                        :data="props.products.data"
+                        :header="headerConfig"
                     >
-                        <thead>
-                            <tr class="">
-                                <th class="text-start p-3">Name</th>
-                                <th class="text-start p-3">Category</th>
-                                <th class="text-start p-3">Buy Price</th>
-                                <th class="text-start p-3">Sell Price</th>
-                                <th class="text-start p-3">Stock</th>
-                                <th class="text-start p-3">Image</th>
-                                <th class="text-start p-3">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="product in products" :key="product.id">
-                                <td class="border-2 p-3 border-gray-200">
-                                    {{ product.name }}
-                                </td>
-                                <td class="border-2 p-3 border-gray-200">
-                                    <div
-                                        class="bg-gray-100 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
-                                    >
-                                        {{ product.category.name }}
-                                    </div>
-                                </td>
-                                <td class="border-2 p-3 border-gray-200">
-                                    {{ formatPrice(product.buy_price) }}
-                                </td>
-                                <td class="border-2 p-3 border-gray-200">
-                                    {{ formatPrice(product.sell_price) }}
-                                </td>
-                                <td class="border-2 p-3 border-gray-200">
-                                    {{ product.stock }}
-                                </td>
-                                <td class="border-2 p-3 border-gray-200">
-                                    <img
-                                        class="w-10"
-                                        :src="'storage/' + product.image"
-                                        alt=""
-                                    />
-                                </td>
-                                <td class="border-2 p-3 border-gray-200">
-                                    <div class="flex items-start gap-2">
-                                        <Link
-                                            :href="`/products/${product.id}/edit`"
-                                            class="border-blue-300 border-2 px-2.5 py-1.5 flex items-center gap-1.5 hover:bg-blue-50 font-semibold text-blue-500 text-sm rounded-md"
-                                        >
-                                            <PhPencilLine />
-                                            <p>Edit</p>
-                                        </Link>
-                                        <button
-                                            @click="
-                                                method.modalDeleteFnc(
-                                                    product.id
-                                                )
-                                            "
-                                            class="border-red-300 border-2 px-2.5 py-1.5 flex items-center gap-1.5 hover:bg-red-50 font-semibold text-red-500 text-sm rounded-md"
-                                        >
-                                            <PhTrash />
-                                            <p>Delete</p>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                        <template v-slot:image="{ row: i }">
+                            <img
+                                class="w-10"
+                                :src="'storage/' + i.image"
+                                alt=""
+                            />
+                        </template>
+                        <template v-slot:category="{ row: i }">
+                            <p>{{ i.category.name }}</p>
+                        </template>
+                        <template v-slot:buy_price="{ row: i }">
+                            <p>{{ formatPrice(i.buy_price) }}</p>
+                        </template>
+                        <template v-slot:sell_price="{ row: i }">
+                            <p>{{ formatPrice(i.sell_price) }}</p>
+                        </template>
+                        <template v-slot:actions="{ row: i }">
+                            <div class="flex items-start gap-2">
+                                <Link
+                                    :href="`/products/${i.id}/edit`"
+                                    class="border-blue-300 border-2 px-2.5 py-1.5 flex items-center gap-1.5 hover:bg-blue-50 font-semibold text-blue-500 text-sm rounded-md"
+                                >
+                                    <PhPencilLine />
+                                    <p>Edit</p>
+                                </Link>
+                                <button
+                                    @click="method.modalDeleteFnc(i.id)"
+                                    class="border-red-300 border-2 px-2.5 py-1.5 flex items-center gap-1.5 hover:bg-red-50 font-semibold text-red-500 text-sm rounded-md"
+                                >
+                                    <PhTrash />
+                                    <p>Delete</p>
+                                </button>
+                            </div>
+                        </template>
+                    </DataTable>
+
+                    <NoData
+                        v-else
+                        header="No Products Found"
+                        sub="Get started by creating your first product. You can add details, pricing, and stock product."
+                        button="Add Product"
+                        link="/products/create"
+                    />
+
+                    <Pagination :pagination="props.products" />
                 </div>
             </div>
         </div>
@@ -160,8 +143,21 @@ import { useMethodStore } from "../../stores/method";
 import PrimButtonModal from "../../components/ui/primButtonModal.vue";
 import { ref } from "vue";
 import ModalDelete from "../../components/modal/ModalDelete.vue";
+import Pagination from "../../components/ui/Pagination.vue";
+import NoData from "../../components/card/NoData.vue";
+import DataTable from "../../components/layouts/DataTable.vue";
 
 const method = useMethodStore();
+
+const headerConfig = [
+    { key: "barcode", label: "Barcode" },
+    { key: "name", label: "Name" },
+    { key: "category", label: "Category" },
+    { key: "buy_price", label: "Buy Price" },
+    { key: "sell_price", label: "Sell Price" },
+    { key: "stock", label: "stock" },
+    { key: "image", label: "image" },
+];
 
 const search = ref("" || new URL(document.location).searchParams.get("search"));
 const searchCat = ref(

@@ -5,9 +5,14 @@
     </Head>
 
     <div class="w-full min-h-screen flex bg-gray-50">
-        <div class="w-[70%] pb-5">
+        <div
+            :class="method.sideBarStat ? 'ps-[250px]' : 'ps-[85px]'"
+            class="w-[75%] pb-5"
+        >
             <TopBar />
-            <slot></slot>
+            <div class="flex items-center justify-center w-full">
+                <slot></slot>
+            </div>
         </div>
 
         <ReceiptForm />
@@ -21,4 +26,7 @@ import ReceiptForm from "../components/layouts/ReceiptForm.vue";
 import SideBar from "../components/layouts/SideBar.vue";
 import TopBar from "../components/layouts/TopBar.vue";
 import Toaster from "../components/modal/Toaster.vue";
+import { useMethodStore } from "../stores/method";
+
+const method = useMethodStore();
 </script>

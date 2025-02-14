@@ -13,16 +13,14 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('chasier_id');
-            $table->unsignedBigInteger('family_id');
+            $table->unsignedBigInteger('user_id');
             $table->string('invoice');
             $table->bigInteger('cash');
             $table->bigInteger('change');
             $table->bigInteger('discount');
             $table->bigInteger('grand_total');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
-            $table->foreign('chasier_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('family_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

@@ -1,6 +1,6 @@
 <template>
     <MainLayout>
-        <div class="px-7 mt-1 w-full">
+        <div class="px-7 w-full">
             <div
                 class="flex items-center w-full gap-2.5 py-3 overflow-x-auto no-scrollbar"
             >
@@ -25,19 +25,25 @@
                 </button>
             </div>
 
-            <div class="w-full">
+            <div class="w-full min-h-[70vh] flex flex-col justify-between">
                 <div
-                    v-if="props.products"
+                    v-if="props.products.data.length > 0"
                     class="mt-2 flex justify-center gap-3 flex-wrap"
                 >
-                    <Card :data="props.products" />
+                    <Card :products="props.products" />
                 </div>
 
-                <div
+                <NoData
                     v-else
-                    class="w-full flex items-center justify-center h-[400px]"
-                >
-                    <h1 class="text-2xl font-semibold">No Products Here</h1>
+                    header="No Data Products Found"
+                    sub="Get started by creating your first product. You can add details,
+            pricing, and stock product."
+                    button="Add Product"
+                    link="/products"
+                />
+
+                <div>
+                    <Pagination :pagination="props.products" />
                 </div>
             </div>
         </div>
@@ -49,12 +55,26 @@ import { PhMagnifyingGlass } from "@phosphor-icons/vue";
 import Card from "../../components/card/Card.vue";
 import CategoryCard from "../../components/card/CategoryCard.vue";
 import MainLayout from "../../Layouts/MainLayout.vue";
-import { onMounted, ref } from "vue";
-import { router } from "@inertiajs/vue3";
+import { onBeforeUnmount, onMounted, ref } from "vue";
+import { router, usePage } from "@inertiajs/vue3";
+import { useReceiptStore } from "../../stores/receipt";
+import Pagination from "../../components/ui/Pagination.vue";
+import NoData from "../../components/card/NoData.vue";
+import { useMethodStore } from "../../stores/method";
+
+const receiptStore = useReceiptStore();
+const page = usePage();
+const method = useMethodStore();
 
 const props = defineProps({
     products: Object,
     categories: Object,
+});
+
+onBeforeUnmount(() => {
+    if (page.url !== "/") {
+        receiptStore.products = [];
+    }
 });
 
 const search = ref("" || new URL(document.location).searchParams.get("search"));
@@ -68,5 +88,6 @@ const handleSearch = () => {
 
 onMounted(() => {
     router.post("/transactions/destroyCart");
+    method.sideBarStat = false;
 });
 </script>

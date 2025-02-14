@@ -13,26 +13,26 @@ use Inertia\Inertia;
 
 class TransactionController extends Controller
 {
-    public function index(){
-        $products = Product::where('family_id', Auth::user()->family_id)
-        ->with('category')
-        ->when(request()->search, function ($query) {
-            $query->where('name', 'like', '%' . request()->search . '%');
-        })
-        ->when(request()->category_id, function ($query) {
-            $query->where('category_id', request()->category_id);
-        })
-        ->latest()
-        ->get();
-
-        $categories = Category::where('family_id', Auth::user()->family_id)
-        ->withCount('products') 
-        ->latest()
-        ->get();
-
-         return Inertia::render('Transactions/index', [
-        'products' => $products,
-        'categories' => $categories, // Opsional, untuk dropdown kategori
+    public function index()
+    {    
+        $products = Product::with('category')
+            ->when(request()->search, function ($query) {
+                $query->where('name', 'like', '%' . request()->search . '%');
+            })
+            ->when(request()->category_id, function ($query) {
+                $query->where('category_id', request()->category_id);
+            })
+            ->latest()
+            ->paginate(4);
+    
+        $categories = Category::withCount('products')
+            ->limit(5)
+            ->get();
+    
+        // Return Inertia view
+        return Inertia::render('Transactions/index', [
+            'products' => $products,
+            'categories' => $categories,
         ]); 
     }
 
@@ -49,8 +49,7 @@ class TransactionController extends Controller
     
             // Masukkan ke tabel Cart
             Cart::create([
-                'chasier_id' => Auth::id(),
-                'family_id' => Auth::user()->family_id,
+                'user_id' => Auth::id(),
                 'product_id' => $item['id'],
                 'qty'        => $item['total'],
                 'price'      => $product->sell_price * $item['total'],
@@ -60,7 +59,7 @@ class TransactionController extends Controller
     }
 
     public function destroyCart(){
-        Cart::where('chasier_id', Auth::id())->delete();
+        Cart::where('user_id', Auth::id())->delete();
         
         return redirect()->back()->with('success', 'Product Removed Successfully!.');
     }
@@ -76,8 +75,7 @@ class TransactionController extends Controller
         $invoice = 'TRX-'.Str::upper($random);
 
         $transaction = Transaction::create([
-            'chasier_id'    => Auth::id(),
-            'family_id'     => Auth::user()->family_id,
+            'user_id'    => Auth::id(),
             'invoice'       => $invoice,
             'cash'          => $request->cash,
             'change'        => $request->change,
@@ -85,12 +83,11 @@ class TransactionController extends Controller
             'grand_total'   => $request->grand_total,
         ]);
 
-        $carts = Cart::where('chasier_id', Auth::id())->get();
+        $carts = Cart::where('user_id', Auth::id())->get();
 
         foreach ($carts as $cart) {
             $transaction->details()->create([
                 'transaction_id'    => $transaction->id,
-                'family_id'         => Auth::user()->family_id,
                 'product_id'        => $cart->product_id,
                 'qty'               => $cart->qty,
                 'price'             => $cart->price,
@@ -103,7 +100,6 @@ class TransactionController extends Controller
             $profits = $total_sell_price - $total_buy_price - $discount;
 
             $transaction->profits()->create([
-                'family_id' => Auth::user()->family_id,
                 'transaction_id' => $transaction->id,
                 'total' => $profits
             ]);
@@ -113,6 +109,6 @@ class TransactionController extends Controller
             $product->save();
         }
 
-        Cart::where('chasier_id', Auth::id())->delete();
+        Cart::where('user_id', Auth::id())->delete();
     } 
 }

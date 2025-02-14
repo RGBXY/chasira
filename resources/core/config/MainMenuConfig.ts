@@ -1,12 +1,16 @@
 import {
+    PhBoxArrowDown,
+    PhBoxArrowUp,
     PhCashRegister,
     PhCoins,
     PhGauge,
     PhHandCoins,
     PhPackage,
     PhShieldCheck,
+    PhShippingContainer,
     PhSquaresFour,
-    PhStorefront,
+    PhTruck,
+    PhUserList,
     PhUsers,
 } from "@phosphor-icons/vue";
 
@@ -15,62 +19,104 @@ export interface MenuItem {
     route?: string;
     PhIcon?: any;
     permissions?: string;
+    pages?: any;
 }
 
 const MainMenuConfig: Array<MenuItem> = [
     {
-        heading: "Chasier",
-        route: "/",
-        PhIcon: PhCashRegister,
-        permissions: "transactions.index",
-    },
-    {
-        heading: "Dashboard",
-        route: "/dashboard",
-        PhIcon: PhGauge,
+        heading: "",
         permissions: "dashboard.index",
+        pages: [
+            {
+                heading: "Dashboard",
+                route: "/dashboard",
+                PhIcon: PhGauge,
+            },
+        ],
     },
     {
-        heading: "Report Sales",
-        route: "/sales",
-        PhIcon: PhCoins,
-        permissions: "sales.index",
-    },
-    {
-        heading: "Report Profit",
-        route: "/profits",
-        PhIcon: PhHandCoins,
-        permissions: "profits.index",
-    },
-    {
-        heading: "Products",
-        route: "/products",
-        PhIcon: PhPackage,
+        heading: "Product",
         permissions: "products.index",
+        pages: [
+            {
+                heading: "Categories",
+                route: "/categories",
+                PhIcon: PhSquaresFour,
+            },
+            {
+                heading: "Products",
+                route: "/products",
+                PhIcon: PhPackage,
+            },
+            {
+                heading: "Suppliers",
+                route: "/suppliers",
+                PhIcon: PhTruck,
+            },
+        ],
     },
     {
-        heading: "Categories",
-        route: "/categories",
-        PhIcon: PhSquaresFour,
-        permissions: "categories.index",
+        heading: "Transaction",
+        permissions: "transactions.index",
+        pages: [
+            {
+                heading: "Transaction",
+                route: "/",
+                PhIcon: PhCashRegister,
+            },
+            {
+                heading: "Customers",
+                route: "/customers",
+                PhIcon: PhUserList,
+            },
+            {
+                heading: "Stock In",
+                route: "/stock-in",
+                PhIcon: PhBoxArrowDown,
+            },
+            {
+                heading: "Stock Out",
+                route: "/stock-out",
+                PhIcon: PhBoxArrowUp,
+            },
+            {
+                heading: "Stock Opname",
+                route: "/stock-out",
+                PhIcon: PhShippingContainer,
+            },
+        ],
     },
     {
-        heading: "Outlets",
-        route: "/outlets",
-        PhIcon: PhStorefront,
-        permissions: "outlets.index",
-    },
-    {
-        heading: "Role",
-        route: "/roles",
-        PhIcon: PhShieldCheck,
-        permissions: "roles.index",
+        heading: "Report",
+        permissions: "transactions.index",
+        pages: [
+            {
+                heading: "Report Sales",
+                route: "/sales",
+                PhIcon: PhCoins,
+            },
+            {
+                heading: "Report Profits",
+                route: "/profits",
+                PhIcon: PhHandCoins,
+            },
+        ],
     },
     {
         heading: "Employees",
-        route: "/employees",
-        PhIcon: PhUsers,
-        permissions: "employees.index",
+        permissions: "transactions.index",
+        pages: [
+            {
+                heading: "Role",
+                route: "/roles",
+                PhIcon: PhShieldCheck,
+            },
+            {
+                heading: "Employees",
+                route: "/employees",
+                PhIcon: PhUsers,
+            },
+        ],
     },
 ];
 

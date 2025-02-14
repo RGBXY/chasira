@@ -68,14 +68,6 @@
                         :message="form.errors.sell_price"
                     />
 
-                    <TextInput
-                        name="Product Stock"
-                        type="number"
-                        v-model="form.stock"
-                        placeholder="Product stock"
-                        :message="form.errors.stock"
-                    />
-
                     <TextAreaInput
                         v-model="form.description"
                         name="Product Description"
@@ -138,9 +130,10 @@ const form = useForm({
     category_id: props.product.category_id,
     buy_price: props.product.buy_price,
     sell_price: props.product.sell_price,
-    stock: props.product.stock,
     description: props.product.description,
+    stock: props.product.stock,
     image: null,
+    barcode: props.product.barcode,
 });
 
 const change = (e) => {
@@ -156,9 +149,10 @@ const update = () => {
         category_id: form.category_id,
         buy_price: form.buy_price,
         sell_price: form.sell_price,
-        stock: form.stock,
         description: form.description,
+        stock: form.stock,
         image: form.image,
+        barcode: form.barcode,
     });
 };
 </script>

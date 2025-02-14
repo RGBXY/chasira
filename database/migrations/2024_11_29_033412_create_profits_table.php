@@ -15,10 +15,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('transaction_id');
             $table->integer('total');
-            $table->unsignedBigInteger('family_id');
-            $table->timestamps();
             $table->foreign('transaction_id')->references('id')->on('transactions')->onDelete('cascade');
-            $table->foreign('family_id')->references('id')->on('users')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 

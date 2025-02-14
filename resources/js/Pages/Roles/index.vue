@@ -35,6 +35,7 @@
 
                 <div class="w-full">
                     <table
+                        v-if="props.roles.data.length > 0"
                         class="table-fixed w-full rounded-lg border-2 border-gray-200 overflow-hidden"
                     >
                         <thead>
@@ -47,7 +48,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="role in roles">
+                            <tr v-for="role in roles.data">
                                 <td class="border-2 p-3 border-gray-200">
                                     <p>{{ role.name }}</p>
                                 </td>
@@ -84,6 +85,16 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <NoData
+                        v-else
+                        header="No Data Roles Found"
+                        sub="Get started by creating your first role. Define permissions and responsibilities to manage your team effectively."
+                        button="Add Data Roles"
+                        link="/roles/create"
+                    />
+
+                    <Pagination :pagination="props.roles" />
                 </div>
             </div>
         </div>
@@ -124,6 +135,8 @@ import { useMethodStore } from "../../stores/method";
 import PrimButtonModal from "../../components/ui/primButtonModal.vue";
 import ModalDelete from "../../components/modal/ModalDelete.vue";
 import { ref } from "vue";
+import Pagination from "../../components/ui/Pagination.vue";
+import NoData from "../../components/card/NoData.vue";
 
 const method = useMethodStore();
 

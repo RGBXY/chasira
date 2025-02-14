@@ -5,15 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class ProductController extends Controller
 {
     public function index(){
-        $products = Product::where('family_id', Auth::user()->family_id)
-        ->with('category')
+        $products = Product::with('category')
         ->when(request()->search, function ($query) {
             $query->where('name', 'like', '%' . request()->search . '%');
         })
@@ -21,26 +19,25 @@ class ProductController extends Controller
             $query->where('category_id', request()->category_id);
         })
         ->latest()
-        ->get();
+        ->paginate(20);
 
          return Inertia::render('Products/index', [
         'products' => $products,
-        'categories' => Category::all(), // Opsional, untuk dropdown kategori
+        'categories' => Category::all(),
     ]); 
     }
 
     public function create(){
-        $categories = Category::where('family_id', Auth::user()->family_id)
-        ->latest()->get();
-
+        $categories = Category::latest()->get();
         return Inertia::render('Products/Create', [
-            'categories' => $categories
+            'categories' => $categories,
         ]);
     }
 
     public function store(Request $request){       
         $request->validate([
             'name' => ['required', 'max:225', 'unique:products,name,'],
+            'barcode' => ['required', 'unique:products'],
             'buy_price' => ['required','numeric'],
             'sell_price' => ['required', 'numeric'],
             'stock' => ['required', 'numeric'],
@@ -61,17 +58,15 @@ class ProductController extends Controller
             'stock' => $request->stock,
             'description' => $request->description,
             'image' => $image,
+            'barcode' => $request->barcode,
             'category_id' => $request->category_id,
-            'user_id' => Auth::id(),
-            'family_id' => Auth::user()->family_id
         ]);
 
         return redirect('/products')->with('message', 'Product Added Succesfully');
     }
 
     public function edit(Product $product){
-        $categories = Category::where('family_id', Auth::user()->family_id)
-        ->latest()->get();
+        $categories = Category::latest()->get();
 
         return Inertia::render('Products/Edit', [
             'product' => $product,
@@ -82,12 +77,17 @@ class ProductController extends Controller
     public function update(Request $request, Product $product){       
 
         $request->validate([
-            'name' => ['required', 'max:225', 'unique:products,name,'.$product->id],
+           'name' => [
+                'required',
+                'max:225',
+               'unique:products,name,'.$product->id
+            ],
             'buy_price' => ['required','numeric'],
             'sell_price' => ['required', 'numeric'],
             'stock' => ['required', 'numeric'],
             'description' => ['required', 'max:225'],
             'category_id' => ['required'],
+            'barcode' => ['required', 'unique:products,barcode,' .$product->id],
             'image' => ['file', 'nullable', 'max:300'],
         ]);
 
@@ -112,6 +112,7 @@ class ProductController extends Controller
             'description' => $request->description,
             'image' => $image,
             'category_id' => $request->category_id,
+            'barcode' => $request->barcode
         ]);
 
         return redirect('/products')->with('message', 'Product Edited Succesfully');

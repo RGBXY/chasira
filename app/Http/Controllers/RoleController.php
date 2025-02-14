@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -13,13 +14,12 @@ class RoleController extends Controller
     
     public function index()
     {
-        $roles = Role::where('family_id', Auth::user()->family_id)
-            ->with('permissions') 
+        $roles = Role::with('permissions') 
             ->when(request()->search, function ($query) {
                 $query->where('name', 'like', '%' . request()->search . '%'); 
             })
             ->latest()
-            ->get();
+            ->paginate(20);
 
         return Inertia::render("Roles/index", [
             'roles' => $roles
@@ -38,14 +38,13 @@ class RoleController extends Controller
 
     public function store(Request $request){
         $request->validate([
-            "name" => ["required", "max:225", "unique:roles,name,"],
+            "name" => ["required", "max:225", Rule::unique('roles')],
             "permissions" => ["required"]
         ]);
 
         $role = Role::create([
             'name' => $request->name,
             'created_by' => Auth::id(),
-            'family_id' => Auth::user()->family_id
         ]);
 
         $role->givePermissionTo($request->permissions);
@@ -67,7 +66,12 @@ class RoleController extends Controller
 
     public function update(Request $request, Role $role){
         $request->validate([
-            "name" => ["required", "max:225", "unique:roles,name,".$role->id],
+            'name' => [
+                'required',
+                'max:225',
+                Rule::unique('roles')
+                ->ignore($role->id)
+            ],
             "permissions" => ["required"]
         ]);
 

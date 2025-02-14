@@ -1,7 +1,7 @@
 <template>
     <button
         @click="handleSearchCat('')"
-        class="w-[155px] flex flex-col justify-center px-4 py-3 bg-white rounded-xl flex-shrink-0 border border-gray-200"
+        class="w-[155px] flex flex-col justify-center text-start px-4 py-3 bg-white rounded-xl flex-shrink-0 border border-gray-200"
     >
         <h1 class="font-semibold">All</h1>
         <p class="text-sm text-gray-400">Product</p>

@@ -1,12 +1,12 @@
 <template>
     <div
-        v-for="product in data"
+        v-for="product in products.data"
         :key="product.id"
         @click="addOrder(product.id)"
-        class="w-[30%] min-h-[270px] bg-white p-3 rounded-xl relative border cursor-pointer overflow-hidden"
+        class="w-[300px] bg-white p-3 rounded-xl relative border cursor-pointer overflow-hidden"
     >
-        <!-- <div
-            :class="product.stock === 0 ? 'block' : 'hidden'"
+        <div
+            :class="check?.id === product.id ? 'block' : 'hidden'"
             class="absolute w-full h-full bg-gray-400 left-0 top-0 z-30 bg-opacity-80 flex items-center justify-center"
         >
             <p
@@ -14,7 +14,7 @@
             >
                 Out of Stock
             </p>
-        </div> -->
+        </div>
 
         <div
             class="h-[200px] w-full rounded-xl overflow-hidden border relative"
@@ -59,25 +59,27 @@
 </template>
 
 <script setup>
+import { ref } from "vue";
 import formatPrice from "../../../core/helper/formatPrice";
 import { useReceiptStore } from "../../stores/receipt";
 
 const receiptStore = useReceiptStore();
+const check = ref(null);
 
 const props = defineProps({
-    data: Object,
+    products: Object,
 });
 
 const addOrder = (id) => {
-    const newOrder = props.data.find((item) => item.id === id);
+    const newOrder = props.products.data.find((item) => item.id === id);
 
     newOrder.total = 1;
 
-    const check = receiptStore.products.find((item) => item.id === id);
+    const checkData = receiptStore.products.find((item) => item.id === id);
 
     const qty = newOrder.stock;
 
-    if (!check && qty !== 0) {
+    if (!checkData && qty !== 0) {
         receiptStore.products.push(newOrder);
     }
 };

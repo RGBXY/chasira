@@ -4,21 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Outlet extends Model
+class Customers extends Model
 {
     protected $fillable = [
         'name',
         'address',
-        'city',
         'phone',
-        'email',
+        'gender',
         'description',
-        'status',
-        'user_id',
-        'family_id',
     ];
 
-    public function user(){
-        return $this->belongsTo(User::class);
+    public function transaction(){
+        return $this->hasMany(Transaction::class);
     }
 }

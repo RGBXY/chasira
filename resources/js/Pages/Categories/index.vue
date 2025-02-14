@@ -1,7 +1,7 @@
 <template>
     <Layout>
         <div class="py-8 px-7 flex items-center justify-center">
-            <div class="px-10 py-8 w-full max-w-7xl border bg-white rounded-lg">
+            <div class="px-8 py-8 w-full border bg-white rounded-lg">
                 <div class="mb-7 flex items-center justify-between pb-4">
                     <h1 class="text-3xl font-bold mb-1">Categories</h1>
 
@@ -34,57 +34,47 @@
                 </div>
 
                 <div class="w-full">
-                    <table
-                        class="table-auto w-full rounded-lg border-2 border-gray-200 overflow-hidden"
+                    <DataTable
+                        v-if="props.categories.data.length > 0"
+                        :data="props.categories.data"
+                        :header="headerConfig"
                     >
-                        <thead>
-                            <tr class="">
-                                <th class="text-start p-3">Name</th>
-                                <th class="text-start p-3">Total Product</th>
-                                <th class="text-start p-3">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr
-                                v-for="category in categories"
-                                :key="category.id"
+                        <template v-slot:products_count="{ row: i }">
+                            <div
+                                class="bg-gray-100 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
                             >
-                                <td class="border-2 p-3 border-gray-200">
-                                    {{ category.name }}
-                                </td>
-                                <td class="border-2 p-3 border-gray-200">
-                                    <div
-                                        class="bg-gray-100 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
-                                    >
-                                        {{ category.products_count }}
-                                    </div>
-                                </td>
+                                {{ i.products_count }}
+                            </div>
+                        </template>
+                        <template v-slot:actions="{ row: i }">
+                            <div class="flex items-start gap-2">
+                                <Link
+                                    :href="`/categories/${i.id}/edit`"
+                                    class="border-blue-300 border-2 px-2.5 py-1.5 flex items-center gap-1.5 font-semibold hover:bg-blue-50 text-blue-500 text-sm rounded-md"
+                                >
+                                    <PhPencil />
+                                    <p>Edit</p>
+                                </Link>
+                                <button
+                                    @click="method.modalDeleteFnc(i.id)"
+                                    class="border-red-300 border-2 px-2.5 py-1.5 flex items-center gap-1.5 font-semibold hover:bg-red-50 text-red-500 text-sm rounded-md"
+                                >
+                                    <PhTrash />
+                                    <p>Delete</p>
+                                </button>
+                            </div>
+                        </template>
+                    </DataTable>
 
-                                <td class="border-2 p-3 border-gray-200">
-                                    <div class="flex items-start gap-2">
-                                        <Link
-                                            :href="`/categories/${category.id}/edit`"
-                                            class="border-blue-300 border-2 px-2.5 py-1.5 flex items-center gap-1.5 font-semibold hover:bg-blue-50 text-blue-500 text-sm rounded-md"
-                                        >
-                                            <PhPencil />
-                                            <p>Edit</p>
-                                        </Link>
-                                        <button
-                                            @click="
-                                                method.modalDeleteFnc(
-                                                    category.id
-                                                )
-                                            "
-                                            class="border-red-300 border-2 px-2.5 py-1.5 flex items-center gap-1.5 font-semibold hover:bg-red-50 text-red-500 text-sm rounded-md"
-                                        >
-                                            <PhTrash />
-                                            <p>Delete</p>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <NoData
+                        v-else
+                        header="No Data Categories Found"
+                        sub="Get started by creating category you need. Organize categories to manage products more easily."
+                        button="Add Categories"
+                        link="/categories/create"
+                    />
+
+                    <Pagination :pagination="props.categories" />
                 </div>
             </div>
         </div>
@@ -125,8 +115,16 @@ import { useMethodStore } from "../../stores/method";
 import PrimButtonModal from "../../components/ui/primButtonModal.vue";
 import { ref } from "vue";
 import ModalDelete from "../../components/modal/ModalDelete.vue";
+import Pagination from "../../components/ui/Pagination.vue";
+import NoData from "../../components/card/NoData.vue";
+import DataTable from "../../components/layouts/DataTable.vue";
 
 const method = useMethodStore();
+
+const headerConfig = [
+    { key: "name", label: "Name" },
+    { key: "products_count", label: "Product Count" },
+];
 
 const search = ref("" || new URL(document.location).searchParams.get("search"));
 
@@ -143,7 +141,7 @@ const destroy = (id) => {
     method.modalDeleteFnc();
 };
 
-defineProps({
+const props = defineProps({
     categories: Object,
 });
 </script>

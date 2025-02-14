@@ -3,8 +3,14 @@
         <label for="name" class="mb-1 text-[13px]">{{ name }}</label>
         <input
             :type="type"
-            :class="message ? 'border-red-500' : 'border-gray-300'"
-            class="outline-none border text-sm focus-within:border-violet-500 h-10 px-3 rounded-lg placeholder:text-sm placeholder:text-gray-400"
+            :disabled="disabled"
+            :class="
+                (message ? 'border-red-500' : 'border-gray-300',
+                disabled
+                    ? 'bg-slate-100 placeholder:text-gray-500'
+                    : 'placeholder:text-gray-400')
+            "
+            class="outline-none border text-sm focus-within:border-violet-500 h-10 px-3 rounded-lg placeholder:text-sm"
             id="name"
             v-model="model"
             :placeholder="placeholder"
@@ -31,6 +37,10 @@ defineProps({
     type: {
         type: String,
         default: "text",
+    },
+    disabled: {
+        type: Boolean,
+        default: false,
     },
     message: String,
 });

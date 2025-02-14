@@ -1,102 +1,111 @@
 <template>
     <div
-        :class="
-            method.sideBarStat ? 'visible opacity-100' : 'invisible opacity-0'
-        "
-        class="fixed top-0 bg-black backdrop-blur-sm transition-all duration-500 bg-opacity-40 w-full h-screen z-40"
+        :class="method.sideBarStat ? 'w-[250px]' : 'w-20'"
+        class="fixed top-0 border-r h-screen z-40 transition-all bg-white"
     >
-        <div
-            :class="method.sideBarStat ? ' left-0' : '-left-1/2'"
-            class="h-full w-[25%] bg-white fixed transition-all duration-500"
-        >
+        <div class="h-full w-full bg- z-50 transition-all">
             <div class="h-[90%]">
                 <div
-                    class="h-20 min-h-20 border-b flex items-center justify-between gap-2 px-3 py-2"
+                    class="h-20 overflow-hidden min-h-20 border-b flex transition-all items-center justify-between gap-2 py-2"
                 >
-                    <div
-                        class="flex items-center gap-3 bg-gray-100 flex-1 h-full rounded-full px-2"
-                    >
+                    <div class="flex items-center gap-3 flex-1 h-full px-3">
                         <div
-                            class="w-12 h-12 rounded-full border overflow-hidden"
+                            class="w-12 h-12 rounded-xl border overflow-hidden"
                         >
                             <img
-                                src="https://steamuserimages-a.akamaihd.net/ugc/2001323196949400655/BD3F4F7C7CD1FE1A97C2F676344BF44F4489D6C2/?imw=512&&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false"
+                                :src="`https://ui-avatars.com/api/?name=${$page.props.auth.user.name}&background=4e73df&color=ffffff&size=100`"
                                 alt=""
                             />
                         </div>
-                        <div>
-                            <h1 class="font-semibold">{{ logedUser.name }}</h1>
-                            <p class="text-sm text-gray-500 font-semibold">
-                                Owner
-                            </p>
-                        </div>
-                    </div>
-                    <button
-                        @click="method.sideBarStatFnc()"
-                        class="flex items-center justify-center rounded-full w-[60px] hover:bg-red-100 bg-red-50 h-[60px]"
-                    >
-                        <PhX class="text-2xl text-red-400" weight="bold" />
-                    </button>
-                </div>
-
-                <div class="mt-5 overflow-y-auto h-[85%] no-scrollbar">
-                    <Link
-                        v-for="menu in filteredMenu"
-                        @click="method.sideBarStatFnc()"
-                        :href="menu.route"
-                        :class="
-                            menu.route === page.url
-                                ? 'bg-violet-100 text-violet-500 '
-                                : 'text-black '
-                        "
-                        class="flex items-center font-medium gap-3.5 px-3 py-4"
-                    >
-                        <div
-                            :class="
-                                menu.route === page.url
-                                    ? 'bg-violet-400 '
-                                    : 'bg-gray-200 '
-                            "
-                            class="h-12 w-12 rounded-full flex justify-center items-center"
+                        <transition
+                            enter-active-class="transition-all duration-300 ease-out"
+                            enter-from-class="opacity-0 transform duration-300 -translate-x-4"
+                            enter-to-class="opacity-100 transform translate-x-0"
+                            leave-active-class="transition-all  ease-in"
+                            leave-from-class="opacity-100 transform translate-x-0"
+                            leave-to-class="opacity-0 transform -translate-x-4"
                         >
-                            <component
-                                :is="menu.PhIcon"
-                                :class="
-                                    menu.route === page.url
-                                        ? 'text-white'
-                                        : 'text-gray-500'
-                                "
-                                class="text-2xl"
-                            />
-                        </div>
-                        <h1 class="text-lg">{{ menu.heading }}</h1>
-                    </Link>
+                            <div
+                                v-if="method.sideBarStat"
+                                class="whitespace-nowrap overflow-hidden"
+                            >
+                                <h1 class="font-semibold">
+                                    {{ logedUser.name }}
+                                </h1>
+                                <p class="text-sm text-gray-500">
+                                    {{ logedUser.roles[0].name }}
+                                </p>
+                            </div>
+                        </transition>
+                    </div>
                 </div>
-            </div>
 
-            <div class="w-full px-3 py-2 h-[10%] bottom-0 absolute border-t">
-                <Link
-                    @click="method.sideBarStatFnc"
-                    as="button"
-                    type="button"
-                    method="post"
-                    href="/logout"
-                    class="flex items-center w-full bg-gray-100 border justify-between gap-3 h-full rounded-full ps-5 pe-2"
+                <div
+                    :class="method.sideBarStat ? 'h-[100%]' : 'h-full '"
+                    class="overflow-y-auto no-scrollbar px-3 divide-y"
                 >
-                    <h1 class="text-xl font-semibold">Log out</h1>
-                    <button
-                        class="bg-red-400 p-3 text-2xl rounded-full text-white"
+                    <div
+                        v-for="menu in filteredMenu"
+                        :key="menu.heading"
+                        :class="method.sideBarStat ? 'py-4' : 'py-2'"
+                        class=""
                     >
-                        <PhSignOut />
-                    </button>
-                </Link>
+                        <p
+                            v-if="method.sideBarStat"
+                            class="font-bold uppercase text-sm ps-4 mb-2"
+                        >
+                            {{ menu.heading }}
+                        </p>
+
+                        <Link
+                            v-for="sub in menu.pages"
+                            :href="sub.route"
+                            :class="[
+                                sub.route === page.url
+                                    ? 'bg-violet-50 text-violet-500'
+                                    : 'text-gray-500',
+                            ]"
+                            class="flex items-center gap-3 px-3 py-2 rounded-lg"
+                        >
+                            <div
+                                class="flex-shrink-0 w-8 h-8 flex items-center justify-center"
+                            >
+                                <component
+                                    :is="sub.PhIcon"
+                                    :class="[
+                                        sub.route === page.url
+                                            ? 'text-primary'
+                                            : 'text-gray-500',
+                                    ]"
+                                    class="text-2xl"
+                                />
+                            </div>
+
+                            <transition
+                                enter-active-class="transition-all ease-out"
+                                enter-from-class="opacity-0 transform -translate-x-4"
+                                enter-to-class="opacity-100 transform translate-x-0"
+                                leave-active-class="transition-all ease-in"
+                                leave-from-class="opacity-100 transform translate-x-0"
+                                leave-to-class="opacity-0 transform -translate-x-4"
+                            >
+                                <h1
+                                    v-if="method.sideBarStat"
+                                    class="font-semibold text-sm whitespace-nowrap"
+                                >
+                                    {{ sub.heading }}
+                                </h1>
+                            </transition>
+                        </Link>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { PhSignOut, PhX } from "@phosphor-icons/vue";
+import { PhSignOut } from "@phosphor-icons/vue";
 import { useMethodStore } from "../../stores/method";
 import { Link, usePage } from "@inertiajs/vue3";
 import MainMenuConfig from "../../../core/config/MainMenuConfig";

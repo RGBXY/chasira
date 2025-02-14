@@ -3,18 +3,18 @@
         <div class="py-8 px-7 flex items-center justify-center">
             <div class="px-10 py-8 w-full max-w-7xl border bg-white rounded-lg">
                 <div class="mb-6 flex items-center justify-between">
-                    <h1 class="text-3xl font-bold mb-1">Edit Outlet</h1>
+                    <h1 class="text-3xl font-bold mb-1">Edit Supplier</h1>
                 </div>
 
                 <form
-                    @submit.prevent="submit()"
+                    @submit.prevent="submit"
                     class="w-full flex flex-col gap-3"
                 >
                     <TextInput
-                        name="Outlet Name"
+                        name="Supplier Name"
                         type="text"
                         v-model="form.name"
-                        placeholder="Your outlete name"
+                        placeholder="Your supplier name"
                         :message="form.errors.name"
                     />
 
@@ -22,47 +22,32 @@
                         name="Address"
                         type="text"
                         v-model="form.address"
-                        placeholder="Your outlet address"
+                        placeholder="Your supplier address"
                         :message="form.errors.address"
                     />
 
                     <TextInput
-                        name="City"
-                        type="text"
-                        v-model="form.city"
-                        placeholder="Your outlet city"
-                        :message="form.errors.city"
-                    />
-
-                    <TextInput
-                        name="Phone Number"
+                        name="Phone"
                         type="number"
                         v-model="form.phone"
-                        placeholder="Your outlet phone number"
+                        placeholder="Your supplier phone"
                         :message="form.errors.phone"
                     />
 
-                    <TextInput
-                        name="Email"
-                        type="email"
-                        v-model="form.email"
-                        placeholder="Your outlet email"
-                        :message="form.errors.email"
-                    />
-
-                    <TextArea
+                    <TextAreaInput
                         name="Description"
                         v-model="form.description"
-                        placeholder="Description about your outlet"
+                        placeholder="Your supplier description"
                         :message="form.errors.description"
                     />
 
                     <div class="flex justify-end gap-3">
-                        <button
-                            class="h-10 px-3 bg-violet-100 rounded-lg font-semibold text-violet-400"
+                        <Link
+                            href="/suppliers"
+                            class="h-10 px-3 flex items-center bg-violet-100 rounded-lg font-semibold text-violet-400"
                         >
                             Back
-                        </button>
+                        </Link>
                         <button
                             type="submit"
                             :disabled="form.processing"
@@ -85,26 +70,21 @@
 <script setup>
 import Layout from "../../Layouts/Layout.vue";
 import TextInput from "../../components/ui/TextInput.vue";
-import TextArea from "../../components/ui/TextAreaInput.vue";
-import { useForm } from "@inertiajs/vue3";
+import TextAreaInput from "../../components/ui/TextAreaInput.vue";
+import { Link, useForm } from "@inertiajs/vue3";
 
 const props = defineProps({
-    outlet: Object,
+    supplier: Object,
 });
 
 const form = useForm({
-    name: props.outlet.name,
-    address: props.outlet.address,
-    city: props.outlet.city,
-    phone: props.outlet.phone,
-    email: props.outlet.email,
-    description: props.outlet.description,
-    status: props.outlet.status,
+    name: props.supplier.name,
+    address: props.supplier.address,
+    phone: props.supplier.phone,
+    description: props.supplier.description,
 });
 
 const submit = () => {
-    form.put(`/outlets/${props.outlet.id}`);
+    form.put(`/suppliers/${props.supplier.id}`);
 };
 </script>
-
-<style lang="scss" scoped></style>

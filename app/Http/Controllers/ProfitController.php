@@ -11,11 +11,11 @@ use Inertia\Inertia;
 class ProfitController extends Controller
 {
     public function index(){
-        $profits = Profit::where('family_id', Auth::user()->family_id)->with('transaction')
+        $profits = Profit::with('transaction')
         ->whereDate('created_at', Carbon::today())
-        ->get();
+        ->paginate(20);
 
-        $total = Profit::where('family_id', Auth::user()->family_id)->whereDate('created_at', Carbon::today())
+        $total = Profit::whereDate('created_at', Carbon::today())
         ->sum('total');
 
         return Inertia::render('Profits/index', [
@@ -23,7 +23,6 @@ class ProfitController extends Controller
             'total' => $total,
         ]);
 
-        return Inertia::render('Profits/index');
     }
 
     public function filter(Request $request)
@@ -34,15 +33,13 @@ class ProfitController extends Controller
         ]);
 
         //get data sales by range date
-        $profits = Profit::where('family_id', Auth::user()->family_id)
-            ->with('transaction')
+        $profits = Profit::with('transaction')
             ->whereDate('created_at', '>=', $request->start_date)
             ->whereDate('created_at', '<=', $request->end_date)
-            ->get();
+            ->paginate(20);
 
         //get total sales by range date
-        $total = Profit::where('family_id', Auth::user()->family_id)
-            ->whereDate('created_at', '>=', $request->start_date)
+        $total = Profit::whereDate('created_at', '>=', $request->start_date)
             ->whereDate('created_at', '<=', $request->end_date)
             ->sum('total');
 

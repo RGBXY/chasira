@@ -9,7 +9,6 @@ class Profit extends Model
     protected $fillable = [
         'transaction_id',
         'total',
-        'family_id'
     ];
 
     public function transaction(){

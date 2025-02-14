@@ -23,31 +23,15 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'family_id',
-        'outlet_id',
-        'role_id',
         'status',
-        'parent_id',
     ];
 
-    public function employees(){
-        return $this->hasMany(User::class, 'parent_id', 'id');
+    public function carts(){
+        return $this->hasMany(Cart::class);
     }
 
-    public function category(){
-        return $this->hasMany(Category::class);
-    }
-
-    public function product(){
-        return $this->hasMany(Product::class);
-    }
-
-    public function outlet(){
-        return $this->belongsTo(Outlet::class);
-    }
-
-    public function role(){
-        return $this->belongsTo(Role::class);
+    public function transactions(){
+        return $this->hasMany(Transaction::class);
     }
 
     public function getPermissionArray()

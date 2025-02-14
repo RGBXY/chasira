@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Transaction extends Model
 {
     protected $fillable = [
-        'chasier_id',
-        'family_id',
+        'user_id',
+        'customer_id',
         'invoice',
         'cash',
         'change',
@@ -20,8 +20,8 @@ class Transaction extends Model
         return $this->hasMany(TransactionDetail::class);
     }
 
-    public function chasier(){
-        return $this->belongsTo(User::class, 'chasier_id');
+    public function cashier(){
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function profits()

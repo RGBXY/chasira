@@ -9,7 +9,10 @@
                     </p>
                 </div>
 
-                <div class="flex items-center gap-5 w-full h-full mb-7">
+                <div
+                    v-if="hasAnyPermission(['dashboard.index'])"
+                    class="flex items-center gap-5 w-full h-full mb-7"
+                >
                     <div
                         class="p-5 rounded-xl flex-1 min-h-[120px] bg-white border border-gray-300"
                     >
@@ -89,6 +92,7 @@
                         />
                     </div>
                     <div
+                        v-if="hasAnyPermission(['dashboard.index'])"
                         class="flex-1 bg-white rounded-xl border border-gray-300 p-5"
                     >
                         <h1 class="text-xl font-semibold">
@@ -154,6 +158,7 @@
                         </div>
                     </div>
                     <div
+                        v-if="hasAnyPermission(['dashboard.index'])"
                         class="px-10 py-8 flex-1 border border-gray-300 bg-white rounded-lg"
                     >
                         <div class="mb-3 flex flex-col pb-4">
@@ -204,7 +209,10 @@
                     </div>
                 </div>
 
-                <div class="w-full flex gap-5">
+                <div
+                    v-if="hasAnyPermission(['dashboard.index'])"
+                    class="w-full flex gap-5"
+                >
                     <div
                         class="flex-1 bg-white rounded-xl border-gray-300 border p-5"
                     >

@@ -14,8 +14,7 @@ class Product extends Model
         'stock',
         'image',
         'category_id',
-        'user_id',
-        'family_id'
+        'barcode'       
     ];
 
     public function category()
@@ -23,7 +22,8 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function user(){
-        return $this->belongsTo(User::class);
+    public function stock_out()
+    {
+        return $this->belongsTo(StockOut::class);
     }
 }

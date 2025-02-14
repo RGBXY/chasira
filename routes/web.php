@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\OutletController;
@@ -9,18 +10,23 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfitController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\StockInController;
+use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
+Route::middleware('guest')->group(function () {    
+    Route::inertia('/login', 'Auth/LoginView');
+    Route::post('/login', [AuthController::class, 'login'])->name('login');
+});
 
 Route::group(['middleware' => ['auth']], function () {
 
     Route::group(['middleware' => ['inactive']], function () {
         // Transaction Route
-        Route::resource('/', TransactionController::class)
-        ->middleware('permission:transactions.index|transactions.create|transactions.edit|transactions.delete');
-        Route::post('/transactions/addToCart', [TransactionController::class, 'cart'])->middleware('permission:transactions.index');
-        Route::post('/transactions/destroyCart', [TransactionController::class, 'destroyCart'])->middleware('permission:transactions.index');
+        Route::resource('/', TransactionController::class);
+        Route::post('/transactions/addToCart', [TransactionController::class, 'cart']);
+        Route::post('/transactions/destroyCart', [TransactionController::class, 'destroyCart']);
 
         // Products Route
         Route::resource('/products', ProductController::class)
@@ -29,12 +35,6 @@ Route::group(['middleware' => ['auth']], function () {
         // Categories Route
         Route::resource('/categories', CategoryController::class)
         ->middleware('permission:categories.index|categories.create|categories.edit|categories.delete');
-
-        // Outlets Route
-        Route::resource('/outlets', OutletController::class)
-        ->middleware('permission:outlets.index|outlets.create|outlets.edit|outlets.status');
-        Route::put('/outlets/{id}/activate', [OutletController::class, 'activate']);
-        Route::put('/outlets/{id}/deactivate', [OutletController::class, 'deactivate']);
 
         // Sales Route
         Route::get('/sales', [SaleController::class, 'index'])->middleware('permission:sales.index');
@@ -48,6 +48,15 @@ Route::group(['middleware' => ['auth']], function () {
         Route::resource('/roles', RoleController::class)
         ->middleware('permission:roles.index|roles.create|roles.edit|roles.delete');
 
+        Route::resource('/suppliers', SupplierController::class)
+        ->middleware('permission:suppliers.index|suppliers.create|suppliers.edit|suppliers.delete');
+
+        Route::resource('/customers', CustomersController::class)
+        ->middleware('permission:customers.index|customers.create|customers.edit|customers.delete');
+
+        Route::resource('/stock-in', StockInController::class)
+        ->middleware('permission:stock_in.index|stock_in.create|stock_in.edit|stock_in.delete');
+
         // Employe Route
         Route::resource('/employees', EmployeeController::class)
         ->middleware('permission:employees.index|employees.create|employees.edit|employees.delete');
@@ -55,7 +64,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::put('/employees/{id}/deactivate', [EmployeeController::class, 'deactivate']);
 
         Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->middleware('permission:dashboard.index')
         ->name('dashboard');
 
         
@@ -64,13 +72,5 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::inertia('/inactive', 'Inactive/index');
-});
-
-Route::middleware('guest')->group(function () {
-    Route::inertia('/register', 'Auth/RegisterView');
-    Route::post('/register', [AuthController::class, 'register']);
-    
-    Route::inertia('/login', 'Auth/LoginView');
-    Route::post('/login', [AuthController::class, 'login'])->name('login');
 });
 
