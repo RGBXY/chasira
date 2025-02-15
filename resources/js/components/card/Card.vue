@@ -3,7 +3,7 @@
         v-for="product in products.data"
         :key="product.id"
         @click="addOrder(product.id)"
-        class="w-[300px] bg-white p-3 rounded-xl relative border cursor-pointer overflow-hidden"
+        class="w-[300px] p-3 rounded-xl bg-white relative border cursor-pointer overflow-hidden"
     >
         <div
             :class="check?.id === product.id ? 'block' : 'hidden'"
@@ -73,14 +73,15 @@ const props = defineProps({
 const addOrder = (id) => {
     const newOrder = props.products.data.find((item) => item.id === id);
 
-    newOrder.total = 1;
+    const perProduct = receiptStore.products.find((item) => item.id === id);
 
-    const checkData = receiptStore.products.find((item) => item.id === id);
+    const stock = newOrder.stock;
 
-    const qty = newOrder.stock;
-
-    if (!checkData && qty !== 0) {
+    if (!perProduct && stock !== 0) {
+        newOrder.total = 1;
         receiptStore.products.push(newOrder);
+    } else if (perProduct && perProduct.total < perProduct.stock) {
+        perProduct.total++;
     }
 };
 </script>

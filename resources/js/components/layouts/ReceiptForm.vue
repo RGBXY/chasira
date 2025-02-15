@@ -63,7 +63,14 @@
                                         >
                                             <PhMinus />
                                         </button>
-                                        <p>{{ product.total }}</p>
+                                        <input
+                                            @keydown="preventNonNumber($event)"
+                                            @input="qtyFunc(product)"
+                                            @change="qtyNullFunc(product)"
+                                            v-model="product.total"
+                                            type="number"
+                                            class="delete-number-spin bg-transparent w-7 text-center"
+                                        />
                                         <button
                                             @click="increment(product.id)"
                                             class="bg-white rounded-full flex items-center justify-center h-[25px] w-[25px]"
@@ -81,10 +88,6 @@
                     <div class="flex items-center mb-1.5 justify-between">
                         <p class="">Subtotal</p>
                         <p>{{ formatPrice(total) }}</p>
-                    </div>
-                    <div class="flex items-center mb-1.5 justify-between">
-                        <p class="">Tax</p>
-                        <p>Rp 0</p>
                     </div>
                     <div class="flex items-center mb-1.5 justify-between">
                         <p class="">Discount</p>
@@ -107,7 +110,7 @@
                         ? 'bg-violet-300'
                         : 'bg-violet-400 '
                 "
-                class="font-semibold text-xl text-white w-full h-[8%] border-t"
+                class="font-semibold text-xl text-white w-full h-16 border-t"
             >
                 Place Order
             </button>
@@ -137,6 +140,39 @@ const total = ref(null);
 const form = useForm({
     products: [],
 });
+
+const qtyNullFunc = (product) => {
+    if (product.total === "" || product.total === 0) {
+        const filteredProduct = receiptStore.products.filter(
+            (item) => item.id !== product.id
+        );
+        receiptStore.products = filteredProduct;
+    }
+};
+
+const qtyFunc = (product) => {
+    if (product.total >= product.stock) {
+        product.total = product.stock;
+    }
+};
+
+const preventNonNumber = (event) => {
+    // Daftar tombol yang diizinkan
+    const allowedKeys = [
+        "Backspace",
+        "Delete",
+        "ArrowLeft",
+        "ArrowRight",
+        "Tab",
+    ];
+
+    // Cegah input jika:
+    // 1. Bukan angka (0-9)
+    // 2. Bukan tombol yang diizinkan
+    if (isNaN(event.key) && !allowedKeys.includes(event.key)) {
+        event.preventDefault();
+    }
+};
 
 const submit = async () => {
     form.products = receiptStore.products;
@@ -200,4 +236,4 @@ watch(
 );
 </script>
 
-<style lang="scss" scoped></style>
+<style scoped></style>

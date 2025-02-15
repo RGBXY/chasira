@@ -133,7 +133,7 @@ const form = useForm({
     barcode: "",
     buy_price: null,
     sell_price: null,
-    stock: 0,
+    stock: 30,
     description: "",
     image: null,
 });

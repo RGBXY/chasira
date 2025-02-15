@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('description');
             $table->string('barcode');
-            $table->integer('buy_price')->unique();  
+            $table->integer('buy_price');
             $table->integer('sell_price');  
             $table->integer('stock');  
             $table->string('image')->nullable();  
