@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Outlet;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
@@ -13,14 +11,12 @@ use Spatie\Permission\Models\Role;
 class EmployeeController extends Controller
 {
     public function index(){
-        $user = User::where('family_id', Auth::user()->family_id)
-        ->where('parent_id', Auth::user()->family_id)
-
+        $user = User::with('roles')->latest()
+        ->where('id', '!=', 1)
         ->when(request()->search, function ($query) {
             $query->where('name', 'like', '%' . request()->search . '%'); 
         })
-        ->with('outlet')->with('role')
-        ->latest()->paginate(20);
+        ->paginate(20);
 
         return Inertia::render("Employees/index", [
             'user' => $user
@@ -28,7 +24,7 @@ class EmployeeController extends Controller
     }
 
     public function create(){
-        $roles = Role::where('family_id', Auth::user()->family_id)->get();
+        $roles = Role::latest()->get();
 
         return Inertia::render("Employees/Create", [
             'roles' => $roles
@@ -48,7 +44,6 @@ class EmployeeController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
-            'outlet_id' => $request->outlet_id,
             'status' => $request->status,
         ]);
 
@@ -59,7 +54,7 @@ class EmployeeController extends Controller
 
     public function edit($id){
         $employee = User::findOrFail($id);
-        $roles = Role::where('created_by', getUserIdForQuery())->get();
+        $roles = Role::latest()->get();
 
         return Inertia::render('Employees/Edit', [
             'user' => $employee,
@@ -73,7 +68,6 @@ class EmployeeController extends Controller
                 'required',
                 'max:225',
                 Rule::unique('users')
-                ->where('family_id', Auth::user()->family_id)
                 ->ignore($employee->id)
             ],
             'email' => ['required', 'email', 'max:225', 'unique:users,email,'.$employee->id],

@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\Category;
+use App\Models\Customers;
 use App\Models\Product;
 use App\Models\Transaction;
+use App\Models\TransactionDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
@@ -28,12 +30,42 @@ class TransactionController extends Controller
         $categories = Category::withCount('products')
             ->limit(5)
             ->get();
-    
+
+        $customers = Customers::latest()->get();
+
         // Return Inertia view
         return Inertia::render('Transactions/index', [
             'products' => $products,
             'categories' => $categories,
+            'customers' => $customers,
         ]); 
+    }
+
+    public function searchProduct(Request $request)
+    {
+        // Cek apakah barcode atau name yang dikirim
+        $query = Product::with('category');
+
+        if ($request->barcode) {
+            $query->where('barcode', $request->barcode);
+        } elseif ($request->name) {
+            // Cari yang namanya mengandung keyword
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        $products = $query->get();
+
+        if ($products->isNotEmpty()) {
+            return response()->json([
+                'success' => true,
+                'data'    => $products
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'data'    => []
+        ]);
     }
 
     public function cart(Request $request){
@@ -75,10 +107,12 @@ class TransactionController extends Controller
         $invoice = 'TRX-'.Str::upper($random);
 
         $transaction = Transaction::create([
-            'user_id'    => Auth::id(),
+            'user_id'       => Auth::id(),
             'invoice'       => $invoice,
+            'total'         => $request->total,
             'cash'          => $request->cash,
             'change'        => $request->change,
+            'customer_id'   => $request->customer_id,
             'discount'      => $request->discount,
             'grand_total'   => $request->grand_total,
         ]);

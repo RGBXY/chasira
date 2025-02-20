@@ -17,17 +17,22 @@ class UserTableSeeder extends Seeder
     public function run(): void
     {
         $user = User::create([
-            'name' => 'admin',
+            'name' => 'Admin',
             'email' => 'admin@gmail.com',
             'password' => bcrypt('123123'),
         ]);
 
-        $permissions = Permission::all();
+        $adminPermissions = Permission::all();
+        $cashierPermissions = Permission::whereIn('name', [
+            'transactions.index',
+        ])->get();
 
-        $role = Role::find(1);
+        $admin = Role::find(1);
+        $cashier = Role::find(2);
 
-        $role->syncPermissions($permissions);
+        $admin->syncPermissions($adminPermissions);
+        $cashier->syncPermissions($cashierPermissions);
 
-        $user->assignRole($role);
+        $user->assignRole($admin);
     }
 }

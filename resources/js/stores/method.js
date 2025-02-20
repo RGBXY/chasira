@@ -11,6 +11,7 @@ export const useMethodStore = defineStore("method", {
         modalPyamentStat: false,
         modalPrintStat: false,
         sideBarStat: true,
+        modalDetailStat: false,
         pay: 0,
     }),
 
@@ -43,6 +44,9 @@ export const useMethodStore = defineStore("method", {
         },
         toasterFncClose() {
             this.toasterStat = false;
+        },
+        modalDetailFnc() {
+            this.modalDetailStat = !this.modalDetailStat;
         },
     },
 });

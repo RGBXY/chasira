@@ -117,7 +117,7 @@
         </div>
     </div>
 
-    <ModalPayment :total="total" />
+    <ModalPayment :total="total"  />
 
     <ModalPrint />
 </template>
@@ -131,6 +131,7 @@ import { useMethodStore } from "../../stores/method.js";
 import ModalPayment from "../modal/ModalPayment.vue";
 import ModalPrint from "../modal/ModalPrint.vue";
 import { useForm } from "@inertiajs/vue3";
+import { onKeyStroke } from "@vueuse/core";
 
 const receiptStore = useReceiptStore();
 const method = useMethodStore();
@@ -175,13 +176,21 @@ const preventNonNumber = (event) => {
 };
 
 const submit = async () => {
-    form.products = receiptStore.products;
-    form.post("/transactions/addToCart", {
-        onSuccess: () => {
-            method.modalPaymentFnc();
-        },
-    });
+    if (receiptStore.products.length > 0) {
+        form.products = receiptStore.products;
+        form.post("/transactions/addToCart", {
+            onSuccess: () => {
+                method.modalPaymentFnc();
+            },
+        });
+    }
 };
+
+onKeyStroke("Enter", () => {
+    if (receiptStore.products.length > 0) {
+        submit();
+    }
+});
 
 const clearData = () => {
     receiptStore.products.forEach((item) => {

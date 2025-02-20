@@ -88,7 +88,7 @@ const MainMenuConfig: Array<MenuItem> = [
     },
     {
         heading: "Report",
-        permissions: "transactions.index",
+        permissions: "sales.index",
         pages: [
             {
                 heading: "Report Sales",
@@ -104,7 +104,7 @@ const MainMenuConfig: Array<MenuItem> = [
     },
     {
         heading: "Employees",
-        permissions: "transactions.index",
+        permissions: "employees.index",
         pages: [
             {
                 heading: "Role",

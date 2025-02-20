@@ -26,8 +26,6 @@ class RoleController extends Controller
         ]);
     }
     
-    
-
     public function create(){
         $permissions = Permission::all();
 

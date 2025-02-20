@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->string('invoice');
             $table->bigInteger('cash');
+            $table->string('total');
             $table->bigInteger('change');
             $table->bigInteger('discount');
             $table->bigInteger('grand_total');

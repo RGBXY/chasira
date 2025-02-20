@@ -11,11 +11,12 @@
                     class="w-full flex flex-col gap-3"
                 >
                     <TextInput
-                        name="Barcode"
+                        name="Product Barcode"
                         type="text"
-                        v-model="form.barcode"
+                        v-model="barcode"
                         placeholder="Your product barcode "
-                        :message="form.errors.barcode"
+                        :message="form.errors.product_id"
+                        @keydown="debouncedSearch()"
                     />
 
                     <div class="flex justify-between gap-3">
@@ -23,36 +24,68 @@
                             class="flex-1"
                             name="Product Name"
                             type="text"
-                            disabled="true"
-                            v-model="form.address"
-                            placeholder="Your "
-                            :message="form.errors.address"
+                            :disabled="true"
+                            v-model="productsData.name"
+                            placeholder="Product Name "
                         />
 
                         <TextInput
                             class="flex-1"
                             name="Initial Stock"
                             type="text"
-                            disabled="true"
-                            v-model="form.address"
-                            placeholder="Your supplier address"
-                            :message="form.errors.address"
+                            :disabled="true"
+                            v-model="productsData.stock"
+                            placeholder="Your product current stock"
                         />
                     </div>
 
+                    <div class="mb-2">
+                        <label for="" class="mb-1 text-[13px]">Supplier</label>
+                        <div
+                            :class="
+                                form.errors.supplier_id
+                                    ? 'border-red-500'
+                                    : 'border-gray-300'
+                            "
+                            class="h-10 rounded-lg bg-white px-2 border-[1.5px]"
+                        >
+                            <select
+                                v-model="form.supplier_id"
+                                name=""
+                                id=""
+                                class="h-full w-full bg-transparent text-sm rounded-lg border-none outline-none"
+                            >
+                                <option value="" disabled selected>
+                                    Supplier
+                                </option>
+                                <option
+                                    v-for="supplier in props.suppliers"
+                                    :value="supplier.id"
+                                >
+                                    {{ supplier.name }}
+                                </option>
+                            </select>
+                        </div>
+                        <small
+                            v-if="form.errors.supplier_id"
+                            class="text-red-500"
+                            >{{ form.errors.supplier_id }}</small
+                        >
+                    </div>
+
                     <TextInput
-                        name="Phone"
+                        name="Qty"
                         type="number"
-                        v-model="form.phone"
-                        placeholder="Your supplier phone"
-                        :message="form.errors.phone"
+                        v-model="form.qty"
+                        placeholder="Your new stock qty"
+                        :message="form.errors.qty"
                     />
 
                     <TextAreaInput
-                        name="Description"
-                        v-model="form.description"
+                        name="Detail"
+                        v-model="form.detail"
                         placeholder="Your supplier description"
-                        :message="form.errors.description"
+                        :message="form.errors.detail"
                     />
 
                     <div class="flex justify-end gap-3">
@@ -86,19 +119,57 @@ import Layout from "../../Layouts/Layout.vue";
 import TextInput from "../../components/ui/TextInput.vue";
 import TextAreaInput from "../../components/ui/TextAreaInput.vue";
 import { Link, useForm } from "@inertiajs/vue3";
+import { debounce } from "lodash";
+import { ref, watch } from "vue";
 
 const props = defineProps({
     products: Object,
+    suppliers: Object,
 });
 
+const barcode = ref("");
+const productsData = ref("");
+const loading = ref(false);
+
+const debouncedSearch = debounce(() => {
+    if (barcode.value === "") {
+        productsData.value = "";
+    }
+
+    loading.value = true;
+
+    axios
+        .post("/stock-in/searchProduct", {
+            barcode: barcode.value,
+        })
+        .then((response) => {
+            if (response.data.success && response.data.data.length > 0) {
+                productsData.value = response.data.data[0];
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+        })
+        .finally(() => {
+            loading.value = false;
+        });
+}, 500);
+
 const form = useForm({
-    name: "",
-    address: "",
-    phone: "",
-    description: "",
+    product_id: "",
+    supplier_id: "",
+    qty: "",
+    detail: "",
 });
 
 const submit = () => {
-    form.post("/suppliers");
+    console.log(form);
 };
+
+watch(
+    () => productsData.value,
+    (newVal) => {
+        form.product_id = newVal?.id || "";
+    }
+);
 </script>

@@ -57,72 +57,49 @@
                 </div>
 
                 <div class="w-full">
-                    <table
+                    <DataTable
                         v-if="props.sales.data.length > 0"
-                        class="table-auto w-full rounded-lg border-2 border-gray-200 overflow-hidden"
+                        :data="props.sales.data"
+                        :header="headerConfig"
                     >
-                        <thead>
-                            <tr class="">
-                                <th class="text-start p-3">Date</th>
-                                <th class="text-start p-3">Invoice</th>
-                                <th class="text-start p-3">Cashier</th>
-                                <th class="text-start p-3">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="sale in props.sales.data">
-                                <td class="border-2 p-3 border-gray-200">
-                                    <div
-                                        class="px-2.5 py-1.5 uppercase inline-block rounded-md"
-                                    >
-                                        {{ formatDate(sale.created_at) }}
-                                    </div>
-                                </td>
-                                <td class="border-2 p-3 border-gray-200">
-                                    <div
-                                        class="px-2.5 py-1.5 uppercase inline-block rounded-md"
-                                    >
-                                        {{ sale.invoice }}
-                                    </div>
-                                </td>
-                                <td class="border-2 p-3 border-gray-200">
-                                    <div
-                                        class="bg-gray-100 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
-                                    >
-                                        {{ sale.cashier.name }}
-                                    </div>
-                                </td>
-                                <td class="border-2 p-3 border-gray-200">
-                                    <div
-                                        class="px-2.5 py-1.5 uppercase inline-block rounded-md"
-                                    >
-                                        {{ formatPrice(sale.grand_total) }}
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="bg-gray-100">
-                                <td
-                                    colspan="3"
-                                    class="border-2 p-3 border-gray-200 text-end"
+                        <template v-slot:date="{ row: i }">
+                            <div class="uppercase inline-block rounded-md">
+                                {{ formatDate(i.created_at) }}
+                            </div>
+                        </template>
+                        <template v-slot:customers="{ row: i }">
+                            <div class="uppercase inline-block rounded-md">
+                                {{ i.customers?.name }}
+                            </div>
+                        </template>
+                        <template v-slot:cashier="{ row: i }">
+                            <div class="uppercase inline-block rounded-md">
+                                {{ i.cashier.name }}
+                            </div>
+                        </template>
+                        <template v-slot:total="{ row: i }">
+                            <div class="uppercase inline-block rounded-md">
+                                {{ formatPrice(i.total) }}
+                            </div>
+                        </template>
+                        <template v-slot:grand_total="{ row: i }">
+                            <div class="uppercase inline-block rounded-md">
+                                {{ formatPrice(i.grand_total) }}
+                            </div>
+                        </template>
+
+                        <template v-slot:actions="{ row: i }">
+                            <div class="flex items-start gap-2">
+                                <button
+                                    @click="modalButtonFnc(i.id)"
+                                    class="border-gray-300 border px-2.5 py-1.5 flex items-center gap-1.5 hover:bg-primary-bg font-semibold text-gray-500 text-sm rounded-md"
                                 >
-                                    <div
-                                        class="px-2.5 py-1.5 font-semibold text-end uppercase inline-block rounded-md"
-                                    >
-                                        Total Sum :
-                                    </div>
-                                </td>
-                                <td
-                                    class="border-2 p-3 border-gray-200 text-end"
-                                >
-                                    <div
-                                        class="px-2.5 py-1.5 font-semibold uppercase inline-block rounded-md"
-                                    >
-                                        {{ formatPrice(props.total) }}
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                    <PhEye weight="bold" class="text-base" />
+                                    <p>Detail</p>
+                                </button>
+                            </div>
+                        </template>
+                    </DataTable>
 
                     <NoData
                         v-else
@@ -132,6 +109,94 @@
                         link="/"
                     />
 
+                    <ModalSalesDetail>
+                        <div class="">
+                            <div class="p-5 flex flex-col gap-4">
+                                <ContentDetail
+                                    title="Invoice"
+                                    :value="saleDetail.invoice"
+                                />
+
+                                <ContentDetail
+                                    title="Date"
+                                    :value="formatDate(saleDetail.created_at)"
+                                />
+
+                                <ContentDetail
+                                    title="Total"
+                                    :value="formatPrice(saleDetail.total)"
+                                />
+
+                                <ContentDetail
+                                    title="Discount"
+                                    :value="formatPrice(saleDetail.discount)"
+                                />
+
+                                <ContentDetail
+                                    title="Grand Total"
+                                    :value="formatPrice(saleDetail.grand_total)"
+                                />
+
+                                <ContentDetail
+                                    title="Customer"
+                                    :value="saleDetail.customers?.name"
+                                />
+
+                                <ContentDetail
+                                    title="Cashier"
+                                    :value="saleDetail.cashier?.name"
+                                />
+
+                                <ContentDetail
+                                    title="Cashier"
+                                    :value="saleDetail.cashier?.name"
+                                />
+
+                                <ContentDetail
+                                    title="Cash"
+                                    :value="formatPrice(saleDetail.cash)"
+                                />
+
+                                <ContentDetail
+                                    title="Change"
+                                    :value="formatPrice(saleDetail.change)"
+                                />
+                            </div>
+
+                            <div class="border-t flex flex-col gap-4 p-5">
+                                <p class="font-medium text-gray-500">
+                                    Products
+                                </p>
+
+                                <div class="overflow-x-auto">
+                                    <DataTable
+                                        :header="headerConfigModal"
+                                        :data="transactionDetail"
+                                    >
+                                        <template v-slot:products="{ row: i }">
+                                            <div
+                                                class="uppercase inline-block rounded-md"
+                                            >
+                                                {{ i.product.name }}
+                                            </div>
+                                        </template>
+                                        <template v-slot:price="{ row: i }">
+                                            <div
+                                                class="uppercase inline-block rounded-md"
+                                            >
+                                                {{
+                                                    formatPrice(
+                                                        i.product.buy_price
+                                                    )
+                                                }}
+                                            </div>
+                                        </template>
+                                    </DataTable>
+                                </div>
+                            </div>
+                        </div>
+                    </ModalSalesDetail>
+
                     <Pagination :pagination="props.sales" />
                 </div>
             </div>
@@ -140,13 +205,44 @@
 </template>
 
 <script setup>
-import { PhFunnel } from "@phosphor-icons/vue";
+import { PhEye, PhFunnel } from "@phosphor-icons/vue";
 import Layout from "../../Layouts/Layout.vue";
 import { router } from "@inertiajs/vue3";
 import formatPrice from "../../../core/helper/formatPrice";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import Pagination from "../../components/ui/Pagination.vue";
 import NoData from "../../components/card/NoData.vue";
+import DataTable from "../../components/layouts/DataTable.vue";
+import ModalSalesDetail from "../../components/modal/ModalSalesDetail.vue";
+import { useMethodStore } from "../../stores/method";
+import ContentDetail from "../../components/ui/ContentDetail.vue";
+
+const method = useMethodStore();
+
+const props = defineProps({
+    sales: Object,
+    total: String,
+    transaction_detail: Object,
+});
+
+const headerConfig = [
+    { key: "invoice", label: "Invoice" },
+    { key: "date", label: "Date" },
+    { key: "customers", label: "Customers" },
+    { key: "cashier", label: "Cashier" },
+    { key: "total", label: "Total" },
+    { key: "discount", label: "Discount" },
+    { key: "grand_total", label: "Grand Total" },
+];
+
+const headerConfigModal = [
+    { key: "products", label: "Products" },
+    { key: "price", label: "Price" },
+    { key: "qty", label: "Qty" },
+];
+
+const saleDetail = ref("");
+const transactionDetail = ref("");
 
 const start_date = ref(
     "" || new URL(document.location).searchParams.get("start_date")
@@ -167,6 +263,8 @@ const filter = () => {
 };
 
 const formatDate = (date) => {
+    if (!date) return "N/A";
+
     const options = {
         day: "2-digit", // Tanggal
         month: "2-digit", // Bulan
@@ -179,8 +277,20 @@ const formatDate = (date) => {
     return new Intl.DateTimeFormat("en-US", options).format(new Date(date));
 };
 
-const props = defineProps({
-    sales: Array,
-    total: Number,
-});
+const modalButtonFnc = (id) => {
+    method.modalDetailFnc();
+
+    const sale = props.sales.data;
+    const transaction = props.transaction_detail;
+
+    const saleFiltered = sale.find((data) => data.id === id);
+
+    const transactionFiltered = transaction.filter(
+        (data) => data.transaction_id === id
+    );
+
+    saleDetail.value = saleFiltered;
+
+    transactionDetail.value = transactionFiltered;
+};
 </script>

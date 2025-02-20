@@ -35,45 +35,6 @@
                     />
 
                     <div class="mb-2">
-                        <label for="" class="mb-1 text-[13px]">Outlets</label>
-                        <p class="text-[13px] text-gray-500 mb-1">
-                            * If you don't have outlets, this section can be
-                            left blank
-                        </p>
-                        <div
-                            :class="
-                                form.errors.outlet_id
-                                    ? 'border-red-500'
-                                    : 'border-gray-300'
-                            "
-                            class="h-10 rounded-lg bg-white px-2 border-[1.5px]"
-                        >
-                            <select
-                                v-model="form.outlet_id"
-                                name=""
-                                id=""
-                                class="h-full w-full bg-transparent text-sm rounded-lg border-none outline-none"
-                            >
-                                <option value="" disabled selected>
-                                    If you don't have outlets, this section can
-                                    be left blank
-                                </option>
-                                <option
-                                    v-for="outlet in outlets"
-                                    :value="outlet.id"
-                                >
-                                    {{ outlet.name }}
-                                </option>
-                            </select>
-                        </div>
-                        <small
-                            v-if="form.errors.outlet_id"
-                            class="text-red-500"
-                            >{{ form.errors.outlet_id }}</small
-                        >
-                    </div>
-
-                    <div class="mb-2">
                         <label for="" class="mb-1 text-[13px]">Roles</label>
                         <div
                             :class="
@@ -138,13 +99,11 @@ const form = useForm({
     name: "",
     email: "",
     password: "",
-    outlet_id: "",
     role_id: "",
     status: "active",
 });
 
 const props = defineProps({
-    outlets: Object,
     roles: Object,
 });
 
@@ -152,5 +111,3 @@ const submit = () => {
     form.post("/employees");
 };
 </script>
-
-<style lang="scss" scoped></style>

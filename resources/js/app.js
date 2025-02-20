@@ -8,7 +8,7 @@ import { createPinia } from "pinia";
 const pinia = createPinia();
 
 createInertiaApp({
-    title: (title) => `My app ${title}`,
+    title: (title) => `Cashira`,
     resolve: (name) => {
         const pages = import.meta.glob("./Pages/**/*.vue", { eager: true });
         return pages[`./Pages/${name}.vue`];

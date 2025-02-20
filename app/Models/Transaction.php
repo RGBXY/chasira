@@ -11,6 +11,7 @@ class Transaction extends Model
         'customer_id',
         'invoice',
         'cash',
+        'total',
         'change',
         'discount',
         'grand_total',
@@ -24,8 +25,14 @@ class Transaction extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function customers(){
+        return $this->belongsTo(Customers::class, 'customer_id');
+    }
+
     public function profits()
     {
         return $this->hasMany(Profit::class);
     }
+
+
 }

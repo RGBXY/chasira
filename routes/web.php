@@ -26,6 +26,7 @@ Route::group(['middleware' => ['auth']], function () {
         // Transaction Route
         Route::resource('/', TransactionController::class);
         Route::post('/transactions/addToCart', [TransactionController::class, 'cart']);
+        Route::post('/transactions/searchProduct', [TransactionController::class, 'searchProduct'])->name('transactions.searchProduct');
         Route::post('/transactions/destroyCart', [TransactionController::class, 'destroyCart']);
 
         // Products Route
@@ -56,6 +57,7 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::resource('/stock-in', StockInController::class)
         ->middleware('permission:stock_in.index|stock_in.create|stock_in.edit|stock_in.delete');
+        Route::post('/stock-in/searchProduct', [StockInController::class, 'searchProduct'])->name('stockIn.searchProduct');
 
         // Employe Route
         Route::resource('/employees', EmployeeController::class)

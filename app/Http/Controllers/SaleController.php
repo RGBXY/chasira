@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use App\Models\Transaction;
+use App\Models\TransactionDetail;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -10,16 +12,15 @@ use Inertia\Inertia;
 class SaleController extends Controller
 {
     public function index(){
-        $sales = Transaction::with('cashier')
+        $sales = Transaction::with('cashier')->with('customers')
         ->whereDate('created_at', Carbon::today())
         ->paginate(20);
 
-        $total = Transaction::whereDate('created_at', Carbon::today())
-        ->sum('grand_total');
+        $transaction_detail = TransactionDetail::with('product')->latest()->get();
 
         return Inertia::render('Sales/index', [
             'sales' => $sales,
-            'total' => $total,
+            'transaction_detail' => $transaction_detail,
         ]);
     }
 
@@ -31,19 +32,16 @@ class SaleController extends Controller
         ]);
 
         //get data sales by range date
-        $sales = Transaction::with('cashier')
+        $sales = Transaction::with('cashier')->with('customers')
             ->whereDate('created_at', '>=', $request->start_date)
             ->whereDate('created_at', '<=', $request->end_date)
             ->paginate(20);
 
-        //get total sales by range date
-        $total = Transaction::whereDate('created_at', '>=', $request->start_date)
-            ->whereDate('created_at', '<=', $request->end_date)
-            ->sum('grand_total');
+        $transaction_detail = TransactionDetail::with('product')->latest()->get();
 
         return Inertia::render('Sales/index', [
             'sales'    => $sales,
-            'total'    => (int) $total
+            'transaction_detail' => $transaction_detail
         ]);
     }
 

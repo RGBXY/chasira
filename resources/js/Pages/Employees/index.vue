@@ -41,7 +41,6 @@
                         <thead>
                             <tr class="">
                                 <th class="text-start p-3">Name</th>
-                                <th class="text-start p-3">Asigned Outlet</th>
                                 <th class="text-start p-3">Role</th>
                                 <th class="text-start p-3">Status</th>
                                 <th class="text-start p-3">Action</th>
@@ -52,25 +51,13 @@
                                 <td class="border-2 p-3 border-gray-200">
                                     <p>{{ item.name }}</p>
                                 </td>
-                                <td class="border-2 p-3 border-gray-200">
-                                    <p>
-                                        {{
-                                            item.outlet
-                                                ? item.outlet.name
-                                                : "null"
-                                        }}
-                                    </p>
-                                </td>
+
                                 <td class="border-2 p-3 gap-3 border-gray-200">
                                     <div
                                         class="bg-gray-100 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
                                     >
                                         <p>
-                                            {{
-                                                item.role
-                                                    ? item.role.name
-                                                    : "null"
-                                            }}
+                                            {{ item.roles[0].name }}
                                         </p>
                                     </div>
                                 </td>
@@ -215,6 +202,8 @@ const handleSearch = () => {
 const props = defineProps({
     user: Object,
 });
+
+console.log(props.user);
 
 const statusModal = (data, id) => {
     status.value = data;

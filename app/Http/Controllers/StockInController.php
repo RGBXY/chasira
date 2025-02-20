@@ -21,13 +21,36 @@ class StockInController extends Controller
     ]); 
     }
 
-    public function create(){
+    public function searchProduct(Request $request)
+    {
+        // Cek apakah barcode atau name yang dikirim
+        $product = Product::where('barcode', $request->barcode)->get();
 
+        if ($product) {
+            return response()->json([
+                'success' => true,
+                'data'    => $product
+            ]);
+        }    
+
+        return response()->json([
+            'success' => false,
+            'data'    => null
+        ]);
+    }
+
+    public function create(){
         $products = Product::latest()->get();
+        $suppliers = Supplier::latest()->get();
 
         return Inertia::render('Stock_in/Create', [
-            'products' => $products
+            'products' => $products,
+            'suppliers' => $suppliers
         ]);
+    }
+
+    public function store(){
+        
     }
 
 

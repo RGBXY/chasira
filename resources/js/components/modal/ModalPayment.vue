@@ -22,7 +22,7 @@
                     class="h-16 mb-5 flex items-center justify-between border-b"
                 >
                     <div class="flex gap-4">
-                        <h1 class="text-xl font-semibold">Payment Method</h1>
+                        <h1 class="text-xl font-semibold">Payment</h1>
                     </div>
                     <button
                         type="submit"
@@ -46,51 +46,49 @@
                     </div>
 
                     <div>
-                        <h1 class="text-xl font-bold mb-1.5">Cash :</h1>
-                        <div class="flex gap-2 mb-2">
-                            <div>
-                                <input
-                                    type="radio"
-                                    id="price1"
-                                    name="price"
-                                    :value="total"
-                                    v-model="cash"
-                                    class="peer hidden"
-                                    :disabled="cash3 !== null && cash3 !== ''"
-                                />
-                                <label
-                                    for="price1"
-                                    class="h-14 peer-checked:bg-violet-500 cursor-pointer peer-checked:text-white text-violet-500 border-violet-500 border px-4 flex items-center rounded-lg"
+                        <div class="mb-5">
+                            <h1 class="text-xl font-bold mb-1.5">
+                                Customers :
+                            </h1>
+                            <div
+                                class="h-10 rounded-lg bg-white px-2 border-[1.5px]"
+                            >
+                                <select
+                                    v-model="customer"
+                                    name=""
+                                    id=""
+                                    class="h-full w-full bg-transparent text-sm rounded-lg border-none outline-none"
                                 >
-                                    <p class="font-semibold text-xl">
-                                        {{ formatPrice(total) }}
-                                    </p>
-                                </label>
-                            </div>
-                            <div>
-                                <input
-                                    type="radio"
-                                    id="price2"
-                                    name="price"
-                                    :value="cash2"
-                                    class="peer hidden"
-                                    :disabled="cash3 !== null && cash3 !== ''"
-                                />
-                                <label
-                                    for="price2"
-                                    class="h-14 peer-checked:bg-violet-500 cursor-pointer peer-checked:text-white text-violet-500 border-violet-500 border px-4 flex items-center rounded-lg"
-                                >
-                                    <p class="font-semibold text-xl">
-                                        {{ formatPrice(cash2) }}
-                                    </p>
-                                </label>
+                                    <option value="" disabled selected>
+                                        Customers
+                                    </option>
+                                    <option
+                                        v-for="customer in customers"
+                                        :value="customer.id"
+                                    >
+                                        {{ customer.name }}
+                                    </option>
+                                </select>
                             </div>
                         </div>
+
+                        <h1 class="text-xl font-bold mb-1.5">Cash :</h1>
+
                         <input
                             type="number"
-                            v-model="cash3"
+                            v-model="cash"
                             name=""
-                            @input="cashInput"
+                            id=""
+                            placeholder="Cash Amount"
+                            class="w-full focus:border-2 border-violet-500 text-sm h-11 px-2 border rounded-md outline-none"
+                        />
+
+                        <h1 class="text-xl font-bold mb-1.5">Discount :</h1>
+
+                        <input
+                            type="number"
+                            v-model="discount"
+                            name=""
                             id=""
                             placeholder="Cash Amount"
                             class="w-full focus:border-2 border-violet-500 text-sm h-11 px-2 border rounded-md outline-none"
@@ -105,28 +103,30 @@
 <script setup>
 import { useMethodStore } from "../../stores/method";
 import formatPrice from "../../../core/helper/formatPrice";
-import { onMounted, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { PhX } from "@phosphor-icons/vue";
 import { useReceiptStore } from "../../stores/receipt";
-import { router, useForm } from "@inertiajs/vue3";
+import { useForm } from "@inertiajs/vue3";
+import { storeToRefs } from "pinia";
 
 const method = useMethodStore();
 const receipt = useReceiptStore();
 
 const cash = ref(null);
-const cash2 = ref(0);
-const cash3 = ref(null);
+const customer = ref("");
 const discount = ref(0);
 const notEnoughCash = ref(false);
 
-const formGlob = useForm({});
+const formGlobal = useForm({});
+
+const { customers } = storeToRefs(receipt);
 
 const props = defineProps({
     total: Number,
 });
 
 const modalClose = () => {
-    formGlob.post("/transactions/destroyCart", {
+    formGlobal.post("/transactions/destroyCart", {
         onSuccess: () => {
             method.modalPaymentFnc();
         },
@@ -135,17 +135,19 @@ const modalClose = () => {
 
 const pay = () => {
     const form = useForm({
-        cash: cash3.value,
-        change: cash3.value - props.total,
+        cash: cash.value,
+        change: cash.value - props.total,
         discount: discount.value,
+        total: props.total,
+        customer_id: customer.value,
         grand_total: props.total - discount.value,
     });
 
-    if (cash3.value >= props.total) {
+    if (cash.value >= props.total && customer.value !== "") {
         form.post("/", {
             onSuccess: () => {
-                receipt.change = cash3.value - props.total;
-                method.modalPrintFnc(cash3.value);
+                receipt.change = cash.value - props.total;
+                method.modalPrintFnc(cash.value);
                 method.modalPaymentFnc();
             },
         });
@@ -154,48 +156,12 @@ const pay = () => {
     }
 };
 
-const cashInput = () => {
-    const price1Input = document.getElementById("price1");
-    const price2Input = document.getElementById("price2");
-
-    if (cash3.value !== null) {
-        price1Input.checked = false;
-        price2Input.checked = false;
-    }
-};
-
-const cashPrice = () => {
-    if (props.total > 50000) {
-        cash2.value = 100000;
-    } else if (props.total > 20000) {
-        cash2.value = 50000;
-    } else if (props.total > 10000) {
-        cash2.value = 20000;
-    } else {
-        cash2.value = 10000;
-    }
-};
-
 watch(
-    () => props.total,
-    () => {
-        cashPrice();
+    () => receipt.customers,
+    (newVal) => {
+        if (newVal) {
+            customers.value = newVal;
+        }
     }
 );
-
-watch(
-    () => cash3.value,
-    () => {
-        cashInput();
-    }
-);
-
-onMounted(() => {
-    const price1Input = document.getElementById("price1");
-    const price2Input = document.getElementById("price2");
-    price1Input.checked = false;
-    price2Input.checked = false;
-});
 </script>
-
-<style lang="scss" scoped></style>

@@ -1,6 +1,6 @@
 <template>
     <div
-        v-for="product in products.data"
+        v-for="product in products"
         :key="product.id"
         @click="addOrder(product.id)"
         class="w-[300px] p-3 rounded-xl bg-white relative border cursor-pointer overflow-hidden"
@@ -59,7 +59,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import formatPrice from "../../../core/helper/formatPrice";
 import { useReceiptStore } from "../../stores/receipt";
 
@@ -67,14 +67,15 @@ const receiptStore = useReceiptStore();
 const check = ref(null);
 
 const props = defineProps({
-    products: Object,
+    products: Array,    
 });
 
 const addOrder = (id) => {
-    const newOrder = props.products.data.find((item) => item.id === id);
+    const newOrder = props.products.find((item) => item.id === id);
+
+    if (!newOrder) return; // Tambahkan pengecekan agar aman
 
     const perProduct = receiptStore.products.find((item) => item.id === id);
-
     const stock = newOrder.stock;
 
     if (!perProduct && stock !== 0) {
