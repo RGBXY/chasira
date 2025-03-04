@@ -139,6 +139,7 @@ import formatPrice from "../../../core/helper/formatPrice";
 import { ref } from "vue";
 import Pagination from "../../components/ui/Pagination.vue";
 import NoData from "../../components/card/NoData.vue";
+import formatDate from "../../../core/helper/formatDate";
 
 const start_date = ref(
     "" || new URL(document.location).searchParams.get("start_date")
@@ -156,19 +157,6 @@ const filter = () => {
         start_date: start_date.value,
         end_date: end_date.value,
     });
-};
-
-const formatDate = (date) => {
-    const options = {
-        day: "2-digit", // Tanggal
-        month: "2-digit", // Bulan
-        year: "numeric", // Tahun
-        hour: "2-digit", // Jam
-        minute: "2-digit", // Menit
-        hourCycle: "h23", // Format 24-jam
-    };
-
-    return new Intl.DateTimeFormat("en-US", options).format(new Date(date));
 };
 
 const props = defineProps({

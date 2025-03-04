@@ -13,9 +13,14 @@
                             class="w-12 h-12 rounded-xl border overflow-hidden"
                         >
                             <img
-                                :src="`https://ui-avatars.com/api/?name=${$page.props.auth.user.name}&background=4e73df&color=ffffff&size=100`"
+                                :src="'/assets/image/logo.png'"
+                                class="w-full h-full"
                                 alt=""
                             />
+                            <!-- <img
+                                :src="`https://ui-avatars.com/api/?name=${$page.props.auth.user.name}&background=4e73df&color=ffffff&size=100`"
+                                alt=""
+                            /> -->
                         </div>
                         <transition
                             enter-active-class="transition-all duration-300 ease-out"
@@ -70,8 +75,9 @@
                             <div
                                 class="flex-shrink-0 w-8 h-8 flex items-center justify-center"
                             >
-                                <component
-                                    :is="sub.PhIcon"
+                                <Icon
+                                    :icon="sub.icon"
+                                    :ssr="true"
                                     :class="[
                                         sub.route === page.url
                                             ? 'text-primary'
@@ -105,10 +111,10 @@
 </template>
 
 <script setup>
-import { PhSignOut } from "@phosphor-icons/vue";
 import { useMethodStore } from "../../stores/method";
 import { Link, usePage } from "@inertiajs/vue3";
 import MainMenuConfig from "../../../core/config/MainMenuConfig";
+import { Icon } from "@iconify/vue/dist/iconify.js";
 
 const page = usePage();
 const logedUser = page.props.auth.user;

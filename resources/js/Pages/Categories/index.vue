@@ -103,12 +103,12 @@
 </template>
 
 <script setup>
-import {
-    PhMagnifyingGlass,
-    PhPencil,
-    PhPlus,
-    PhTrash,
-} from "@phosphor-icons/vue";
+// import {
+//     PhMagnifyingGlass,
+//     PhPencil,
+//     PhPlus,
+//     PhTrash,
+// } from "@phosphor-icons/vue";
 import Layout from "../../Layouts/Layout.vue";
 import { Link, router } from "@inertiajs/vue3";
 import { useMethodStore } from "../../stores/method";

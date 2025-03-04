@@ -216,6 +216,7 @@ import DataTable from "../../components/layouts/DataTable.vue";
 import ModalSalesDetail from "../../components/modal/ModalSalesDetail.vue";
 import { useMethodStore } from "../../stores/method";
 import ContentDetail from "../../components/ui/ContentDetail.vue";
+import formatDate from "../../../core/helper/formatDate";
 
 const method = useMethodStore();
 
@@ -260,21 +261,6 @@ const filter = () => {
         start_date: start_date.value,
         end_date: end_date.value,
     });
-};
-
-const formatDate = (date) => {
-    if (!date) return "N/A";
-
-    const options = {
-        day: "2-digit", // Tanggal
-        month: "2-digit", // Bulan
-        year: "numeric", // Tahun
-        hour: "2-digit", // Jam
-        minute: "2-digit", // Menit
-        hourCycle: "h23", // Format 24-jam
-    };
-
-    return new Intl.DateTimeFormat("en-US", options).format(new Date(date));
 };
 
 const modalButtonFnc = (id) => {

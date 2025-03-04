@@ -7,13 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class StockOut extends Model
 {
     protected $fillable = [
-        'name',
-        'product_id',
+        'display_stock',
+        'opname_stock',
         'detail',
-        'qty',
+        'product_id',
     ];
 
-    public function products(){
+    public function product(){
         return $this->belongsTo(Product::class);
     }
 }

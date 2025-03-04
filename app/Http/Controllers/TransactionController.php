@@ -7,55 +7,48 @@ use App\Models\Category;
 use App\Models\Customers;
 use App\Models\Product;
 use App\Models\Transaction;
-use App\Models\TransactionDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
+use Mike42\Escpos\Printer;
 
 class TransactionController extends Controller
 {
     public function index()
-    {    
-        $products = Product::with('category')
-            ->when(request()->search, function ($query) {
-                $query->where('name', 'like', '%' . request()->search . '%');
-            })
-            ->when(request()->category_id, function ($query) {
-                $query->where('category_id', request()->category_id);
-            })
-            ->latest()
-            ->paginate(4);
+{    
+    $products = Product::with(['category:id,name'])
+        ->when(request()->category_id, function ($query) {
+            $query->where('category_id', request()->category_id);
+        })
+        ->orderBy('stock', 'desc')
+        ->paginate(10);
     
-        $categories = Category::withCount('products')
-            ->limit(5)
-            ->get();
+    $categories = Category::withCount('products')
+        ->select('id', 'name')
+        ->limit(5)
+        ->get();
 
-        $customers = Customers::latest()->get();
+    $customers = Customers::select('id', 'name')
+        ->limit(5)
+        ->get();
 
-        // Return Inertia view
-        return Inertia::render('Transactions/index', [
-            'products' => $products,
-            'categories' => $categories,
-            'customers' => $customers,
-        ]); 
-    }
+    return Inertia::render('Transactions/index', [
+        'products'      => $products,
+        'categories'    => $categories,
+        'customers'     => $customers,
+    ]); 
+}
 
-    public function searchProduct(Request $request)
+    public function searchByName(Request $request)
     {
-        // Cek apakah barcode atau name yang dikirim
-        $query = Product::with('category');
+        $products = Product::where('name', 'like', '%' . $request->name . '%')
+                    ->with('category:id,name')
+                    ->limit(12)  
+                    ->get();       
 
-        if ($request->barcode) {
-            $query->where('barcode', $request->barcode);
-        } elseif ($request->name) {
-            // Cari yang namanya mengandung keyword
-            $query->where('name', 'like', '%' . $request->name . '%');
-        }
-
-        $products = $query->get();
-
-        if ($products->isNotEmpty()) {
+        if ($products->count() > 0) {
             return response()->json([
                 'success' => true,
                 'data'    => $products
@@ -68,16 +61,38 @@ class TransactionController extends Controller
         ]);
     }
 
+    public function searchByBarcode(Request $request)
+    {
+        $product = Product::where('barcode', $request->barcode)->first();        
+
+        if ($product) {
+            return response()->json([
+                'success' => true,
+                'data'    => $product
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'data'    => null,
+        ]);
+    }
+
+    public function destroyCart(){
+        Cart::where('user_id', Auth::id())->delete();
+    }
+
     public function cart(Request $request){
+        $this->destroyCart();
+
         $items = $request->all();
 
         foreach ($items['products'] as $item) {
             // Cek stok produk
-            
             $product = Product::findOrFail($item['id']);
             if ($product->stock < $item['total']) {
                 return redirect()->back()->with('error', "Product {$product->name} is out of stock!");
-            }
+            };
     
             // Masukkan ke tabel Cart
             Cart::create([
@@ -90,10 +105,21 @@ class TransactionController extends Controller
 
     }
 
-    public function destroyCart(){
-        Cart::where('user_id', Auth::id())->delete();
-        
-        return redirect()->back()->with('success', 'Product Removed Successfully!.');
+    public function printReceipt(){
+        $connector = new WindowsPrintConnector("POS-58");
+
+        $printer = new Printer($connector);
+
+        $printer->setJustification(Printer::JUSTIFY_CENTER);
+        $printer->text("Toko Setia\n");
+        $printer->feed();
+
+        $printer->setJustification(Printer::JUSTIFY_LEFT);
+        $printer->text("Pensil : 5000\n");
+        $printer->text("Buku : 6000\n");
+
+        $printer->cut();
+        $printer->close();
     }
 
     public function store(Request $request){
@@ -106,6 +132,17 @@ class TransactionController extends Controller
 
         $invoice = 'TRX-'.Str::upper($random);
 
+        $request->validate([
+            'cash'          => ['required'],
+            'customer_id'   => ['required']
+        ]);
+
+        $discount = $request->discount;
+
+        if($discount === null){
+            $discount = 0;
+        }
+
         $transaction = Transaction::create([
             'user_id'       => Auth::id(),
             'invoice'       => $invoice,
@@ -113,7 +150,7 @@ class TransactionController extends Controller
             'cash'          => $request->cash,
             'change'        => $request->change,
             'customer_id'   => $request->customer_id,
-            'discount'      => $request->discount,
+            'discount'      => $discount,
             'grand_total'   => $request->grand_total,
         ]);
 

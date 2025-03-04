@@ -15,7 +15,7 @@ class CategoryController extends Controller
         $categories = Category::withCount('products')
         ->when(request()->search, function($categories) {
             $categories = $categories->where('name', 'like', '%'. request()->search . '%');
-        })->latest()->paginate(20);
+        })->latest()->paginate(1);
 
         return Inertia::render('Categories/index', [
             'categories' => $categories

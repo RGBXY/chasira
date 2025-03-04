@@ -3,7 +3,7 @@
         <div class="py-8 px-7 flex items-center justify-center w-full">
             <div class="px-10 py-8 w-full border bg-white rounded-lg">
                 <div class="mb-7 flex items-center justify-between pb-4">
-                    <h1 class="text-3xl font-bold mb-1">Stock in</h1>
+                    <h1 class="text-3xl font-bold mb-1">Stock Out</h1>
 
                     <div class="flex gap-3 justify-between">
                         <div
@@ -12,7 +12,7 @@
                             <input
                                 type="text"
                                 v-model="search"
-                                placeholder="Search Stock in..."
+                                placeholder="Search Stock Out..."
                                 class="h-full outline-none w-full"
                             />
                             <button
@@ -74,19 +74,38 @@
                         </form>
 
                         <Link
-                            href="/stock-in/create"
-                            class="text-white border rounded-lg bg-violet-400 flex items-center justify-center gap-2 px-4"
+                            v-if="props.hasStockIn"
+                            href="/stock-out/create"
+                            class="text-white border rounded-lg flex items-center justify-center gap-2 px-4"
+                            :class="
+                                props.hasStockIn
+                                    ? 'bg-violet-400'
+                                    : 'bg-violet-200'
+                            "
                         >
                             <PhPlus weight="bold" />
                             <p>Add Stock</p>
                         </Link>
+
+                        <button
+                            v-else
+                            class="text-white border rounded-lg flex items-center justify-center gap-2 px-4"
+                            :class="
+                                props.hasStockIn
+                                    ? 'bg-violet-400'
+                                    : 'bg-violet-200'
+                            "
+                        >
+                            <PhPlus weight="bold" />
+                            <p>Add Stock</p>
+                        </button>
                     </div>
                 </div>
 
                 <div class="w-full">
                     <DataTable
-                        v-if="props.stockIn.data.length > 0"
-                        :data="props.stockIn.data"
+                        v-if="props.StockOut.data.length > 0"
+                        :data="props.StockOut.data"
                         :header="headerConfig"
                     >
                         <template v-slot:barcode="{ row: i }">
@@ -131,39 +150,35 @@
                             <div class="p-5 flex flex-col gap-4">
                                 <ContentDetail
                                     title="Barcode"
-                                    :value="stockInDetail?.product?.barcode"
+                                    :value="stockOutDetail?.product?.barcode"
                                 />
                                 <ContentDetail
                                     title="Product"
-                                    :value="stockInDetail?.product?.name"
-                                />
-                                <ContentDetail
-                                    title="Supplier"
-                                    :value="stockInDetail?.supplier?.name"
+                                    :value="stockOutDetail?.product?.name"
                                 />
                                 <ContentDetail
                                     title="Display Stock"
-                                    :value="stockInDetail?.display_stock"
+                                    :value="stockOutDetail?.display_stock"
                                 />
                                 <ContentDetail
                                     title="Opname Stock"
-                                    :value="stockInDetail?.opname_stock"
+                                    :value="stockOutDetail?.opname_stock"
                                 />
                                 <ContentDetail
                                     title="Opname Stock"
                                     :value="
-                                        formatDate(stockInDetail?.created_at)
+                                        formatDate(stockOutDetail?.created_at)
                                     "
                                 />
                                 <ContentDetail
                                     title="Detail"
-                                    :value="stockInDetail?.detail"
+                                    :value="stockOutDetail?.detail"
                                 />
                             </div>
                         </div>
                     </ModalSalesDetail>
 
-                    <Pagination :pagination="props.stockIn" />
+                    <Pagination :pagination="props.StockOut" />
                 </div>
             </div>
         </div>
@@ -196,7 +211,6 @@ import {
     PhEye,
     PhFunnel,
     PhMagnifyingGlass,
-    PhPencilLine,
     PhPlus,
     PhTrash,
 } from "@phosphor-icons/vue";
@@ -214,7 +228,7 @@ import ModalSalesDetail from "../../components/modal/ModalSalesDetail.vue";
 import ContentDetail from "../../components/ui/ContentDetail.vue";
 
 const method = useMethodStore();
-const stockInDetail = ref(null);
+const stockOutDetail = ref(null);
 
 const headerConfig = [
     { key: "barcode", label: "Barcode" },
@@ -235,7 +249,7 @@ const end_date = ref(
 );
 
 const filter = () => {
-    router.get("/stock-in/filter", {
+    router.get("/stock-out/filter", {
         start_date: start_date.value,
         end_date: end_date.value,
     });
@@ -243,28 +257,26 @@ const filter = () => {
 
 //define method search
 const handleSearch = () => {
-    router.get("/stock-in", {
+    router.get("/stock-out", {
         //send params "q" with value from state "search"
         search: search.value,
     });
 };
 
 const props = defineProps({
-    stockIn: Object,
+    StockOut: Object,
+    hasStockIn: Boolean,
 });
 
 const modalButtonFnc = (id) => {
     method.modalDetailFnc();
-
-    const stockIn = props.stockIn.data;
-
-    const stockInFiltered = stockIn.find((data) => data.id === id);
-
-    stockInDetail.value = stockInFiltered;
+    const StockOut = props.StockOut.data;
+    const stockOutFiltered = StockOut.find((data) => data.id === id);
+    stockOutDetail.value = stockOutFiltered;
 };
 
 const destroy = (id) => {
-    router.delete(`/stock-in/${id}`);
+    router.delete(`/stock-out/${id}`);
     method.modalDeleteFnc();
 };
 </script>

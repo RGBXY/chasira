@@ -64,7 +64,6 @@
 <script setup>
 import { useForm } from "@inertiajs/vue3";
 import TextInput from "../../components/ui/TextInput.vue";
-// import { ref } from "vue";
 
 const form = useForm({
     email: "",

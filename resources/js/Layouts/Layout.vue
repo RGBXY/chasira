@@ -1,17 +1,25 @@
 <template>
-    <Head>
-        <title>Chasira</title>
-        <meta name="description" content="This is default desc" />
-    </Head>
-
     <div
         class="w-full justify-between items-center flex-row min-h-screen bg-gray-50"
     >
-        <SideBar />
+        <div
+            :class="[
+                'fixed h-full transition-all duration-300',
+                method.sideBarStat ? 'w-[250px]' : 'w-[85px]',
+            ]"
+        >
+            <SideBar />
+        </div>
 
-        <div :class="method.sideBarStat ? 'ps-[250px]' : 'ps-[85px]'">
+        <!-- Konten utama -->
+        <div
+            :class="[
+                'flex-1 pb-5 transition-all duration-300',
+                method.sideBarStat ? 'ml-[250px]' : 'ml-[85px]',
+            ]"
+        >
             <TopBar />
-            <div class="">
+            <div class="flex items-center justify-center w-full">
                 <slot></slot>
             </div>
         </div>

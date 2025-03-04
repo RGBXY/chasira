@@ -1,3 +1,13 @@
+<script setup>
+import { useMethodStore } from "../../stores/method";
+import formatPrice from "../../../core/helper/formatPrice";
+import { useReceiptStore } from "../../stores/receipt";
+import { Icon } from "@iconify/vue/dist/iconify.js";
+
+const method = useMethodStore();
+const receipt = useReceiptStore();
+</script>
+
 <template>
     <div
         :class="
@@ -15,7 +25,7 @@
                 @click="method.modalPrintFncClose()"
                 class="rounded-full p-1 fixed right-14 border border-black"
             >
-                <PhX class="text-2xl" />
+                <Icon icon="ph:x" class="text-2xl" />
             </button>
             <div class="bg-white w-full h-full max-w-xl">
                 <div
@@ -66,15 +76,3 @@
         </div>
     </div>
 </template>
-
-<script setup>
-import { useMethodStore } from "../../stores/method";
-import formatPrice from "../../../core/helper/formatPrice";
-import { PhX } from "@phosphor-icons/vue";
-import { useReceiptStore } from "../../stores/receipt";
-
-const method = useMethodStore();
-const receipt = useReceiptStore();
-</script>
-
-<style lang="scss" scoped></style>

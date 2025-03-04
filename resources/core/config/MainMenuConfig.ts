@@ -1,23 +1,7 @@
-import {
-    PhBoxArrowDown,
-    PhBoxArrowUp,
-    PhCashRegister,
-    PhCoins,
-    PhGauge,
-    PhHandCoins,
-    PhPackage,
-    PhShieldCheck,
-    PhShippingContainer,
-    PhSquaresFour,
-    PhTruck,
-    PhUserList,
-    PhUsers,
-} from "@phosphor-icons/vue";
-
 export interface MenuItem {
     heading?: string;
     route?: string;
-    PhIcon?: any;
+    icon?: any;
     permissions?: string;
     pages?: any;
 }
@@ -30,7 +14,7 @@ const MainMenuConfig: Array<MenuItem> = [
             {
                 heading: "Dashboard",
                 route: "/dashboard",
-                PhIcon: PhGauge,
+                icon: "ph:gauge",
             },
         ],
     },
@@ -41,17 +25,17 @@ const MainMenuConfig: Array<MenuItem> = [
             {
                 heading: "Categories",
                 route: "/categories",
-                PhIcon: PhSquaresFour,
+                icon: "ph:squares-four",
             },
             {
                 heading: "Products",
                 route: "/products",
-                PhIcon: PhPackage,
+                icon: "ph:package",
             },
             {
                 heading: "Suppliers",
                 route: "/suppliers",
-                PhIcon: PhTruck,
+                icon: "ph:truck",
             },
         ],
     },
@@ -62,27 +46,27 @@ const MainMenuConfig: Array<MenuItem> = [
             {
                 heading: "Transaction",
                 route: "/",
-                PhIcon: PhCashRegister,
+                icon: "ph:cash-register",
             },
             {
                 heading: "Customers",
                 route: "/customers",
-                PhIcon: PhUserList,
+                icon: "ph:user-list",
             },
             {
                 heading: "Stock In",
                 route: "/stock-in",
-                PhIcon: PhBoxArrowDown,
+                icon: "ph:box-arrow-down",
             },
             {
                 heading: "Stock Out",
                 route: "/stock-out",
-                PhIcon: PhBoxArrowUp,
+                icon: "ph:box-arrow-up",
             },
             {
                 heading: "Stock Opname",
-                route: "/stock-out",
-                PhIcon: PhShippingContainer,
+                route: "/stock-opname",
+                icon: "ph:shipping-container",
             },
         ],
     },
@@ -93,12 +77,12 @@ const MainMenuConfig: Array<MenuItem> = [
             {
                 heading: "Report Sales",
                 route: "/sales",
-                PhIcon: PhCoins,
+                icon: "ph:coins",
             },
             {
                 heading: "Report Profits",
                 route: "/profits",
-                PhIcon: PhHandCoins,
+                icon: "ph:hand-coins",
             },
         ],
     },
@@ -109,12 +93,12 @@ const MainMenuConfig: Array<MenuItem> = [
             {
                 heading: "Role",
                 route: "/roles",
-                PhIcon: PhShieldCheck,
+                icon: "ph:shield-check",
             },
             {
                 heading: "Employees",
                 route: "/employees",
-                PhIcon: PhUsers,
+                icon: "ph:users",
             },
         ],
     },

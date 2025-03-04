@@ -26,4 +26,9 @@ class Product extends Model
     {
         return $this->belongsTo(StockOut::class);
     }
+
+    public function stock_opname()
+    {
+        return $this->hasOne(StockOpname::class);
+    }
 }

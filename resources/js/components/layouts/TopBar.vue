@@ -4,17 +4,21 @@
     >
         <div class="flex items-center gap-3">
             <button
+                aria-label="Navbar Menu"
                 @click="method.sideBarStatFnc()"
                 class="bg-white hover:bg-violet-50 border h-12 w-12 flex items-center justify-center rounded-full"
             >
-                <PhList class="text-2xl text-violet-500" weight="bold" />
+                <Icon icon="ph:list" class="text-2xl text-violet-500" />
             </button>
 
             <div
                 class="bg-white border h-12 py-2 ps-2 pe-6 gap-3 flex items-center justify-center rounded-full"
             >
                 <div class="bg-violet-50 p-2 rounded-full">
-                    <PhCalendarDots class="text-lg text-violet-500" />
+                    <Icon
+                        icon="ph:calendar-dots"
+                        class="text-lg text-violet-500"
+                    />
                 </div>
 
                 <h1 class="font-semibold text-sm">{{ formattedDate }}</h1>
@@ -24,7 +28,7 @@
                 class="bg-white border h-12 py-2 ps-2 pe-6 gap-3 flex items-center justify-center rounded-full"
             >
                 <div class="bg-violet-50 p-2 rounded-full">
-                    <PhClock class="text-lg text-violet-500" />
+                    <Icon icon="ph:clock" class="text-lg text-violet-500" />
                 </div>
 
                 <h1 class="font-semibold text-sm">{{ time }}</h1>
@@ -38,26 +42,25 @@
             href="/logout"
             class="bg-white hover:bg-violet-50 transition-all group border h-12 py-2 pe-1.5 ps-5 gap-4 flex items-center justify-center rounded-full"
         >
-            <h1 class="font-semibold text-sm text-red-500 group-hover:text-red-400">
+            <h1
+                class="font-semibold text-sm text-red-500 group-hover:text-red-400"
+            >
                 Log Out
             </h1>
-            <button class="bg-red-400 p-2 text-xl rounded-full text-white">
-                <PhSignOut />
+            <button
+                aria-label="Sign out"
+                class="bg-red-500 group-hover:bg-red-400 p-2 text-xl rounded-full text-white"
+            >
+                <Icon icon="ph:sign-out" :ssr="true" />
             </button>
         </Link>
     </div>
 </template>
 
 <script setup>
-import {
-    PhCalendarDots,
-    PhClock,
-    PhList,
-    PhPower,
-    PhSignOut,
-} from "@phosphor-icons/vue";
 import { onMounted, ref } from "vue";
 import { useMethodStore } from "../../stores/method";
+import { Icon } from "@iconify/vue/dist/iconify.js";
 
 const method = useMethodStore();
 

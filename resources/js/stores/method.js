@@ -5,12 +5,13 @@ export const useMethodStore = defineStore("method", {
     state: () => ({
         toasterStat: false,
         modalDeactive: false,
+        toasterMessage: null,
         modalDelete: false,
         deactiveId: null,
         deleteId: null,
         modalPyamentStat: false,
         modalPrintStat: false,
-        sideBarStat: true,
+        sideBarStat: false,
         modalDetailStat: false,
         pay: 0,
     }),
@@ -39,8 +40,9 @@ export const useMethodStore = defineStore("method", {
             this.modalDelete = !this.modalDelete;
             this.deleteId = id;
         },
-        toasterFnc() {
+        toasterFnc(message) {
             this.toasterStat = true;
+            this.toasterMessage = message;
         },
         toasterFncClose() {
             this.toasterStat = false;
