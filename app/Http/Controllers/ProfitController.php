@@ -5,13 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Profit;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class ProfitController extends Controller
 {
     public function index(){
-        $profits = Profit::with('transaction')
+        $profits = Profit::with('transaction:id,invoice')
         ->whereDate('created_at', Carbon::today())
         ->paginate(20);
 
@@ -25,27 +24,30 @@ class ProfitController extends Controller
 
     }
 
-    public function filter(Request $request)
+    public function filterDate(Request $request)
     {
-        $request->validate([
-            'start_date'  => 'required',
-            'end_date'    => 'required',
-        ]);
-
-        //get data sales by range date
-        $profits = Profit::with('transaction')
+        $profit = Profit::with('transaction:id,invoice')
             ->whereDate('created_at', '>=', $request->start_date)
             ->whereDate('created_at', '<=', $request->end_date)
+            ->latest()
             ->paginate(20);
 
-        //get total sales by range date
         $total = Profit::whereDate('created_at', '>=', $request->start_date)
-            ->whereDate('created_at', '<=', $request->end_date)
-            ->sum('total');
+        ->whereDate('created_at', '<=', $request->end_date)
+        ->sum('total');
 
-        return Inertia::render('Profits/index', [
-            'profits'    => $profits,
-            'total'    => (int) $total
+        if ($profit) {
+            return response()->json([
+                'success'    => true,
+                'data'    => $profit,
+                'total'      => (int) $total
+            ]);
+        }  
+
+        return response()->json([
+            'success' => false,
+            'data' => [],
+            'total'   => null
         ]);
-    }
+    }    
 }

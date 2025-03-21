@@ -1,270 +1,205 @@
 <template>
-    <Layout>
-        <div class="py-8 px-7 flex items-center justify-center w-full">
-            <div class="px-10 py-8 w-full border bg-white rounded-lg">
-                <div class="mb-7 flex items-center justify-between pb-4">
-                    <h1 class="text-3xl font-bold mb-1">Stock in</h1>
+  <div class="py-8 px-7 flex items-center justify-center w-full">
+    <div class="py-8 px-10 w-full border bg-white rounded-lg">
+      <div class="mb-7 flex items-center justify-between flex-wrap pb-4">
+        <h1 class="text-3xl font-bold mb-1">Stock in</h1>
 
-                    <div class="flex gap-3 justify-between">
-                        <div
-                            class="w-[300px] h-12 border flex items-center px-3 gap-3 bg-white rounded-md overflow-hidden"
-                        >
-                            <input
-                                type="text"
-                                v-model="search"
-                                placeholder="Search Stock in..."
-                                class="h-full outline-none w-full"
-                            />
-                            <button
-                                @click="handleSearch()"
-                                class="flex items-center justify-center rounded-full"
-                            >
-                                <PhMagnifyingGlass class="text-lg" />
-                            </button>
-                        </div>
+        <div class="flex flex-wrap gap-3 justify-between">
+          <div
+            class="w-[250px] border h-10 flex items-center px-3 gap-3 bg-white rounded-md overflow-hidden"
+          >
+            <Icon icon="ph:magnifying-glass" :ssr="true" />
+            <input
+              type="text"
+              v-model="name"
+              @keydown="searchByName"
+              placeholder="Search Stock in..."
+              class="h-full outline-none w-full placeholder:text-sm"
+            />
+          </div>
 
-                        <form
-                            @submit.prevent="filter"
-                            class="flex gap-3 justify-between"
-                        >
-                            <div
-                                class="w-[300px] h-12 border flex items-center pe-3 gap-3 bg-white rounded-md overflow-hidden"
-                            >
-                                <label
-                                    for="start-date"
-                                    class="text-sm bg-violet-400 h-full px-4 text-white flex items-center"
-                                >
-                                    Starts
-                                </label>
-                                <input
-                                    type="date"
-                                    id="start-date"
-                                    required
-                                    v-model="start_date"
-                                    placeholder="Search Category..."
-                                    class="h-full outline-none w-full"
-                                />
-                            </div>
-                            <div
-                                class="w-[300px] h-12 border flex items-center pe-3 gap-3 bg-white rounded-md overflow-hidden"
-                            >
-                                <label
-                                    for="end-date"
-                                    class="text-sm bg-violet-400 h-full px-4 text-white flex items-center"
-                                >
-                                    End
-                                </label>
-                                <input
-                                    id="end-date"
-                                    type="date"
-                                    required
-                                    v-model="end_date"
-                                    placeholder="Search Category..."
-                                    class="h-full outline-none w-full"
-                                />
-                            </div>
+          <div class="">
+            <el-date-picker
+              v-model="date"
+              type="daterange"
+              range-separator="To"
+              @change="filterDate()"
+              start-placeholder="Start date"
+              end-placeholder="End date"
+              size="large"
+            />
+          </div>
 
-                            <button
-                                type="submit"
-                                class="flex items-center h-12 justify-center px-4 gap-2 bg-violet-400 text-white rounded-md text-sm"
-                            >
-                                <PhFunnel weight="bold" />
-                                Filter
-                            </button>
-                        </form>
-
-                        <Link
-                            href="/stock-in/create"
-                            class="text-white border rounded-lg bg-violet-400 flex items-center justify-center gap-2 px-4"
-                        >
-                            <PhPlus weight="bold" />
-                            <p>Add Stock</p>
-                        </Link>
-                    </div>
-                </div>
-
-                <div class="w-full">
-                    <DataTable
-                        v-if="props.stockIn.data.length > 0"
-                        :data="props.stockIn.data"
-                        :header="headerConfig"
-                    >
-                        <template v-slot:barcode="{ row: i }">
-                            <p>{{ i.product.barcode }}</p>
-                        </template>
-                        <template v-slot:product="{ row: i }">
-                            <p>{{ i.product.name }}</p>
-                        </template>
-                        <template v-slot:date="{ row: i }">
-                            <p>{{ formatDate(i.created_at) }}</p>
-                        </template>
-                        <template v-slot:actions="{ row: i }">
-                            <div class="flex items-start gap-2">
-                                <button
-                                    @click="modalButtonFnc(i.id)"
-                                    class="border-gray-300 border px-2.5 py-1.5 flex items-center gap-1.5 hover:bg-primary-bg font-semibold text-gray-500 text-sm rounded-md"
-                                >
-                                    <PhEye weight="bold" class="text-base" />
-                                    <p>Detail</p>
-                                </button>
-                                <button
-                                    @click="method.modalDeleteFnc(i.id)"
-                                    class="border-red-300 border px-2.5 py-1.5 flex items-center gap-1.5 hover:bg-red-50 font-semibold text-red-500 text-sm rounded-md"
-                                >
-                                    <PhTrash />
-                                    <p>Delete</p>
-                                </button>
-                            </div>
-                        </template>
-                    </DataTable>
-
-                    <NoData
-                        v-else
-                        header="No Data Stock in Found"
-                        sub="Get started by creating your first stock. You can add details, pricing, and stock product."
-                        button="Add Product"
-                        link="/products/create"
-                    />
-
-                    <ModalSalesDetail>
-                        <div class="">
-                            <div class="p-5 flex flex-col gap-4">
-                                <ContentDetail
-                                    title="Barcode"
-                                    :value="stockInDetail?.product?.barcode"
-                                />
-                                <ContentDetail
-                                    title="Product"
-                                    :value="stockInDetail?.product?.name"
-                                />
-                                <ContentDetail
-                                    title="Supplier"
-                                    :value="stockInDetail?.supplier?.name"
-                                />
-                                <ContentDetail
-                                    title="Display Stock"
-                                    :value="stockInDetail?.display_stock"
-                                />
-                                <ContentDetail
-                                    title="Opname Stock"
-                                    :value="stockInDetail?.opname_stock"
-                                />
-                                <ContentDetail
-                                    title="Opname Stock"
-                                    :value="
-                                        formatDate(stockInDetail?.created_at)
-                                    "
-                                />
-                                <ContentDetail
-                                    title="Detail"
-                                    :value="stockInDetail?.detail"
-                                />
-                            </div>
-                        </div>
-                    </ModalSalesDetail>
-
-                    <Pagination :pagination="props.stockIn" />
-                </div>
-            </div>
+          <Link
+            href="/stock-in/create"
+            class="text-white border rounded-lg h-10 bg-violet-400 flex items-center justify-center gap-2 px-4"
+          >
+            <Icon icon="ph:plus-bold" :ssr="true" />
+            <p>Add Data</p>
+          </Link>
         </div>
+      </div>
 
-        <ModalDelete>
-            <template #header> Are you absolutly sure? </template>
-            <template #description>
-                Are you sure you want to delete this product? Once deleted, this
-                action cannot be undone and the product will be permanently
-                removed.</template
-            >
-            <template #action>
-                <PrimButtonModal
-                    @click="method.modalDeleteFnc()"
-                    text="Cancel"
-                    class="border-2"
-                />
-                <PrimButtonModal
-                    @click="destroy(method.deleteId)"
-                    text="Delete"
-                    class="bg-red-500 text-white"
-                />
-            </template>
-        </ModalDelete>
-    </Layout>
+      <div class="w-full">
+        <DataTable
+          v-if="stockInData.length > 0"
+          :data="stockInData"
+          :header="headerConfig"
+        >
+          <template v-slot:barcode="{ row: i }">
+            <p>{{ i.product.barcode }}</p>
+          </template>
+          <template v-slot:product="{ row: i }">
+            <p>{{ i.product.name }}</p>
+          </template>
+          <template v-slot:date="{ row: i }">
+            <p>{{ formatDate(i.created_at) }}</p>
+          </template>
+          <template v-slot:actions="{ row: i }">
+            <div class="flex items-start gap-2">
+              <button
+                @click="modalButtonFnc(i.id)"
+                class="border-gray-300 border px-2.5 py-1.5 flex items-center gap-1.5 hover:bg-primary-bg font-semibold text-gray-500 text-sm rounded-md"
+              >
+                <p>Detail</p>
+              </button>
+            </div>
+          </template>
+        </DataTable>
+
+        <el-empty v-else :image-size="200" />
+
+        <SideModal
+          v-model="detailModal"
+          title="Stock Detail"
+          subTitle="Your stock detail"
+        >
+          <div class="p-5 flex flex-col gap-4">
+            <ContentDetail
+              v-for="data in saleDetail"
+              :title="data.title"
+              :value="data.data"
+            />
+          </div>
+        </SideModal>
+
+        <Pagination :pagination="stockInData" />
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import {
-    PhEye,
-    PhFunnel,
-    PhMagnifyingGlass,
-    PhPencilLine,
-    PhPlus,
-    PhTrash,
-} from "@phosphor-icons/vue";
-import Layout from "../../Layouts/Layout.vue";
-import { Link, router } from "@inertiajs/vue3";
-import { useMethodStore } from "../../stores/method";
-import PrimButtonModal from "../../components/ui/primButtonModal.vue";
-import { ref } from "vue";
-import ModalDelete from "../../components/modal/ModalDelete.vue";
-import Pagination from "../../components/ui/Pagination.vue";
-import NoData from "../../components/card/NoData.vue";
-import DataTable from "../../components/layouts/DataTable.vue";
-import formatDate from "../../../core/helper/formatDate";
-import ModalSalesDetail from "../../components/modal/ModalSalesDetail.vue";
-import ContentDetail from "../../components/ui/ContentDetail.vue";
+import Layout from '../../Layouts/Layout.vue';
+import { computed, ref } from 'vue';
+import Pagination from '../../components/ui/Pagination.vue';
+import DataTable from '../../components/layouts/DataTable.vue';
+import formatDate from '../../../core/helper/formatDate';
+import ContentDetail from '../../components/ui/ContentDetail.vue';
+import SideModal from '../../components/modal/SideModal.vue';
+import { Icon } from '@iconify/vue/dist/iconify.js';
+import { debounce } from 'lodash';
+import { Link } from '@inertiajs/vue3';
 
-const method = useMethodStore();
-const stockInDetail = ref(null);
-
-const headerConfig = [
-    { key: "barcode", label: "Barcode" },
-    { key: "product", label: "Product" },
-    { key: "display_stock", label: "Display Stock" },
-    { key: "opname_stock", label: "Opname Stock" },
-    { key: "date", label: "Date" },
-];
-
-const search = ref("" || new URL(document.location).searchParams.get("search"));
-
-const start_date = ref(
-    "" || new URL(document.location).searchParams.get("start_date")
-);
-
-const end_date = ref(
-    "" || new URL(document.location).searchParams.get("end_date")
-);
-
-const filter = () => {
-    router.get("/stock-in/filter", {
-        start_date: start_date.value,
-        end_date: end_date.value,
-    });
-};
-
-//define method search
-const handleSearch = () => {
-    router.get("/stock-in", {
-        //send params "q" with value from state "search"
-        search: search.value,
-    });
-};
+defineOptions({ layout: Layout });
 
 const props = defineProps({
-    stockIn: Object,
+  stockIn: Object,
 });
 
+const stockInDetail = ref(null);
+const date = ref('');
+const stockInData = ref(props.stockIn.data);
+const name = ref('');
+const detailModal = ref(false);
+
+const headerConfig = [
+  { key: 'barcode', label: 'Barcode' },
+  { key: 'product', label: 'Product' },
+  { key: 'qty', label: 'Qty' },
+  { key: 'date', label: 'Date' },
+];
+
+const saleDetail = computed(() => [
+  {
+    title: 'Bacode',
+    data: stockInDetail?.value?.product?.barcode,
+  },
+  {
+    title: 'Product',
+    data: stockInDetail?.value?.product?.name,
+  },
+  {
+    title: 'Supplier',
+    data: stockInDetail?.value?.supplier?.name,
+  },
+  {
+    title: 'Qty',
+    data: stockInDetail?.value?.qty,
+  },
+  {
+    title: 'Created At',
+    data: formatDate(stockInDetail?.value?.created_at),
+  },
+  {
+    title: 'Detail',
+    data: stockInDetail?.value?.detail,
+  },
+]);
+
+const searchByName = debounce(() => {
+  if (name.value.trim() == '') {
+    stockInData.value = props.stockIn.data;
+    return;
+  }
+
+  axios
+    .post('/stock-in/searchByName', {
+      name: name.value,
+    })
+    .then((response) => {
+      if (response.data.success && response.data.data.length > 0) {
+        stockInData.value = response.data.data;
+        console.log(stockInData.value);
+      } else {
+        stockInData.value = [];
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}, 500);
+
+const filterDate = debounce(() => {
+  if (date.value == '') {
+    stockInData.value = props.stockIn.data;
+    return;
+  }
+
+  axios
+    .post('/stock-in/filterDate', {
+      start_date: date.value[0],
+      end_date: date.value[1],
+    })
+    .then((response) => {
+      if (response.data.success && response.data.data.data.length > 0) {
+        stockInData.value = response.data.data.data;
+      } else {
+        stockInData.value = [];
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}, 500);
+
 const modalButtonFnc = (id) => {
-    method.modalDetailFnc();
+  detailModal.value = true;
 
-    const stockIn = props.stockIn.data;
+  const stockIn = props.stockIn.data;
 
-    const stockInFiltered = stockIn.find((data) => data.id === id);
+  const stockInFiltered = stockIn.find((data) => data.id === id);
 
-    stockInDetail.value = stockInFiltered;
-};
-
-const destroy = (id) => {
-    router.delete(`/stock-in/${id}`);
-    method.modalDeleteFnc();
+  stockInDetail.value = stockInFiltered;
 };
 </script>

@@ -11,12 +11,29 @@ class CustomersController extends Controller
 {
     public function index()
     {
-        $customers = Customers::when(request()->search, function($customers) {
-            $customers = $customers->where('name', 'like', '%'. request()->search . '%');
-        })->latest()->paginate(20);
+        $customers = Customers::latest()->paginate(12);
 
         return Inertia::render('Customers/index', [
             'customers' => $customers
+        ]);
+    }
+
+    public function searchCustomerName(Request $request)
+    {
+        $customer = Customers::where('name', 'like', '%' . $request->name . '%')
+                    ->limit(12)  
+                    ->get();       
+
+        if ($customer->count() > 0) {
+            return response()->json([
+                'success' => true,
+                'data'    => $customer
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'data'    => []
         ]);
     }
 
@@ -28,7 +45,7 @@ class CustomersController extends Controller
         $request->validate([
             'name' => ['required', 'unique:customers,name,'],
             'address' => ['required'],
-            'phone' => ['required'],
+            'phone' => ['required', 'unique:customers,phone,'],
             'gender' => ['required'],
             'description' => ['required', 'max:225']
         ]);
@@ -52,9 +69,9 @@ class CustomersController extends Controller
 
     public function update(Request $request, Customers $customer){
         $request->validate([
-            'name' => ['required', 'unique:customers,name,' .$customer->id],
+            'name' => ['required', 'unique:customers,nsame,' .$customer->id],
             'address' => ['required'],
-            'phone' => ['required'],
+            'phone' => ['required', 'unique:customers,phone,' .$customer->id],
             'gender' => ['required'],
             'description' => ['required', 'max:225']
         ]);

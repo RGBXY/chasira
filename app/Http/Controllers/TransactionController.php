@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Mike42\Escpos\EscposImage;
 use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 use Mike42\Escpos\Printer;
 
@@ -40,26 +41,6 @@ class TransactionController extends Controller
         'customers'     => $customers,
     ]); 
 }
-
-    public function searchByName(Request $request)
-    {
-        $products = Product::where('name', 'like', '%' . $request->name . '%')
-                    ->with('category:id,name')
-                    ->limit(12)  
-                    ->get();       
-
-        if ($products->count() > 0) {
-            return response()->json([
-                'success' => true,
-                'data'    => $products
-            ]);
-        }
-
-        return response()->json([
-            'success' => false,
-            'data'    => []
-        ]);
-    }
 
     public function searchByBarcode(Request $request)
     {
@@ -102,39 +83,90 @@ class TransactionController extends Controller
                 'price'      => $product->sell_price * $item['total'],
             ]);
         }
-
     }
 
     public function printReceipt(){
-        $connector = new WindowsPrintConnector("POS-58");
-
-        $printer = new Printer($connector);
-
-        $printer->setJustification(Printer::JUSTIFY_CENTER);
-        $printer->text("Toko Setia\n");
-        $printer->feed();
-
-        $printer->setJustification(Printer::JUSTIFY_LEFT);
-        $printer->text("Pensil : 5000\n");
-        $printer->text("Buku : 6000\n");
-
-        $printer->cut();
-        $printer->close();
+        try {
+            function justifyText($left, $right, $width = 32) {
+                $space = $width - mb_strlen($left) - mb_strlen($right);
+                return $left . str_repeat(' ', max(0, $space)) . $right . "\n";
+            }
+    
+            $connector = new WindowsPrintConnector("POS-58"); 
+        
+            $printer = new Printer($connector);
+    
+            // Header
+            $printer->setJustification(Printer::JUSTIFY_CENTER);
+            $printer->selectPrintMode(Printer::MODE_DOUBLE_WIDTH | Printer::MODE_DOUBLE_HEIGHT | Printer::MODE_EMPHASIZED);
+            $printer->text("TOKO SETIA\n");
+    
+            $printer->selectPrintMode();           
+            $printer->text(wordwrap("JL. Bangsri Guyangan", 32, "\n", true) . "\n");
+            $printer->text("TRX-239799234\n");
+            $printer->text("--------------------------------\n");
+    
+            // Info kasir & customer
+            $printer->setJustification(Printer::JUSTIFY_LEFT);
+            $printer->text("Cashier: Budiono Sirergar\n");
+            $printer->text("Customer: Eric Steer\n");
+            $printer->text("--------------------------------\n");
+    
+            // Header Produk
+            $printer->text(justifyText("Nama Produk", "Total Harga"));
+            $printer->text("--------------------------------\n");
+            
+            // Daftar Produk
+            $items = [
+                ["Buku Tulis Sidu 300 Lmbr", "1 PCS x 7000", "7000"],
+                ["Pensil Kenko", "2 PCS x 2000", "4000"],
+                ["Penghapus Faber Castel", "1 PCS x 5000", "5000"]
+            ];
+    
+            foreach ($items as $item) {
+                $printer->text(wordwrap($item[0], 32, "\n", true) . "\n"); // Nama produk wrap
+                $printer->text(justifyText($item[1], $item[2])); // Jumlah x Harga
+            }
+    
+            $printer->text("--------------------------------\n");
+            $printer->text(justifyText("Subtotal", "16.000"));
+            $printer->text(justifyText("Discount", "1.000"));
+            $printer->text("--------------------------------\n");
+            $printer->text(justifyText("Total", "15.000"));
+            $printer->text("--------------------------------\n");
+    
+            // Waktu Transaksi
+            $printer->setJustification(Printer::JUSTIFY_RIGHT);
+            $printer->text(date("d/m/Y H:i") . "\n");
+            $printer->feed(2);
+    
+            // Cetak Barcode
+            $printer->setJustification(Printer::JUSTIFY_CENTER);
+            $printer->feed(2);
+            $printer->barcode("012345678905", Printer::BARCODE_UPCA);
+            $printer->feed(2);
+    
+            // Selesai
+            $printer->cut();
+            $printer->close();
+    
+            return response()->json(["message" => "Receipt printed successfully"]);
+        } catch (\Exception $e) {
+            return response()->json(["error" => $e->getMessage()], 500);
+        }
     }
+    
 
     public function store(Request $request){
+        $length = 8;
+        $random = Str::upper(Str::random($length)); 
+        $date = date('Ymd'); 
 
-        $length = 10;
-        $random = '';
-        for ($i = 0; $i < $length; $i++) {
-            $random .= rand(0, 1) ? rand(0, 9) : chr(rand(ord('a'), ord('z')));
-        }
-
-        $invoice = 'TRX-'.Str::upper($random);
+        $invoice = "INV-$date-$random";
 
         $request->validate([
             'cash'          => ['required'],
-            'customer_id'   => ['required']
+            'customer_id'   => ['required'] 
         ]);
 
         $discount = $request->discount;

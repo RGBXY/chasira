@@ -13,12 +13,16 @@ return new class extends Migration
     {
         Schema::create('stock_opnames', function (Blueprint $table) {
             $table->id();
+            $table->integer('actual_stock');
+            $table->integer('system_stock');
+            $table->integer('discrepancy_stock');
+            $table->longText('description');
             $table->unsignedBigInteger('product_id');
-            $table->integer('qty');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade'); 
             $table->timestamps();
         });
     }
+    
 
     /**
      * Reverse the migrations.

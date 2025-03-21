@@ -10,15 +10,59 @@ use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
+    {
+        $query = Category::withCount('products');  
+
+        if ($request->input('sort') === 'most_products') {
+            $query->orderBy('products_count', 'desc');
+        } else {
+            $query->latest();
+        }
+        
+        $categories = $query->paginate(10);
+        
+        return Inertia::render('Categories/index', [
+            'categories' => $categories,
+        ]);
+    }
+
+    public function searchCategoryName(Request $request)
     {
         $categories = Category::withCount('products')
-        ->when(request()->search, function($categories) {
-            $categories = $categories->where('name', 'like', '%'. request()->search . '%');
-        })->latest()->paginate(1);
+        ->where('name', 'like', '%' . $request->name . '%')
+        ->paginate(12);       
 
-        return Inertia::render('Categories/index', [
-            'categories' => $categories
+        if ($categories->count() > 0) {
+            return response()->json([
+                'success' => true,
+                'data'    => $categories
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'data'    => []
+        ]);
+    }
+
+    public function dropDownCategory(Request $request)
+    {
+        $categories = Category::where('name', 'like', '%' . $request->name . '%')
+        ->select(['id', 'name'])
+        ->limit(3)  
+        ->get();         
+
+        if ($categories->count() > 0) {
+            return response()->json([
+                'success' => true,
+                'data'    => $categories
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'data'    => []
         ]);
     }
 
@@ -55,7 +99,7 @@ class CategoryController extends Controller
             'name' => [
             'required',
             'max:225',
-            'unique:categories,name' .$category->id
+            'unique:categories,name,' .$category->id
         ],
             'description' => 'required'
         ]);

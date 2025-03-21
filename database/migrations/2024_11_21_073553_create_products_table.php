@@ -21,7 +21,9 @@ return new class extends Migration
             $table->integer('stock');  
             $table->string('image')->nullable();  
             $table->unsignedBigInteger('category_id');
+            $table->unsignedBigInteger('discount_id')->nullable();  
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+            $table->foreign('discount_id')->references('id')->on('discount_products')->onDelete('set null');
             $table->timestamps();
         });
     }

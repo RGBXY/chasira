@@ -1,149 +1,185 @@
-<template>
-    <Layout>
-        <div class="py-8 px-7 flex items-center justify-center">
-            <div class="px-8 py-8 w-full border bg-white rounded-lg">
-                <div class="mb-7 flex items-center justify-between pb-4">
-                    <h1 class="text-3xl font-bold mb-1">Categories</h1>
-
-                    <div class="flex gap-3 justify-between">
-                        <div
-                            class="w-[300px] h-12 border flex items-center px-3 gap-3 bg-white rounded-md overflow-hidden"
-                        >
-                            <input
-                                type="text"
-                                v-model="search"
-                                placeholder="Search Category..."
-                                class="h-full outline-none w-full"
-                            />
-                            <button
-                                @click="handleSearch()"
-                                class="flex items-center justify-center rounded-full"
-                            >
-                                <PhMagnifyingGlass class="text-lg" />
-                            </button>
-                        </div>
-
-                        <Link
-                            href="/categories/create"
-                            class="text-white border rounded-lg bg-violet-400 flex items-center justify-center gap-2 px-4"
-                        >
-                            <PhPlus weight="bold" />
-                            <p>Add Category</p>
-                        </Link>
-                    </div>
-                </div>
-
-                <div class="w-full">
-                    <DataTable
-                        v-if="props.categories.data.length > 0"
-                        :data="props.categories.data"
-                        :header="headerConfig"
-                    >
-                        <template v-slot:products_count="{ row: i }">
-                            <div
-                                class="bg-gray-100 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
-                            >
-                                {{ i.products_count }}
-                            </div>
-                        </template>
-                        <template v-slot:actions="{ row: i }">
-                            <div class="flex items-start gap-2">
-                                <Link
-                                    :href="`/categories/${i.id}/edit`"
-                                    class="border-blue-300 border-2 px-2.5 py-1.5 flex items-center gap-1.5 font-semibold hover:bg-blue-50 text-blue-500 text-sm rounded-md"
-                                >
-                                    <PhPencil />
-                                    <p>Edit</p>
-                                </Link>
-                                <button
-                                    @click="method.modalDeleteFnc(i.id)"
-                                    class="border-red-300 border-2 px-2.5 py-1.5 flex items-center gap-1.5 font-semibold hover:bg-red-50 text-red-500 text-sm rounded-md"
-                                >
-                                    <PhTrash />
-                                    <p>Delete</p>
-                                </button>
-                            </div>
-                        </template>
-                    </DataTable>
-
-                    <NoData
-                        v-else
-                        header="No Data Categories Found"
-                        sub="Get started by creating category you need. Organize categories to manage products more easily."
-                        button="Add Categories"
-                        link="/categories/create"
-                    />
-
-                    <Pagination :pagination="props.categories" />
-                </div>
-            </div>
-        </div>
-
-        <ModalDelete>
-            <template #header> Are you absolutly sure? </template>
-            <template #description>
-                Are you sure you want to delete this category? Once deleted,
-                this action cannot be undone and the category will be
-                permanently removed.</template
-            >
-            <template #action>
-                <PrimButtonModal
-                    @click="method.modalDeleteFnc()"
-                    text="Cancel"
-                    class="border-2"
-                />
-                <PrimButtonModal
-                    @click="destroy(method.deleteId)"
-                    text="Delete"
-                    class="bg-red-500 text-white"
-                />
-            </template>
-        </ModalDelete>
-    </Layout>
-</template>
-
 <script setup>
-// import {
-//     PhMagnifyingGlass,
-//     PhPencil,
-//     PhPlus,
-//     PhTrash,
-// } from "@phosphor-icons/vue";
-import Layout from "../../Layouts/Layout.vue";
-import { Link, router } from "@inertiajs/vue3";
-import { useMethodStore } from "../../stores/method";
-import PrimButtonModal from "../../components/ui/primButtonModal.vue";
-import { ref } from "vue";
-import ModalDelete from "../../components/modal/ModalDelete.vue";
-import Pagination from "../../components/ui/Pagination.vue";
-import NoData from "../../components/card/NoData.vue";
-import DataTable from "../../components/layouts/DataTable.vue";
+import { Link, router } from '@inertiajs/vue3';
+import { useMethodStore } from '../../stores/method';
+import { ref } from 'vue';
+import Pagination from '../../components/ui/Pagination.vue';
+import DataTable from '../../components/layouts/DataTable.vue';
+import Layout from '../../Layouts/Layout.vue';
+import { Icon } from '@iconify/vue/dist/iconify.js';
+import { debounce } from 'lodash';
+import PrimarySelect from '../../components/ui/PrimarySelect.vue';
+import Modal from '../../components/modal/Modal.vue';
+import PrimaryButton from '../../components/ui/PrimaryButton.vue';
+import OutlineButton from '../../components/ui/OutlineButton.vue';
+
+defineOptions({ layout: Layout });
+
+const props = defineProps({
+  categories: Object,
+});
 
 const method = useMethodStore();
+const categoriesData = ref(props.categories.data);
+const loading = ref(false);
+const name = ref('');
 
-const headerConfig = [
-    { key: "name", label: "Name" },
-    { key: "products_count", label: "Product Count" },
+const selectConfig = [
+  { id: 'latest', name: 'Latest' },
+  { id: 'most_products', name: 'Most Products' },
 ];
 
-const search = ref("" || new URL(document.location).searchParams.get("search"));
+const headerConfig = [
+  { key: 'name', label: 'Name' },
+  { key: 'products_count', label: 'Total Product' },
+  { key: 'description', label: 'Description' },
+];
 
-//define method search
-const handleSearch = () => {
-    router.get("/categories", {
-        //send params "q" with value from state "search"
-        search: search.value,
+const searchCategoryName = debounce(() => {
+  if (name.value.trim() == '') {
+    categoriesData.value = props.categories.data;
+    return;
+  }
+
+  loading.value = true;
+
+  axios
+    .post('/categories/searchCategoryName', {
+      name: name.value,
+    })
+    .then((response) => {
+      console.log(response.data.data.data);
+      if (response.data.success && response.data.data.data.length > 0) {
+        categoriesData.value = response.data.data.data;
+      } else {
+        categoriesData.value = [];
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    })
+    .finally(() => {
+      loading.value = false;
     });
+}, 500);
+
+const filter = ref(new URL(document.location).searchParams.get('sort') || '');
+
+const filterChange = () => {
+  router.get('/categories', {
+    sort: filter.value,
+  });
 };
 
 const destroy = (id) => {
-    router.delete(`/categories/${id}`);
-    method.modalDeleteFnc();
-};
+  loading.value = true;
 
-const props = defineProps({
-    categories: Object,
-});
+  router.delete(`/categories/${id}`, {
+    preserveState: false,
+    onSuccess: () => {
+      method.modalFnc();
+    },
+    onError: (errors) => {
+      console.error(errors);
+    },
+    onFinish: () => {
+      loading.value = false;
+    },
+  });
+};
 </script>
 
-<style lang="scss" scoped></style>
+<template>
+  <div class="py-8 px-7 flex items-center justify-center w-full">
+    <div class="px-8 py-8 w-full border bg-white rounded-lg">
+      <div class="mb-7 flex items-center justify-between pb-4">
+        <h1 class="text-3xl font-bold mb-1">Categories</h1>
+
+        <div class="flex gap-3 justify-between">
+          <div
+            class="w-[250px] h-10 border flex items-center px-3 gap-3 bg-white rounded-lg overflow-hidden"
+          >
+            <Icon icon="ph:magnifying-glass" :ssr="true" class="text-xl" />
+            <input
+              type="text"
+              v-model="name"
+              @keydown="searchCategoryName()"
+              placeholder="Search Category..."
+              class="h-full outline-none w-full placeholder:text-sm placeholder:font-medium"
+            />
+          </div>
+
+          <PrimarySelect
+            :datas="selectConfig"
+            v-model="filter"
+            @change="filterChange()"
+          />
+
+          <Link
+            href="/categories/create"
+            class="text-white border rounded-lg bg-violet-400 flex items-center justify-center gap-2 px-4"
+          >
+            <Icon icon="ph:plus-bold" :ssr="true" />
+            <p>Add Data</p>
+          </Link>
+        </div>
+      </div>
+
+      <div class="w-full">
+        <DataTable
+          v-if="categoriesData.length > 0"
+          :data="categoriesData"
+          :header="headerConfig"
+        >
+          <template v-slot:products_count="{ row: i }">
+            <div
+              class="bg-violet-50 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
+            >
+              {{ i.products_count }}
+            </div>
+          </template>
+          <template v-slot:actions="{ row: i }">
+            <div class="flex items-start gap-1">
+              <Link
+                :href="`/categories/${i.id}/edit`"
+                class="py-2 px-4 flex items-center gap-1.5 font-semibold hover:bg-gray-100 border border-gray-200 text-blue-400 text-sm rounded-md"
+              >
+                <p>Edit</p>
+              </Link>
+
+              <button
+                @click="method.modalFnc(i.id)"
+                class="py-2 px-4 flex items-center gap-1.5 font-semibold hover:bg-gray-100 border border-gray-200 text-red-400 text-sm rounded-md"
+              >
+                <p>Delete</p>
+              </button>
+            </div>
+          </template>
+        </DataTable>
+
+        <el-empty v-else :image-size="200" />
+
+        <Pagination :pagination="categoriesData" />
+      </div>
+    </div>
+
+    <Modal>
+      <template #header> Are you absolustly sure? </template>
+      <template #description>
+        Are you sure you want to delete this product? Once deleted, this action
+        cannot be undone and the product will be permanently removed.</template
+      >
+      <template #action>
+        <OutlineButton
+          @click="method.modalFnc()"
+          text="Cancel"
+          class="border-gray-400 text-gray-600"
+        />
+        <PrimaryButton
+          @click="destroy(method.modalParam)"
+          text="Delete"
+          class="bg-red-500 text-white"
+        />
+      </template>
+    </Modal>
+  </div>
+</template>

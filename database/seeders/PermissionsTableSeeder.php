@@ -60,6 +60,12 @@ class PermissionsTableSeeder extends Seeder
 
         Permission::create(['name' => 'sales.index']);
 
+        Permission::create(['name' => 'discount.index']);
+
+        Permission::create(['name' => 'voucher.index']);
+
+        Permission::create(['name' => 'profile.index']);
+
         Permission::create(['name' => 'transactions.index']);
 
         Permission::create(['name' => 'profits.index']);

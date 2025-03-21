@@ -1,158 +1,136 @@
 <template>
-    <Layout>
-        <div class="py-8 px-7 flex items-center justify-center">
-            <div class="px-10 py-8 w-full max-w-7xl border bg-white rounded-lg">
-                <div class="mb-6 flex items-center justify-between">
-                    <h1 class="text-3xl font-bold mb-1">Add Stock Out</h1>
-                </div>
+  <div class="w-full py-8 px-7 flex items-center justify-center">
+    <div class="px-10 py-8 w-full max-w-7xl border bg-white rounded-lg">
+      <div class="mb-6 flex items-center justify-between">
+        <h1 class="text-3xl font-bold mb-1">Add Stock Out</h1>
+      </div>
 
-                <form
-                    @submit.prevent="submit"
-                    class="w-full flex flex-col gap-3"
-                >
-                    <TextInput
-                        name="Product Barcode"
-                        type="text"
-                        v-model="barcode"
-                        placeholder="Your product barcode "
-                        :message="form.errors.product_id"
-                        @keydown="debouncedSearch()"
-                    />
+      <form @submit.prevent="submit" class="w-full flex flex-col gap-3">
+        <DropdownInput
+          label="Product Name"
+          v-model="name"
+          :items="productsData"
+          :loading="loading"
+          placeholder="Product Name"
+          @keydown="debouncedSearch"
+          @select="selectProduct"
+          :message="form.errors.product_id"
+        >
+          <template #item="{ item }">
+            <div>{{ item.name }}</div>
+            <div class="text-sm text-gray-500">Stock: {{ item.stock }}</div>
+          </template>
+        </DropdownInput>
 
-                    <div class="flex justify-between gap-3">
-                        <TextInput
-                            class="flex-1"
-                            name="Product Name"
-                            type="text"
-                            :disabled="true"
-                            v-model="productsData.name"
-                            placeholder="Product Name "
-                        />
+        <TextInput
+          name="Display Stock"
+          type="number"
+          v-model="form.qty"
+          placeholder="Your new stock qty"
+          :message="form.errors.qty"
+        />
 
-                        <TextInput
-                            class="flex-1"
-                            name="Initial Display Stock"
-                            type="text"
-                            :disabled="true"
-                            v-model="productsData.stock"
-                            placeholder="Your product current stock"
-                        />
+        <TextAreaInput
+          name="Detail"
+          v-model="form.detail"
+          placeholder="Your supplier description"
+          :message="form.errors.detail"
+        />
 
-                        <TextInput
-                            class="flex-1"
-                            name="Initial Opname Stock"
-                            type="text"
-                            :disabled="true"
-                            v-model="currentOpnameStock"
-                            placeholder="Your product current stock"
-                        />
-                    </div>
-
-                    <TextInput
-                        name="Display Stock"
-                        type="number"
-                        v-model="form.display_stock"
-                        placeholder="Your new stock qty"
-                        :message="form.errors.qty"
-                    />
-
-                    <TextInput
-                        name="Opanme Stock"
-                        type="number"
-                        v-model="form.opname_stock"
-                        placeholder="Your new stock qty"
-                        :message="form.errors.qty"
-                    />
-
-                    <TextAreaInput
-                        name="Detail"
-                        v-model="form.detail"
-                        placeholder="Your supplier description"
-                        :message="form.errors.detail"
-                    />
-
-                    <div class="flex justify-end gap-3">
-                        <Link
-                            href="/suppliers"
-                            class="h-10 px-3 flex items-center bg-violet-100 rounded-lg font-semibold text-violet-400"
-                        >
-                            Back
-                        </Link>
-                        <button
-                            type="submit"
-                            :disabled="form.processing"
-                            :class="
-                                form.processing
-                                    ? 'cursor-not-allowed bg-violet-300 text-gray-200'
-                                    : ''
-                            "
-                            class="h-10 px-3 bg-violet-400 rounded-lg font-semibold text-white"
-                        >
-                            {{ form.processing ? "Loading..." : "Submit" }}
-                        </button>
-                    </div>
-                </form>
-            </div>
+        <div class="flex justify-end gap-3">
+          <Link
+            href="/suppliers"
+            class="h-10 px-3 flex items-center bg-violet-100 rounded-lg font-semibold text-violet-400"
+          >
+            Back
+          </Link>
+          <button
+            type="submit"
+            :disabled="form.processing"
+            :class="
+              form.processing
+                ? 'cursor-not-allowed bg-violet-300 text-gray-200'
+                : ''
+            "
+            class="h-10 px-3 bg-violet-400 rounded-lg font-semibold text-white"
+          >
+            {{ form.processing ? 'Loading...' : 'Submit' }}
+          </button>
         </div>
-    </Layout>
+      </form>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import Layout from "../../Layouts/Layout.vue";
-import TextInput from "../../components/ui/TextInput.vue";
-import TextAreaInput from "../../components/ui/TextAreaInput.vue";
-import { Link, useForm } from "@inertiajs/vue3";
-import { debounce } from "lodash";
-import { computed, ref, watch } from "vue";
+import Layout from '../../Layouts/Layout.vue';
+import TextInput from '../../components/ui/TextInput.vue';
+import TextAreaInput from '../../components/ui/TextAreaInput.vue';
+import { Link, useForm } from '@inertiajs/vue3';
+import { debounce } from 'lodash';
+import { ref, watch } from 'vue';
+import DropdownInput from '../../components/ui/DropdownInput.vue';
 
-const barcode = ref("");
-const productsData = ref("");
+defineOptions({
+  layout: Layout,
+});
+
+const name = ref('');
+const productsData = ref('');
 const loading = ref(false);
+const selectedProduct = ref(null);
+
+const props = defineProps({
+  products: Array,
+});
 
 const debouncedSearch = debounce(() => {
-    if (barcode.value === "") {
-        productsData.value = "";
-    }
+  if (!name.value) {
+    productsData.value = [];
+    return;
+  }
 
-    loading.value = true;
+  form.product_id = '';
+  loading.value = true;
 
-    axios
-        .post("/stock-out/searchProduct", {
-            barcode: barcode.value,
-        })
-        .then((response) => {
-            if (response.data.success && response.data.data.length > 0) {
-                productsData.value = response.data.data[0];
-                console.log(productsData.value);
-            }
-        })
-        .catch((error) => {
-            console.error(error);
-        })
-        .finally(() => {
-            loading.value = false;
-        });
+  axios
+    .post('/stock-out/searchProduct', { name: name.value })
+    .then((response) => {
+      if (response.data.success && response.data.data.length > 0) {
+        productsData.value = response.data.data;
+      } else {
+        productsData.value = [];
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      productsData.value = [];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }, 500);
 
 const form = useForm({
-    product_id: "",
-    display_stock: "",
-    opname_stock: "",
-    detail: "",
+  product_id: '',
+  qty: '',
+  detail: '',
 });
 
-const currentOpnameStock = computed(
-    () => productsData.value.stock_opname?.qty ?? ""
-);
+const selectProduct = (product) => {
+  selectedProduct.value = product;
+  name.value = product.name;
+  form.product_id = product.id;
+};
 
 const submit = () => {
-    form.post("/stock-out");
+  form.post('/stock-out');
 };
 
 watch(
-    () => productsData.value,
-    (newVal) => {
-        form.product_id = newVal?.id || "";
-    }
+  () => productsData.value,
+  (newVal) => {
+    form.product_id = newVal?.id || '';
+  }
 );
 </script>

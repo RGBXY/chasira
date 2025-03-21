@@ -9,50 +9,49 @@ use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
+use function Laravel\Prompts\select;
+
 class StockInController extends Controller
 {
     public function index()
     {
-        $stockIn = StockIn::with('product')->with('supplier')
-            ->whereHas('product', function ($query) {
-                if (request()->search) {
-                    $query->where('name', 'like', '%' . request()->search . '%');
-                }
-            })
+        $stockIn = StockIn::with(['product:id,name,barcode'])->with(['supplier:id,name'])
             ->latest()
             ->paginate(20);
-    
-        $stockOpname = StockOpname::latest()->get();
-    
+        
         return Inertia::render('Stock_in/index', [
             'stockIn' => $stockIn,
-            'stock_opname' => $stockOpname
         ]);
     }
 
     public function filter(Request $request)
     {
-        $request->validate([
-            'start_date'  => 'required',
-            'end_date'    => 'required',
-        ]);
-
-        //get data sales by range date
-        $stockIn = StockIn::with('product')->with('supplier')
+        $stockIn = StockIn::with('product:id,name,barcode')->with('supplier:id,name')
             ->whereDate('created_at', '>=', $request->start_date)
             ->whereDate('created_at', '<=', $request->end_date)
             ->latest()
             ->paginate(20);
 
-        return Inertia::render('Stock_in/index', [
-            'stockIn' => $stockIn,
+        if ($stockIn) {
+            return response()->json([
+                'success' => true,
+                'data'    => $stockIn
+            ]);
+        }  
+
+        return response()->json([
+            'success' => false,
+            'data'    => []
         ]);
     }    
 
     public function searchProduct(Request $request)
     {
         // Cek apakah barcode atau name yang dikirim
-        $product = Product::with('stock_opname')->where('barcode', $request->barcode)->get();
+        $product = Product::where('name', 'like', '%' . $request->name . '%')
+        ->select(['id', 'name', 'stock'])
+        ->limit(3)  
+        ->get();             
 
         if ($product) {
             return response()->json([
@@ -67,44 +66,75 @@ class StockInController extends Controller
         ]);
     }
 
+    public function searchSupplier(Request $request)
+    {
+        // Cek apakah barcode atau name yang dikirim
+        $supplier = Supplier::where('name', 'like', '%' . $request->name . '%')
+        ->select(['id', 'name'])
+        ->limit(3)  
+        ->get();             
+
+        if ($supplier) {
+            return response()->json([
+                'success' => true,
+                'data'    => $supplier
+            ]);
+        }    
+
+        return response()->json([
+            'success' => false,
+            'data'    => null
+        ]);
+    }
+
+    public function searchByName(Request $request)
+    {
+        $product = StockIn::with(['product:id,name,barcode'])
+            ->whereHas('product', function ($query) use ($request) {
+                $query->where('name', 'like', '%' . $request->name . '%');
+            })
+            ->limit(12)
+            ->get();
+
+        if ($product->isNotEmpty()) {
+            return response()->json([
+                'success' => true,
+                'data'    => $product
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'data'    => []
+        ]);
+    }
+
     public function create(){
-        $products = Product::latest()->get();
-        $suppliers = Supplier::latest()->get();
+        $suppliers = Supplier::select(['id','name'])->limit(12)->get();
+        $products =  Product::select(['id', 'name', 'stock'])->limit(12)->get();
 
         return Inertia::render('Stock_in/Create', [
-            'products' => $products,
-            'suppliers' => $suppliers
+            'suppliers' => $suppliers,
+            'products'  => $products
         ]);
     }
 
     public function store(Request $request){
+
         $request->validate([
-            'display_stock' => ['required'],
-            'opname_stock' => ['required'],
+            'qty' => ['required'],
             'detail' => ['required'],
             'product_id' => ['required'],
             'supplier_id' => ['required']
         ]);
 
         $product = Product::find($request->product_id);
-        $stockOpname = StockOpname::where('product_id', $request->product_id)->first();
 
-        $product->stock += $request->display_stock;
+        $product->stock += $request->qty;
         $product->save();
 
-        if ($stockOpname) {
-            $stockOpname->qty += $request->opname_stock;
-            $stockOpname->save();
-        } else {
-            StockOpname::create([
-                'product_id' => $request->product_id,
-                'qty' => $request->opname_stock
-            ]);
-        }
-
         StockIn::create([
-            'display_stock' => $request->display_stock,
-            'opname_stock' => $request->opname_stock,
+            'qty' => $request->qty,
             'detail' => $request->detail,
             'product_id' => $request->product_id,
             'supplier_id' => $request->supplier_id
@@ -112,43 +142,4 @@ class StockInController extends Controller
 
         return redirect('/stock-in')->with('message', 'Stock Added Successfully');
     }
-
-    public function destroy($id)
-    {   
-        $stockIn = StockIn::findOrFail($id);
-        $product = Product::findOrFail($stockIn->product_id);
-        $stockOpname = StockOpname::where('product_id', $stockIn->product_id)->first();
-        
-        if ($product) {
-            $product->stock -= $stockIn->display_stock;
-
-            if ($product->stock < 0) {
-                $product->stock = 0;
-                $product->save();
-            } else {
-                $product->save();
-            }
-        }
-
-        if ($stockOpname) {
-            $stockOpname->qty -= $stockIn->opname_stock;
-
-            if ($stockOpname->qty <= 0) {
-                $stockOpname->delete();
-            } else {
-                $stockOpname->save();
-            }
-        }
-
-        // Hapus StockIn
-        $stockIn->delete();
-
-        return redirect('/stock-in')->with('message', 'Product Deleted Successfully');
-    }
-
-    
-
-
-
-
 }

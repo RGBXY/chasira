@@ -13,81 +13,120 @@ use Inertia\Inertia;
 class ProductController extends Controller
 {
     public function index(){
-        $products = Product::with('category')
-        ->when(request()->search, function ($query) {
-            $query->where('name', 'like', '%' . request()->search . '%');
-        })
+        $products = Product::with('category:id,name')
         ->when(request()->category_id, function ($query) {
             $query->where('category_id', request()->category_id);
         })
         ->latest()
-        ->paginate(20);
+        ->paginate(10);
+
+        $categories = Category::select(['id', 'name'])->limit(4)->get();
 
          return Inertia::render('Products/index', [
         'products' => $products,
-        'categories' => Category::all(),
+        'categories' => $categories,
     ]); 
     }
 
+    public function searchProductName(Request $request)
+    {
+        $products = Product::where('name', 'like', '%' . $request->name . '%')
+                    ->with('category:id,name')
+                    ->limit(12)  
+                    ->get();       
+
+        if ($products->count() > 0) {
+            return response()->json([
+                'success' => true,
+                'data'    => $products
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'data'    => []
+        ]);
+    }
+
+    public function dropDownProduct(Request $request)
+    {
+        $product = Product::where('name', 'like', '%' . $request->name . '%')
+        ->select(['id', 'name', 'stock'])
+        ->limit(3)  
+        ->get();             
+
+        if ($product) {
+            return response()->json([
+                'success' => true,
+                'data'    => $product
+            ]);
+        }    
+
+        return response()->json([
+            'success' => false,
+            'data'    => null
+        ]);
+    }
+
     public function create(){
-        $categories = Category::latest()->get();
+        $categories = Category::select(['id', 'name'])->latest()->get();
         return Inertia::render('Products/Create', [
             'categories' => $categories,
         ]);
     }
 
     public function store(Request $request)
-{       
-    $request->validate([
-        'name' => ['required', 'max:225', 'unique:products,name'],
-        'barcode' => ['required', 'unique:products,barcode'],
-        'buy_price' => ['required', 'numeric'],
-        'sell_price' => ['required', 'numeric'],
-        'stock' => ['required', 'numeric'],
-        'description' => ['required', 'max:225'],
-        'image' => ['required', 'file', 'image', 'mimes:jpeg,png,jpg,webp', 'max:300'],
-        'category_id' => ['required']
-    ]);
+    {       
+        $request->validate([
+            'name' => ['required', 'max:225', 'unique:products,name'],
+            'barcode' => ['required', 'unique:products,barcode'],
+            'buy_price' => ['required', 'numeric'],
+            'sell_price' => ['required', 'numeric'],
+            'stock' => ['required', 'numeric'],
+            'description' => ['required', 'max:225'],
+            'image' => ['required', 'file', 'image', 'mimes:jpeg,png,jpg,webp', 'max:300'],
+            'category_id' => ['required']
+        ]);
 
-    $image = null;
+        $image = null;
 
-    if ($request->hasFile('image')) {
-        $file = $request->file('image');
-        $fileName = time() . '-' . Str::slug($request->name) . '.webp';
-        $path = 'product-images/' . $fileName;
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $fileName = time() . '-' . Str::slug($request->name) . '.webp';
+            $path = 'product-images/' . $fileName;
 
-        // Pastikan Intervention Image tersedia
-        if (class_exists('Intervention\Image\Facades\Image')) {
-            $img = Image::make($file)
-                ->resize(800, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                })
-                ->encode('webp', 80); // Konversi ke WebP dengan kualitas 80%
+            // Pastikan Intervention Image tersedia
+            if (class_exists('Intervention\Image\Facades\Image')) {
+                $img = Image::make($file)
+                    ->resize(800, null, function ($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize();
+                    })
+                    ->encode('webp', 80); // Konversi ke WebP dengan kualitas 80%
 
-            // Simpan gambar yang sudah dikompresi
-            Storage::disk('public')->put($path, $img->__toString());
-            $image = $path;
-        } else {
-            // Simpan file asli jika Intervention Image tidak tersedia
-            $image = $file->storeAs('product-images', $fileName, 'public');
+                // Simpan gambar yang sudah dikompresi
+                Storage::disk('public')->put($path, $img->__toString());
+                $image = $path;
+            } else {
+                // Simpan file asli jika Intervention Image tidak tersedia
+                $image = $file->storeAs('product-images', $fileName, 'public');
+            }
         }
+
+        // Simpan data ke database
+        Product::create([
+            'name' => $request->name,
+            'buy_price' => $request->buy_price,
+            'sell_price' => $request->sell_price,
+            'stock' => $request->stock,
+            'description' => $request->description,
+            'image' => $image,
+            'barcode' => $request->barcode,
+            'category_id' => $request->category_id,
+        ]);
+
+        return redirect('/products')->with('message', 'Product Added Successfully');
     }
-
-    // Simpan data ke database
-    Product::create([
-        'name' => $request->name,
-        'buy_price' => $request->buy_price,
-        'sell_price' => $request->sell_price,
-        'stock' => $request->stock,
-        'description' => $request->description,
-        'image' => $image,
-        'barcode' => $request->barcode,
-        'category_id' => $request->category_id,
-    ]);
-
-    return redirect('/products')->with('message', 'Product Added Successfully');
-}
 
 
     public function edit(Product $product){
