@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col mb-2">
-    <label for="name" class="mb-1 text-sm">{{ name }}</label>
+    <label :for="name" class="mb-1 text-sm">{{ name }}</label>
     <input
       :type="type"
       :disabled="disabled"
@@ -14,7 +14,7 @@
           : 'placeholder:text-gray-400',
       ]"
       class="outline-none border text-sm transition-all duration-200 focus-within:border-violet-400 focus-within:shadow focus-within:shadow-violet-300 h-10 px-3 rounded-lg placeholder:text-sm"
-      id="name"
+      :id="name"
       v-model="model"
       autocomplete="off"
       :placeholder="placeholder"

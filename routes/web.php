@@ -55,6 +55,8 @@ Route::group(['middleware' => ['auth']], function () {
         // Roles Route
         Route::resource('/roles', RoleController::class)
         ->middleware('permission:roles.index|roles.create|roles.edit|roles.delete');
+        Route::post('/roles/searchRoles', [RoleController::class, 'searchRoles'])->name('roles.searchRoles');
+        Route::post('/roles/dropDownRole', [RoleController::class, 'dropDownRole']);
 
         // Supplier Route
         Route::resource('/suppliers', SupplierController::class)
@@ -84,12 +86,13 @@ Route::group(['middleware' => ['auth']], function () {
         // Stock Opname Route
         Route::resource('/stock-opname', StockOpnameController::class)
         ->middleware('permission:stock_opname.index|stock_opname.create|stock_opname.edit|stock_opname.delete');
-        Route::post('/stock-opname/searchByName', [StockOpnameController::class, 'searchByName'])->name('stockIn.searchByName');
+        Route::post('/stock-opname/searchByName', [StockOpnameController::class, 'searchByName'])->name('stockOpname.searchByName');
         Route::post('/stock-opname/filterDate', [StockOpnameController::class, 'filter'])->name('stockIn.filterDate');
-
+        
         // Employe Route
         Route::resource('/employees', EmployeeController::class)
-        ->middleware('permission:employees.index|employees.create|employees.edit|employees.delete');
+        ->middleware('permission:employees.index|employees.create|employees.edit|employees.delete');     
+        Route::post('/employees/searchEmployeeName', [EmployeeController::class, 'searchEmployeeName'])->name('employee.searchEmployeeName');
         Route::put('/employees/{id}/activate', [EmployeeController::class, 'activate']);
         Route::put('/employees/{id}/deactivate', [EmployeeController::class, 'deactivate']);
 

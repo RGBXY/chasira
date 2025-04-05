@@ -15,14 +15,54 @@ class RoleController extends Controller
     public function index()
     {
         $roles = Role::with('permissions') 
-            ->when(request()->search, function ($query) {
-                $query->where('name', 'like', '%' . request()->search . '%'); 
-            })
+            ->select(['id', 'name'])
             ->latest()
             ->paginate(20);
 
         return Inertia::render("Roles/index", [
             'roles' => $roles
+        ]);
+    }
+
+    public function dropDownRole(Request $request)
+    {
+        $role = Role::where('name', 'like', '%' . $request->name . '%')
+        ->select(['id', 'name'])
+        ->limit(3)  
+        ->get();             
+
+        if ($role) {
+            return response()->json([
+                'success' => true,
+                'data'    => $role
+            ]);
+        }    
+
+        return response()->json([
+            'success' => false,
+            'data'    => null
+        ]);
+    }
+
+    public function searchRoles(Request $request)
+    {
+        // Cek apakah barcode atau name yang dikirim
+        $product = Role::where('name', 'like', '%' . $request->name . '%')
+        ->with('permissions') 
+        ->select(['id', 'name'])
+        ->latest()
+        ->paginate(12);             
+
+        if ($product) {
+            return response()->json([
+                'success' => true,
+                'data'    => $product
+            ]);
+        }    
+
+        return response()->json([
+            'success' => false,
+            'data'    => null
         ]);
     }
     
@@ -80,15 +120,15 @@ class RoleController extends Controller
         return redirect('/roles')->with('message', 'Role Edited Succesfully');;
     }
 
-    public function destroy($id)
-    {
-        //find role by ID
-        $role = Role::findOrFail($id);
+    // public function destroy($id)
+    // {
+    //     //find role by ID
+    //     $role = Role::findOrFail($id);
 
-        //delete role
-        $role->delete();
+    //     //delete role
+    //     $role->delete();
 
-        //redirect
-        return redirect("/roles");
-    }
+    //     //redirect
+    //     return redirect("/roles");
+    // }
 }

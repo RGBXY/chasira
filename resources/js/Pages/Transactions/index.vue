@@ -113,7 +113,7 @@ const searchByName = debounce(() => {
   loading.value = true;
 
   axios
-    .post('/product/searchProductName', {
+    .post('/products/searchProductName', {
       name: name.value,
     })
     .then((response) => {

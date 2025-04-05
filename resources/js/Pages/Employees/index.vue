@@ -6,172 +6,187 @@
 
         <div class="flex gap-3 justify-between">
           <div
-            class="w-[300px] h-12 border flex items-center px-3 gap-3 bg-white rounded-md overflow-hidden"
+            class="w-[250px] border h-10 flex items-center px-3 gap-3 bg-white rounded-md overflow-hidden"
           >
+            <Icon icon="ph:magnifying-glass" :ssr="true" />
             <input
               type="text"
-              v-model="search"
+              v-model="name"
+              @keydown="searchEmployeeName"
               placeholder="Search Employees..."
-              class="h-full outline-none w-full"
+              class="h-full outline-none w-full placeholder:text-sm"
             />
-            <button
-              @click="handleSearch()"
-              class="flex items-center justify-center rounded-full"
-            >
-              <PhMagnifyingGlass class="text-lg" />
-            </button>
           </div>
 
           <Link
             href="/employees/create"
             class="text-white border rounded-lg bg-violet-400 flex items-center justify-center gap-2 px-4"
           >
-            <PhPlus weight="bold" />
-            <p>Add Employees</p>
+            <Icon icon="ph:plus-bold" :ssr="true" />
+            <p>Add Data</p>
           </Link>
         </div>
       </div>
 
       <div class="w-full">
-        <table
-          v-if="props.user.data.length > 0"
-          class="table-auto w-full rounded-lg border-2 border-gray-200 overflow-hidden"
+        <DataTable
+          v-if="employeesData.length > 0"
+          :data="employeesData"
+          :header="headerConfig"
         >
-          <thead>
-            <tr class="">
-              <th class="text-start p-3">Name</th>
-              <th class="text-start p-3">Role</th>
-              <th class="text-start p-3">Status</th>
-              <th class="text-start p-3">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in user.data">
-              <td class="border-2 p-3 border-gray-200">
-                <p>{{ item.name }}</p>
-              </td>
+          <template v-slot:roles="{ row: i }">
+            <div
+              class="bg-gray-100 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
+            >
+              <p>
+                {{ i.roles[0].name }}
+              </p>
+            </div>
+          </template>
+          <template v-slot:status="{ row: i }">
+            <div
+              :class="
+                i.status === 'active'
+                  ? 'bg-blue-100 text-blue-500'
+                  : 'bg-red-100 text-red-500'
+              "
+              class="px-2.5 py-1.5 uppercase font-bold inline-block text-sm rounded-md"
+            >
+              <p>{{ i.status }}</p>
+            </div>
+          </template>
+          <template v-slot:actions="{ row: i }">
+            <div class="flex items-start gap-2">
+              <button
+                @click=""
+                :class="
+                  i.status === 'Deactive' ? ' text-blue-400' : ' text-red-400'
+                "
+                class="py-2 px-4 flex items-center gap-1.5 font-semibold hover:bg-gray-100 border border-gray-200 text-blue-400 text-sm rounded-md"
+              >
+                <p>{{ i.status === 'active' ? 'Deactive' : 'Active' }}</p>
+              </button>
+              <Link
+                :href="`/products/${i.id}/edit`"
+                class="py-2 px-4 flex items-center gap-1.5 font-semibold hover:bg-gray-100 border border-gray-200 text-blue-400 text-sm rounded-md"
+              >
+                <p>Edit</p>
+              </Link>
+              <button
+                @click="method.modalFnc(i.id)"
+                class="py-2 px-4 flex items-center gap-1.5 font-semibold hover:bg-gray-100 border border-gray-200 text-red-400 text-sm rounded-md"
+              >
+                <p>Delete</p>
+              </button>
+            </div>
+          </template>
+        </DataTable>
 
-              <td class="border-2 p-3 gap-3 border-gray-200">
-                <div
-                  class="bg-gray-100 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
-                >
-                  <p>
-                    {{ item.roles[0].name }}
-                  </p>
-                </div>
-              </td>
-              <td class="border-2 p-3 border-gray-200">
-                <div
-                  :class="
-                    item.status === 'active'
-                      ? 'bg-blue-100 text-blue-500'
-                      : 'bg-red-100 text-red-500'
-                  "
-                  class="px-2.5 py-1.5 uppercase font-bold inline-block text-sm rounded-md"
-                >
-                  {{ item.status }}
-                </div>
-              </td>
-              <td class="border-2 p-3 border-gray-200">
-                <div class="flex items-start gap-2">
-                  <button
-                    @click="statusModal(item.status, item.id)"
-                    :class="
-                      item.status === 'active'
-                        ? 'border-red-300 text-red-500 hover:bg-red-50'
-                        : 'border-blue-300 text-blue-500 hover:bg-blue-50'
-                    "
-                    class="px-2.5 py-1.5 min-w-[100px] border-2 font-semibold text-sm rounded-md"
-                  >
-                    {{ item.status === 'active' ? 'Deactivate' : 'Activate' }}
-                  </button>
-                  <Link
-                    :href="`/employees/${item.id}/edit`"
-                    class="border-blue-300 border-2 px-2.5 py-1.5 flex items-center gap-1.5 hover:bg-blue-50 font-semibold text-blue-500 text-sm rounded-md"
-                  >
-                    <PhPencilLine />
-                    <p>Edit</p>
-                  </Link>
-                  <button
-                    @click="statusModal(null, item.id)"
-                    class="border-red-300 border-2 px-2.5 py-1.5 flex items-center gap-1.5 hover:bg-red-50 font-semibold text-red-500 text-sm rounded-md"
-                  >
-                    <PhTrash />
-                    <p>Delete</p>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <el-empty v-else :image-size="200" />
 
-        <NoData
-          v-else
-          header="No Data Employees Found"
-          sub="Get started by adding your first employee. Manage your team more efficiently"
-          button="Add Employee"
-          link="/employees/create"
-        />
-
-        <Pagination :pagination="props.user" />
+        <Pagination :pagination="employeesData" />
       </div>
     </div>
+
+    <!-- Modal -->
+    <Modal v-model="modalAlert">
+      <template #header>Are you absolutely sure?</template>
+      <template #description>
+        {{
+          status === 'inactive'
+            ? 'Are you sure you want to activate this employee?'
+            : 'Are you sure you want to deactivate this employee?'
+        }}
+      </template>
+      <template #action>
+        <PrimaryButton
+          @click="method.modalDeleteFnc()"
+          class="bg-gray-200"
+          text="Close"
+        />
+        <PrimaryButton
+          v-if="status === 'inactive'"
+          @click="activate(method.deleteId)"
+          class="bg-blue-200 text-blue-600"
+          text="Activate"
+        />
+        <PrimaryButton
+          v-else-if="status === 'active'"
+          @click="deactivate(method.deleteId)"
+          class="bg-red-200 text-red-600"
+          text="Deactivate"
+        />
+      </template>
+    </Modal>
+    <!-- Modal -->
   </div>
-
-  <!-- Modal -->
-  <Modal>
-    <template #header>Are you absolutely sure?</template>
-    <template #description>
-      {{
-        status === 'inactive'
-          ? 'Are you sure you want to activate this employee?'
-          : 'Are you sure you want to deactivate this employee?'
-      }}
-    </template>
-    <template #action>
-      <PrimaryButton
-        @click="method.modalDeleteFnc()"
-        class="bg-gray-200"
-        text="Close"
-      />
-      <PrimaryButton
-        v-if="status === 'inactive'"
-        @click="activate(method.deleteId)"
-        class="bg-blue-200 text-blue-600"
-        text="Activate"
-      />
-      <PrimaryButton
-        v-else-if="status === 'active'"
-        @click="deactivate(method.deleteId)"
-        class="bg-red-200 text-red-600"
-        text="Deactivate"
-      />
-    </template>
-  </Modal>
-
-  <!-- Modal -->
 </template>
 
 <script setup>
-import Layout from '../../Layouts/Layout.vue';
 import { Link, router } from '@inertiajs/vue3';
 import { useMethodStore } from '../../stores/method';
 import { ref } from 'vue';
 import Pagination from '../../components/ui/Pagination.vue';
-import NoData from '../../components/card/NoData.vue';
 import Modal from '../../components/modal/Modal.vue';
 import PrimaryButton from '../../components/ui/PrimaryButton.vue';
+import { Icon } from '@iconify/vue/dist/iconify.js';
+import DataTable from '../../components/layouts/DataTable.vue';
+import Layout from '../../Layouts/Layout.vue';
+import { debounce } from 'lodash';
 
+// Layout
 defineOptions({
   layout: Layout,
 });
 
+// Config Table
+const headerConfig = [
+  { key: 'name', label: 'Name' },
+  { key: 'roles', label: 'Role' },
+  { key: 'status', label: 'Status' },
+];
+
+// Props
 const props = defineProps({
   user: Object,
 });
 
+// Define Store
 const method = useMethodStore();
+
+// State API
+const employeesData = ref(props.user.data);
 const status = ref(null);
+const name = ref('');
+const loading = ref('');
+
+const searchEmployeeName = debounce(() => {
+  if (name.value.trim() == '') {
+    employeesData.value = props.user.data;
+    return;
+  }
+
+  loading.value = true;
+
+  axios
+    .post('/employees/searchEmployeeName', {
+      name: name.value,
+    })
+    .then((response) => {
+      console.log(response);
+      if (response.data.success && response.data.data.length > 0) {
+        employeesData.value = response.data.data;
+      } else {
+        employeesData.value = [];
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}, 500);
 
 const statusModal = (data, id) => {
   status.value = data;

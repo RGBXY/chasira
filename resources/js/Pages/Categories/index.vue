@@ -12,28 +12,40 @@ import Modal from '../../components/modal/Modal.vue';
 import PrimaryButton from '../../components/ui/PrimaryButton.vue';
 import OutlineButton from '../../components/ui/OutlineButton.vue';
 
+// Layout
 defineOptions({ layout: Layout });
 
+// Props
 const props = defineProps({
   categories: Object,
 });
 
+// Define Store
 const method = useMethodStore();
+
+// State API
 const categoriesData = ref(props.categories.data);
 const loading = ref(false);
 const name = ref('');
 
+// State Modal
+const modalAlert = ref(false);
+const dataId = ref(0);
+
+// Config Select Input
 const selectConfig = [
   { id: 'latest', name: 'Latest' },
   { id: 'most_products', name: 'Most Products' },
 ];
 
+// Config Table
 const headerConfig = [
   { key: 'name', label: 'Name' },
   { key: 'products_count', label: 'Total Product' },
   { key: 'description', label: 'Description' },
 ];
 
+// Function Search Category Data (API)
 const searchCategoryName = debounce(() => {
   if (name.value.trim() == '') {
     categoriesData.value = props.categories.data;
@@ -62,14 +74,23 @@ const searchCategoryName = debounce(() => {
     });
 }, 500);
 
+// State Select Input
 const filter = ref(new URL(document.location).searchParams.get('sort') || '');
 
+// Function Select Input
 const filterChange = () => {
   router.get('/categories', {
     sort: filter.value,
   });
 };
 
+// Function Modal ALert
+const modalButtonFnc = (id) => {
+  modalAlert.value = true;
+  dataId.value = id;
+};
+
+// Function Delete
 const destroy = (id) => {
   loading.value = true;
 
@@ -147,7 +168,7 @@ const destroy = (id) => {
               </Link>
 
               <button
-                @click="method.modalFnc(i.id)"
+                @click="modalButtonFnc(i.id)"
                 class="py-2 px-4 flex items-center gap-1.5 font-semibold hover:bg-gray-100 border border-gray-200 text-red-400 text-sm rounded-md"
               >
                 <p>Delete</p>
@@ -162,7 +183,7 @@ const destroy = (id) => {
       </div>
     </div>
 
-    <Modal>
+    <Modal v-model="modalAlert">
       <template #header> Are you absolustly sure? </template>
       <template #description>
         Are you sure you want to delete this product? Once deleted, this action
@@ -170,12 +191,12 @@ const destroy = (id) => {
       >
       <template #action>
         <OutlineButton
-          @click="method.modalFnc()"
+          @click="modalAlert = false"
           text="Cancel"
           class="border-gray-400 text-gray-600"
         />
         <PrimaryButton
-          @click="destroy(method.modalParam)"
+          @click="destroy(dataId)"
           text="Delete"
           class="bg-red-500 text-white"
         />

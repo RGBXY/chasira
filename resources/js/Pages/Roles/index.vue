@@ -1,5 +1,61 @@
+<script setup>
+import Layout from '../../Layouts/Layout.vue';
+import { Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import Pagination from '../../components/ui/Pagination.vue';
+import { Icon } from '@iconify/vue/dist/iconify.js';
+import { debounce } from 'lodash';
+import DataTable from '../../components/layouts/DataTable.vue';
+
+defineOptions({
+  layout: Layout,
+});
+
+const props = defineProps({
+  roles: Object,
+});
+
+const headerConfig = [
+  { key: 'name', label: 'Name' },
+  { key: 'permissions', label: 'Permissions' },
+];
+
+const name = ref('');
+const rolesData = ref(props.roles.data);
+
+console.log(props.roles.data);
+
+const searchRoles = debounce(() => {
+  if (name.value.trim() == '') {
+    rolesData.value = props.stockIn.data;
+    return;
+  }
+
+  axios
+    .post('/roles/searchRoles', {
+      name: name.value,
+    })
+    .then((response) => {
+      if (response.data.success && response.data.data.length > 0) {
+        rolesData.value = response.data.data;
+        console.log(rolesData.value);
+      } else {
+        rolesData.value = [];
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}, 500);
+
+// const destroy = (id) => {
+//   router.delete(`/roles/${id}`);
+//   method.modalDeleteFnc();
+// };
+</script>
+
 <template>
-  <div class="py-8 px-7 flex items-center justify-center">
+  <div class="w-full py-8 px-7 flex items-center justify-center">
     <div class="px-10 py-8 w-full max-w-7xl border bg-white rounded-lg">
       <div class="mb-7 flex items-center justify-between pb-4">
         <h1 class="text-3xl font-bold mb-1">Roles</h1>
@@ -12,7 +68,7 @@
             <input
               type="text"
               v-model="name"
-              @keydown="searchByName"
+              @keydown="searchRoles"
               placeholder="Search Roles..."
               class="h-full outline-none w-full placeholder:text-sm"
             />
@@ -29,83 +85,39 @@
       </div>
 
       <div class="w-full">
-        <table
-          v-if="props.roles.data.length > 0"
-          class="table-fixed w-full rounded-lg border-2 border-gray-200 overflow-hidden"
+        <DataTable
+          v-if="rolesData.length > 0"
+          :data="rolesData"
+          :header="headerConfig"
         >
-          <thead>
-            <tr class="">
-              <th class="text-start p-3">Name</th>
-              <th class="text-start p-3 w-[65%]">Permissions</th>
-              <th class="text-start p-3">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="role in roles.data">
-              <td class="border-2 p-3 border-gray-200">
-                <p>{{ role.name }}</p>
-              </td>
-              <td class="border-2 p-3 gap-3 border-gray-200">
-                <div class="flex gap-2 flex-wrap">
-                  <div
-                    v-for="permission in role.permissions"
-                    class="bg-gray-100 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
-                  >
-                    <p>{{ permission.name }}</p>
-                  </div>
-                </div>
-              </td>
-              <td class="border-2 p-3 border-gray-200">
-                <div class="flex items-start gap-2">
-                  <Link
-                    :href="`/roles/${role.id}/edit`"
-                    class="py-2 px-4 flex items-center gap-1.5 font-semibold hover:bg-gray-100 border border-gray-200 text-blue-400 text-sm rounded-md"
-                  >
-                    <p>Edit</p>
-                  </Link>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+          <template v-slot:permissions="{ row: i }">
+            <div class="flex gap-2 flex-wrap">
+              <div
+                v-for="permissions in i.permissions"
+                class="bg-gray-100 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
+              >
+                <p>
+                  {{ permissions.name }}
+                </p>
+              </div>
+            </div>
+          </template>
+          <template v-slot:actions="{ row: i }">
+            <div class="flex items-start gap-2">
+              <Link
+                :href="`/roles/${i.id}/edit`"
+                class="py-2 px-4 flex items-center gap-1.5 font-semibold hover:bg-gray-100 border border-gray-200 text-blue-400 text-sm rounded-md"
+              >
+                <p>Edit</p>
+              </Link>
+            </div>
+          </template>
+        </DataTable>
 
-        <NoData
-          v-else
-          header="No Data Roles Found"
-          sub="Get started by creating your first role. Define permissions and responsibilities to manage your team effectively."
-          button="Add Data Roles"
-          link="/roles/create"
-        />
+        <el-empty v-else :image-size="200" />
 
-        <Pagination :pagination="props.roles" />
+        <Pagination :pagination="rolesData" />
       </div>
     </div>
   </div>
 </template>
-
-<script setup>
-import Layout from '../../Layouts/Layout.vue';
-import { Link, router } from '@inertiajs/vue3';
-import { useMethodStore } from '../../stores/method';
-import { ref } from 'vue';
-import Pagination from '../../components/ui/Pagination.vue';
-import NoData from '../../components/card/NoData.vue';
-import { Icon } from '@iconify/vue/dist/iconify.js';
-
-defineOptions({
-  layout: Layout,
-});
-
-const method = useMethodStore();
-
-const props = defineProps({
-  roles: Object,
-});
-
-const destroy = (id) => {
-  router.delete(`/roles/${id}`);
-  method.modalDeleteFnc();
-};
-</script>
-
-<style lang="scss" scoped></style>

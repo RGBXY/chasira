@@ -11,12 +11,9 @@ use Spatie\Permission\Models\Role;
 class EmployeeController extends Controller
 {
     public function index(){
-        $user = User::with('roles')->latest()
+        $user = User::with('roles:id,name')->latest()
         ->where('id', '!=', 1)
-        ->when(request()->search, function ($query) {
-            $query->where('name', 'like', '%' . request()->search . '%'); 
-        })
-        ->paginate(20);
+        ->paginate(12);
 
         return Inertia::render("Employees/index", [
             'user' => $user
@@ -28,6 +25,26 @@ class EmployeeController extends Controller
 
         return Inertia::render("Employees/Create", [
             'roles' => $roles
+        ]);
+    }
+
+    public function searchEmployeeName(Request $request)
+    {
+        $employee = User::where('name', 'like', '%' . $request->name . '%')
+                    ->with('roles:id,name')
+                    ->limit(12)  
+                    ->get();       
+
+        if ($employee->count() > 0) {
+            return response()->json([
+                'success' => true,
+                'data'    => $employee
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'data'    => []
         ]);
     }
 

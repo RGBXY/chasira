@@ -1,12 +1,12 @@
 <template>
   <div
-    v-show="method.modalStat"
-    @click.self="method.modalStat = false"
+    :class="active ? 'opacity-100 visible' : 'opacity-0 invisible'"
+    @click="close"
     class="fixed top-0 left-0 bg-black backdrop-blur-sm bg-opacity-40 transition-all duration-500 z-50 w-full h-screen flex justify-center items-center"
   >
     <div
       class="w-[500px] bg-white rounded-lg border-2 shadow-lg py-5 px-6"
-      @keydown.esc="method.modalStat = false"
+      @keydown.esc="active = false"
       tabindex="0"
       ref="modalContent"
     >
@@ -26,16 +26,22 @@
 </template>
 
 <script setup>
-import { useMethodStore } from '../../stores/method';
 import { onMounted, onUnmounted, ref } from 'vue';
 
-const method = useMethodStore();
 const modalContent = ref(null);
+
+// Menggunakan defineModel untuk two-way binding
+const active = defineModel({ type: Boolean, default: false });
+
+// Fungsi untuk menutup modal
+const close = () => {
+  active.value = false;
+};
 
 // Fungsi menangani tombol ESC untuk menutup modal
 const closeOnEscape = (event) => {
   if (event.key === 'Escape') {
-    method.modalStat = false;
+    active.value = false;
   }
 };
 

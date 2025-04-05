@@ -66,7 +66,7 @@
                 <p>Edit</p>
               </Link>
               <button
-                @click="method.modalFnc(i.id)"
+                @click="modalButtonFnc(i.id)"
                 class="py-2 px-4 flex items-center gap-1.5 font-semibold hover:bg-gray-100 border border-gray-200 text-red-400 text-sm rounded-md"
               >
                 <p>Delete</p>
@@ -81,7 +81,7 @@
       </div>
     </div>
 
-    <Modal>
+    <Modal v-model="modalAlert">
       <template #header> Are you absolustly sure? </template>
       <template #description>
         Are you sure you want to delete this product? Once deleted, this action
@@ -89,12 +89,12 @@
       >
       <template #action>
         <PrimaryButton
-          @click="method.modalFnc()"
+          @click="modalAlert = false"
           text="Cancel"
           class="border border-gray-400 bg-transparent !text-gray-500"
         />
         <PrimaryButton
-          @click="destroy(method.modalParam)"
+          @click="destroy(dataId)"
           text="Delete"
           class="bg-red-500 text-white"
         />
@@ -117,15 +117,16 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import Modal from '../../components/modal/Modal.vue';
 import { debounce } from 'lodash';
 
-const method = useMethodStore();
-
+// Layout
 defineOptions({ layout: Layout });
 
+// Props
 const props = defineProps({
   products: Object,
   categories: Object,
 });
 
+// Config Table
 const headerConfig = [
   { key: 'barcode', label: 'Barcode' },
   { key: 'name', label: 'Name' },
@@ -136,11 +137,20 @@ const headerConfig = [
   { key: 'image', label: 'image' },
 ];
 
+// Define Store
+const method = useMethodStore();
+
+// State API
 const name = ref('');
 const productsData = ref(props.products.data);
 const searchCat = ref('');
 const loading = ref();
 
+// State Modal
+const modalAlert = ref(false);
+const dataId = ref(0);
+
+// Function Search Product Data (API)
 const searchProductName = debounce(() => {
   if (name.value.trim() == '') {
     productsData.value = props.products.data;
@@ -154,7 +164,6 @@ const searchProductName = debounce(() => {
       name: name.value,
     })
     .then((response) => {
-      console.log(response.data);
       if (response.data.success && response.data.data.length > 0) {
         productsData.value = response.data.data;
       } else {
@@ -169,12 +178,20 @@ const searchProductName = debounce(() => {
     });
 }, 500);
 
+// Function Filter by Category
 const categoryChange = () => {
   router.get('/products', {
     category_id: searchCat.value,
   });
 };
 
+// Function Modal Alert
+const modalButtonFnc = (id) => {
+  modalAlert.value = true;
+  dataId.value = id;
+};
+
+// Function Delete
 const destroy = (id) => {
   loading.value = true;
 

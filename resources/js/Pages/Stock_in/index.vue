@@ -101,18 +101,24 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import { debounce } from 'lodash';
 import { Link } from '@inertiajs/vue3';
 
+// Layout
 defineOptions({ layout: Layout });
 
+// Props
 const props = defineProps({
   stockIn: Object,
 });
 
+// State API
 const stockInDetail = ref(null);
 const date = ref('');
 const stockInData = ref(props.stockIn.data);
 const name = ref('');
+
+// State Modal
 const detailModal = ref(false);
 
+// Config Table
 const headerConfig = [
   { key: 'barcode', label: 'Barcode' },
   { key: 'product', label: 'Product' },
@@ -120,6 +126,7 @@ const headerConfig = [
   { key: 'date', label: 'Date' },
 ];
 
+// Data Content Detail
 const saleDetail = computed(() => [
   {
     title: 'Bacode',
@@ -147,6 +154,7 @@ const saleDetail = computed(() => [
   },
 ]);
 
+// Search Stock in data (API)
 const searchByName = debounce(() => {
   if (name.value.trim() == '') {
     stockInData.value = props.stockIn.data;
@@ -170,6 +178,7 @@ const searchByName = debounce(() => {
     });
 }, 500);
 
+// Filter Stock in data (API)
 const filterDate = debounce(() => {
   if (date.value == '') {
     stockInData.value = props.stockIn.data;
@@ -193,6 +202,7 @@ const filterDate = debounce(() => {
     });
 }, 500);
 
+// Function Modal
 const modalButtonFnc = (id) => {
   detailModal.value = true;
 

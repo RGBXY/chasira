@@ -4,7 +4,7 @@
     <input
       :class="[message ? 'border-red-500' : 'border-gray-300 ']"
       class="outline-none border text-sm transition-all w-full duration-200 focus-within:border-violet-400 focus-within:shadow focus-within:shadow-violet-300 h-10 px-3 rounded-lg placeholder:text-sm"
-      :type="type"
+      :type="type"  
       :value="modelValue"
       @input="$emit('update:modelValue', $event.target.value)"
       @focus="isFocused = true"

@@ -43,7 +43,7 @@
                 <p>Edit</p>
               </Link>
               <button
-                @click="method.modalFnc(i.id)"
+                @click="modalButtonFnc(i.id)"
                 class="py-2 px-4 flex items-center gap-1.5 font-semibold hover:bg-gray-100 border border-gray-200 text-red-400 text-sm rounded-md"
               >
                 <p>Delete</p>
@@ -58,7 +58,7 @@
       </div>
     </div>
 
-    <Modal>
+    <Modal v-model="modalAlert">
       <template #header> Are you absolutly sure? </template>
       <template #description>
         Are you sure you want to delete this product? Once deleted, this action
@@ -66,12 +66,12 @@
       >
       <template #action>
         <PrimaryButton
-          @click="method.modalFnc()"
+          @click="modalAlert = false"
           text="Cancel"
           class="border border-gray-400 bg-transparent !text-gray-500"
         />
         <PrimaryButton
-          @click="destroy(method.modalParam)"
+          @click="destroy(dataId)"
           text="Delete"
           class="bg-red-500 text-white"
         />
@@ -92,12 +92,12 @@ import PrimaryButton from '../../components/ui/PrimaryButton.vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { debounce } from 'lodash';
 
-const method = useMethodStore();
-
+// Layout
 defineOptions({
   layout: Layout,
 });
 
+// Config Table
 const headerConfig = [
   { key: 'name', label: 'Name' },
   { key: 'address', label: 'Address' },
@@ -105,14 +105,24 @@ const headerConfig = [
   { key: 'description', label: 'Description' },
 ];
 
+// Define State
+const method = useMethodStore();
+
+// Props
 const props = defineProps({
   suppliers: Object,
 });
 
+// State API
 const name = ref('');
 const suppliersData = ref(props.suppliers.data);
 const loading = ref();
 
+// State Modal
+const modalAlert = ref(false);
+const dataId = ref(0);
+
+// Function Search Suplier by Name (API)
 const searchSupplierName = debounce(() => {
   if (name.value.trim() == '') {
     suppliersData.value = props.suppliers.data;
@@ -141,6 +151,13 @@ const searchSupplierName = debounce(() => {
     });
 }, 500);
 
+// Function Modal ALert
+const modalButtonFnc = (id) => {
+  modalAlert.value = true;
+  dataId.value = id;
+};
+
+// Function Delete
 const destroy = (id) => {
   loading.value = true;
 
