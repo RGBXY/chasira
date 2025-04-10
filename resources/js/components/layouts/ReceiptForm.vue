@@ -121,7 +121,7 @@ watch(
     <div
       class="fixed top-0 right-0 overflow-y-auto flex flex-col justify-between w-[25%] h-full"
     >
-      <div class="flex-grow">
+      <div class="flex flex-grow flex-col justify-between">
         <div class="h-20 px-3 border-b flex items-center justify-between">
           <div class="flex items-center gap-1.5">
             <Icon icon="ph:receipt" class="text-2xl" />
@@ -135,7 +135,7 @@ watch(
           </button>
         </div>
 
-        <div class="h-[70%] w-full overflow-y-auto">
+        <div class="h-[60%] w-full overflow-y-auto">
           <div
             v-if="!receiptStore.products.length"
             class="flex items-center justify-center h-full"
@@ -204,10 +204,47 @@ watch(
           </div>
         </div>
 
-        <div class="flex-grow border-t p-3">
-          <div class="flex items-center font-semibold justify-between h-12">
-            <p class="text-xl">TOTAL</p>
-            <p>{{ formatPrice(total) }}</p>
+        <div class="flex-1 flex flex-col justify-between border-t">
+          <div class="flex-1 flex justify-between flex-col">
+            <div class="flex flex-col gap-2 p-3">
+              <div class="flex justify-between">
+                <p>Subtotal</p>
+                <p>Rp 10.000</p>
+              </div>
+
+              <div class="flex justify-between">
+                <p>Discount</p>
+                <p>Rp 10.000</p>
+              </div>
+            </div>
+
+            <div
+              class="flex items-center border-t-2 border-dashed p-3 font-semibold justify-between"
+            >
+              <p class="text-xl">TOTAL</p>
+              <p>{{ formatPrice(total) }}</p>
+            </div>
+          </div>
+
+          <div
+            class="flex items-center border-t font-semibold gap-3 p-3 justify-between h-20"
+          >
+            <button
+              class="border-2 flex-1 flex gap-2.5 items-center hover:shadow-inner rounded-full p-1.5"
+            >
+              <div class="p-1 bg-slate-100 border rounded-full">
+                <Icon icon="ph:user-list" class="text-2xl text-slate-500" />
+              </div>
+              <p class="text-sm">Customer</p>
+            </button>
+            <button
+              class="border-2 flex-1 flex gap-2.5 items-center hover:shadow-inner rounded-full p-1.5"
+            >
+              <div class="p-1 bg-slate-100 border rounded-full">
+                <Icon icon="ph:ticket" class="text-2xl text-slate-500" />
+              </div>
+              <p class="text-sm">Coupon</p>
+            </button>
           </div>
         </div>
       </div>

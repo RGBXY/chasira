@@ -12,7 +12,7 @@
           :items="productsData"
           :loading="loading"
           placeholder="Product Name"
-          @keydown="debouncedSearch"
+          @keydown="productDropdown"
           @select="selectProduct"
           :message="form.errors.product_id"
         >
@@ -80,22 +80,26 @@ import { debounce } from 'lodash';
 import { ref, watch } from 'vue';
 import DropdownInput from '../../components/ui/DropdownInput.vue';
 
+// Layout
 defineOptions({
   layout: Layout,
 });
 
-const name = ref('');
-const productsData = ref('');
-const loading = ref(false);
-const selectedProduct = ref(null);
-
+// Props
 const props = defineProps({
   products: Array,
 });
 
-const debouncedSearch = debounce(() => {
+// State API
+const name = ref('');
+const productsData = ref(props.products);
+const loading = ref(false);
+const selectedProduct = ref(null);
+
+// Function Product Dropdown (API)
+const productDropdown = debounce(() => {
   if (!name.value) {
-    productsData.value = [];
+    productsData.value = props.products;
     return;
   }
 
@@ -120,6 +124,7 @@ const debouncedSearch = debounce(() => {
     });
 }, 500);
 
+// Form
 const form = useForm({
   product_id: '',
   actual_stock: '',
@@ -127,6 +132,8 @@ const form = useForm({
   description: '',
 });
 
+
+// Function Select Product
 const selectProduct = (product) => {
   selectedProduct.value = product;
   name.value = product.name;
@@ -134,10 +141,12 @@ const selectProduct = (product) => {
   form.system_stock = product.stock;
 };
 
+// Function Submit
 const submit = () => {
   form.post('/stock-opname');
 };
 
+// Watch for update form.product_id
 watch(
   () => productsData.value,
   (newVal) => {

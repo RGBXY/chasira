@@ -90,7 +90,7 @@ const form = useForm({
   status: 'active',
 });
 
-const rolesData = ref([]);
+const rolesData = ref(props.roles);
 const loading = ref(false);
 const selectedRole = ref(null);
 const name = ref('');
@@ -101,7 +101,7 @@ const submit = () => {
 
 const RoleDropdown = debounce(() => {
   if (!name.value) {
-    rolesData.value = [];
+    rolesData.value = props.roles;
     return;
   }
 

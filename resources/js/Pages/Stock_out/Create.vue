@@ -76,7 +76,7 @@ defineOptions({
 });
 
 const name = ref('');
-const productsData = ref('');
+const productsData = ref(props.products);
 const loading = ref(false);
 const selectedProduct = ref(null);
 

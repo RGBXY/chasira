@@ -98,18 +98,15 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import { debounce } from 'lodash';
 import { Link } from '@inertiajs/vue3';
 
+// Layout
 defineOptions({ layout: Layout });
 
+// Props
 const props = defineProps({
   stockOpname: Object,
 });
 
-const stockOpnameDetail = ref(null);
-const date = ref('');
-const stockOpnameData = ref(props.stockOpname.data);
-const name = ref('');
-const detailModal = ref(false);
-
+// Config Table
 const headerConfig = [
   { key: 'product', label: 'Product' },
   { key: 'actual_stock', label: 'Actual Stock' },
@@ -118,6 +115,7 @@ const headerConfig = [
   { key: 'date', label: 'Date' },
 ];
 
+// Config Data Detail
 const stockDetail = computed(() => [
   {
     title: 'Product',
@@ -145,6 +143,14 @@ const stockDetail = computed(() => [
   },
 ]);
 
+// State API
+const stockOpnameDetail = ref(null);
+const date = ref('');
+const stockOpnameData = ref(props.stockOpname.data);
+const name = ref('');
+const detailModal = ref(false);
+
+// Function Search Stock Opname  (API)
 const searchByName = debounce(() => {
   if (name.value.trim() == '') {
     stockOpnameData.value = props.stockOpname.data;
@@ -167,6 +173,7 @@ const searchByName = debounce(() => {
     });
 }, 500);
 
+// Function Filter (API)
 const filterDate = debounce(() => {
   if (date.value == '') {
     stockOpnameData.value = props.stockOut.data;
@@ -190,6 +197,7 @@ const filterDate = debounce(() => {
     });
 }, 500);
 
+// Function Modal
 const modalButtonFnc = (id) => {
   detailModal.value = true;
 

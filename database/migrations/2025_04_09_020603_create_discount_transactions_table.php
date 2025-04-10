@@ -11,17 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('products', function (Blueprint $table) {
+        Schema::create('discount_transactions', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('start_date');
+            $table->string('end_date');
+            $table->string('discount');
+            $table->integer('minimal_transaction');  
+            $table->enum('status', ['active', 'inactive']);
+            $table->boolean('customer_only');
             $table->string('description');
-            $table->string('barcode');
-            $table->integer('buy_price');
-            $table->integer('sell_price');  
-            $table->integer('stock');  
-            $table->string('image')->nullable();  
-            $table->unsignedBigInteger('category_id');
-            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('products');
+        Schema::dropIfExists('discount_transaction');
     }
 };

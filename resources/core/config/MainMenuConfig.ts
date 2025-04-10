@@ -72,17 +72,17 @@ const MainMenuConfig: Array<MenuItem> = [
   },
   {
     heading: 'Discount',
-    permissions: 'sales.index',
+    permissions: 'discount.index',
     pages: [
       {
-        heading: 'Product Discount',
-        route: '/discount-product',
+        heading: 'Discount Transaction',
+        route: '/discount-transactions',
         icon: 'ph:seal-percent',
       },
       {
-        heading: 'Voucher',
-        route: '/profits',
-        icon: 'ph:seal-percent',
+        heading: 'Coupon Code',
+        route: '/coupon-codes',
+        icon: 'ph:ticket',
       },
     ],
   },

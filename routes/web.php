@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DiscountTransactionController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfitController;
@@ -93,9 +94,18 @@ Route::group(['middleware' => ['auth']], function () {
         Route::resource('/employees', EmployeeController::class)
         ->middleware('permission:employees.index|employees.create|employees.edit|employees.delete');     
         Route::post('/employees/searchEmployeeName', [EmployeeController::class, 'searchEmployeeName'])->name('employee.searchEmployeeName');
-        Route::put('/employees/{id}/activate', [EmployeeController::class, 'activate']);
-        Route::put('/employees/{id}/deactivate', [EmployeeController::class, 'deactivate']);
-
+        Route::get('/employee/{id}/activate', [EmployeeController::class, 'activate'])->name('employee.activate');
+        Route::get('/employee/{id}/deactivate', [EmployeeController::class, 'deactivate'])->name('employee.deactivate');
+        
+        // Discount Transaction Route
+        Route::resource('/discount-transactions', DiscountTransactionController::class)
+        ->middleware('permission:discounts.index|discounts.create|discounts.edit|discounts.delete');    
+        Route::post('/discount-transactions/searchDiscountName', [DiscountTransactionController::class, 'searchDiscountName'])->name('discount.searchDiscountName');
+        Route::get('/discount-transactions/{id}/activate', [DiscountTransactionController::class, 'activate'])->name('discount.activate');
+        Route::get('/discount-transactions/{id}/deactivate', [DiscountTransactionController::class, 'deactivate'])->name('discount.deactivate');
+        Route::put('/update-discount/{discount}', [DiscountTransactionController::class, 'update'])
+        ->name('discount-transactions.update.custom')
+        ->middleware('permission:discounts.edit');       
         // Route::get('/dashboard', [DashboardController::class, 'index'])
         // ->name('dashboard');
 

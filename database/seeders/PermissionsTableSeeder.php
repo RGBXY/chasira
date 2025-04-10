@@ -58,6 +58,13 @@ class PermissionsTableSeeder extends Seeder
         Permission::create(['name' => 'customers.edit']);
         Permission::create(['name' => 'customers.delete']);
 
+        Permission::create(['name' => 'discounts.index']);
+        Permission::create(['name' => 'discounts.create']);
+        Permission::create(['name' => 'discounts.edit']);
+        Permission::create(['name' => 'discounts.delete']);
+        
+        Permission::create(['name' => 'coupon.index']);
+
         Permission::create(['name' => 'sales.index']);
 
         Permission::create(['name' => 'discount.index']);

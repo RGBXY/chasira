@@ -19,11 +19,6 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 // Layout
 defineOptions({ layout: MainLayout });
 
-// Lazy Component
-const NoData = defineAsyncComponent(() =>
-  import('../../components/card/NoData.vue')
-);
-
 const Pagination = defineAsyncComponent(() =>
   import('../../components/ui/Pagination.vue')
 );
@@ -50,7 +45,7 @@ const props = defineProps({
   customers: Object,
 });
 
-// State
+// State API
 const productsData = ref(props.products.data);
 
 const loading = ref(false);

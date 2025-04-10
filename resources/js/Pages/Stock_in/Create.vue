@@ -7,24 +7,28 @@ import { debounce } from 'lodash';
 import { ref } from 'vue';
 import DropdownInput from '../../components/ui/DropdownInput.vue';
 
+// Layout
 defineOptions({
   layout: Layout,
 });
 
+// Props
 const props = defineProps({
   products: Object,
   suppliers: Object,
   stock_opname: Object,
 });
 
+// State API
 const name = ref('');
 const selectedProduct = ref(null);
-const productsData = ref([]);
+const productsData = ref(props.products);
 const loading = ref(false);
 
-const debouncedSearch = debounce(() => {
+// Function Product Dropdown (API)
+const productDropdown = debounce(() => {
   if (!name.value) {
-    productsData.value = [];
+    productsData.value = props.products;
     return;
   }
 
@@ -32,7 +36,7 @@ const debouncedSearch = debounce(() => {
   loading.value = true;
 
   axios
-    .post('/stock-in/searchProduct', { name: name.value })
+    .post('/product/dropDownProduct', { name: name.value })
     .then((response) => {
       if (response.data.success && response.data.data.length > 0) {
         productsData.value = response.data.data;
@@ -49,6 +53,7 @@ const debouncedSearch = debounce(() => {
     });
 }, 500);
 
+// Form
 const form = useForm({
   product_id: '',
   supplier_id: '',
@@ -56,12 +61,14 @@ const form = useForm({
   qty: '',
 });
 
+// Function Select Product
 const selectProduct = (product) => {
   selectedProduct.value = product;
   name.value = product.name;
   form.product_id = product.id;
 };
 
+// Function Submit
 const submit = () => {
   form.post('/stock-in');
 };
@@ -81,7 +88,7 @@ const submit = () => {
           :items="productsData"
           :loading="loading"
           placeholder="Product Name"
-          @keydown="debouncedSearch"
+          @keydown="productDropdown"
           @select="selectProduct"
           :message="form.errors.product_id"
         >

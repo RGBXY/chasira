@@ -69,7 +69,10 @@ class ProductController extends Controller
     }
 
     public function create(){
-        $categories = Category::select(['id', 'name'])->latest()->get();
+        $categories = Category::select(['id', 'name'])
+        ->latest()
+        ->limit(12)
+        ->get();
         return Inertia::render('Products/Create', [
             'categories' => $categories,
         ]);

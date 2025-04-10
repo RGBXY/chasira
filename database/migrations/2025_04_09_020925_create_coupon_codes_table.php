@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('discount_products', function (Blueprint $table) {
+        Schema::create('coupon_codes', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('description');
-            $table->string('start_date');
-            $table->string('end_date');
-            $table->integer('pecent');  
-            $table->string('status');
+            $table->string('code');
+            $table->unsignedBigInteger('discount_id');
+            $table->foreign('discount_id')->references('id')->on('discount_transactions')->onDelete('cascade'); 
             $table->timestamps();
         });
     }
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('voucher_code');
     }
 };

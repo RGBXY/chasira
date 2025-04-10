@@ -17,7 +17,7 @@ class RoleController extends Controller
         $roles = Role::with('permissions') 
             ->select(['id', 'name'])
             ->latest()
-            ->paginate(20);
+            ->paginate(12);
 
         return Inertia::render("Roles/index", [
             'roles' => $roles
@@ -28,7 +28,7 @@ class RoleController extends Controller
     {
         $role = Role::where('name', 'like', '%' . $request->name . '%')
         ->select(['id', 'name'])
-        ->limit(3)  
+        ->limit(12)  
         ->get();             
 
         if ($role) {

@@ -93,7 +93,6 @@
 import Layout from '../../Layouts/Layout.vue';
 import { computed, ref } from 'vue';
 import Pagination from '../../components/ui/Pagination.vue';
-import NoData from '../../components/card/NoData.vue';
 import DataTable from '../../components/layouts/DataTable.vue';
 import formatDate from '../../../core/helper/formatDate';
 import ContentDetail from '../../components/ui/ContentDetail.vue';

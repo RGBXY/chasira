@@ -21,7 +21,12 @@ class EmployeeController extends Controller
     }
 
     public function create(){
-        $roles = Role::latest()->get();
+       $roles = Role::with('permissions') 
+        ->select(['id', 'name'])
+        ->latest()
+        ->limit(12)
+        ->get();
+
 
         return Inertia::render("Employees/Create", [
             'roles' => $roles
@@ -82,10 +87,7 @@ class EmployeeController extends Controller
     public function update(Request $request, User $employee){
         $request->validate([
             'name' => [
-                'required',
-                'max:225',
-                Rule::unique('users')
-                ->ignore($employee->id)
+                'required', Rule::unique('users')->ignore($employee->id)
             ],
             'email' => ['required', 'email', 'max:225', 'unique:users,email,'.$employee->id],
             'role_id' => ['required'],
@@ -113,16 +115,14 @@ class EmployeeController extends Controller
         return redirect()->back()->with('message', 'Employee Deleted Successfully');
     }
 
-    public function deactivate($id){
+    public function deactivate($id)
+    {
         $employee = User::findOrFail($id);
-
         $employee->update(['status' => 'inactive']);
-
     }
 
     public function activate($id){
         $employee = User::findOrFail($id);
-
         $employee->update(['status' => 'active']);
     }
 }
