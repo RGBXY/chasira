@@ -14,6 +14,14 @@
           :message="form.errors.name"
         />
 
+        <TextInput
+          name="Code"
+          type="text"
+          v-model="form.code"
+          placeholder="Your Discount code"
+          :message="form.errors.code"
+        />
+
         <div class="flex justify-between gap-3">
           <TextInput
             name="Start Date"
@@ -103,11 +111,10 @@ defineOptions({
   layout: Layout,
 });
 
+// Props
 const props = defineProps({
   discount: Object,
 });
-
-console.log(props.discount);
 
 // Form
 const form = useForm({
@@ -117,7 +124,7 @@ const form = useForm({
   discount: props.discount.discount,
   minimal_transaction: props.discount.minimal_transaction,
   customer_only: props.discount.customer_only === 1 ? true : false,
-  status: props.discount.status,
+  code: props.discount.code,
   description: props.discount.description,
 });
 

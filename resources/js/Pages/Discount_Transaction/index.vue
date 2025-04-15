@@ -34,18 +34,6 @@
           :data="discountData"
           :header="headerConfig"
         >
-          <template v-slot:status="{ row: i }">
-            <div
-              :class="
-                i.status === 'active'
-                  ? 'bg-blue-100 text-blue-500'
-                  : 'bg-red-100 text-red-500'
-              "
-              class="px-2.5 py-1.5 uppercase font-bold inline-block text-sm rounded-md"
-            >
-              <p>{{ i.status }}</p>
-            </div>
-          </template>
           <template v-slot:discount="{ row: i }">
             <p>{{ i.discount }}%</p>
           </template>
@@ -57,15 +45,6 @@
           </template>
           <template v-slot:actions="{ row: i }">
             <div class="flex items-start gap-2">
-              <button
-                @click="modalStatusFnc(i.id, i.status)"
-                :class="
-                  i.status === 'inactive' ? 'text-blue-400 ' : '  text-red-400'
-                "
-                class="py-2 px-4 flex items-center gap-1.5 font-semibold hover:bg-gray-100 border border-gray-200 text-sm rounded-md"
-              >
-                <p>{{ i.status === 'active' ? 'Deactive' : 'Active' }}</p>
-              </button>
               <Link
                 :href="`/discount-transactions/${i.id}/edit`"
                 class="py-2 px-4 flex items-center gap-1.5 font-semibold hover:bg-gray-100 border border-gray-200 text-blue-400 text-sm rounded-md"
@@ -106,35 +85,6 @@
       </template>
     </Modal>
 
-    <Modal v-model="modalAlert2">
-      <template #header>Are you absolutely sure?</template>
-      <template #description>
-        {{
-          statusRef === 'inactive'
-            ? 'Are you sure you want to activate this discount?'
-            : 'Are you sure you want to deactivate this discount?'
-        }}
-      </template>
-      <template #action>
-        <PrimaryButton
-          @click="modalAlert2 = false"
-          class="border border-gray-400 bg-transparent !text-gray-500"
-          text="Close"
-        />
-        <PrimaryButton
-          v-if="statusRef === 'inactive'"
-          @click="activate(dataId2)"
-          class="!bg-blue-500 text-blue-600"
-          text="Activate"
-        />
-        <PrimaryButton
-          v-else-if="statusRef === 'active'"
-          @click="deactivate(dataId2)"
-          class="bg-red-500 text-red-600"
-          text="Deactivate"
-        />
-      </template>
-    </Modal>
     <!-- Modal -->
   </div>
 </template>
@@ -159,7 +109,7 @@ defineOptions({
 // Config Table
 const headerConfig = [
   { key: 'name', label: 'Name' },
-  { key: 'status', label: 'Status' },
+  { key: 'code', label: 'Code' },
   { key: 'start_date', label: 'Start Date' },
   { key: 'end_date', label: 'End Date' },
   { key: 'discount', label: 'Discount' },
@@ -175,9 +125,6 @@ const props = defineProps({
 // State Modal
 const modalAlert = ref(false);
 const dataId = ref(0);
-const modalAlert2 = ref(false);
-const dataId2 = ref(0);
-const statusRef = ref(null);
 
 // State API
 const discountData = ref(props.discount.data);
@@ -218,13 +165,6 @@ const modalDeleteFnc = (id) => {
   dataId.value = id;
 };
 
-// Function Modal Status
-const modalStatusFnc = (id, status) => {
-  modalAlert2.value = true;
-  dataId2.value = id;
-  statusRef.value = status;
-};
-
 // Function Delete
 const destroy = (id) => {
   loading.value = true;
@@ -233,42 +173,6 @@ const destroy = (id) => {
     preserveState: false,
     onSuccess: () => {
       modalAlert.value = false;
-    },
-    onError: (errors) => {
-      console.error(errors);
-    },
-    onFinish: () => {
-      loading.value = false;
-    },
-  });
-};
-
-// Function Active
-const activate = (id) => {
-  loading.value = true;
-
-  router.get(`/discount-transactions/${id}/activate`, {
-    preserveState: false,
-    onSuccess: () => {
-      modalAlert2.value = false;
-    },
-    onError: (errors) => {
-      console.error(errors);
-    },
-    onFinish: () => {
-      loading.value = false;
-    },
-  });
-};
-
-// Function Deactive
-const deactivate = (id) => {
-  loading.value = true;
-
-  router.get(`/discount-transactions/${id}/deactivate`, {
-    preserveState: false,
-    onSuccess: () => {
-      modalAlert2.value = false;
     },
     onError: (errors) => {
       console.error(errors);

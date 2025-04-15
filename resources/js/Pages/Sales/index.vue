@@ -174,6 +174,11 @@ const filterDate = debounce(() => {
               {{ formatPrice(i.total) }}
             </div>
           </template>
+          <template v-slot:discount="{ row: i }">
+            <div class="uppercase inline-block rounded-md">
+              {{ formatPrice(i.discount) }}
+            </div>
+          </template>
           <template v-slot:grand_total="{ row: i }">
             <div class="uppercase inline-block rounded-md">
               {{ formatPrice(i.grand_total) }}

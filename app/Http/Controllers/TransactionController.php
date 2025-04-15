@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use App\Models\Category;
 use App\Models\Customers;
+use App\Models\DiscountTransaction;
 use App\Models\Product;
 use App\Models\Transaction;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
@@ -31,14 +33,25 @@ class TransactionController extends Controller
         ->limit(5)
         ->get();
 
-    $customers = Customers::select('id', 'name')
+    $customers = Customers::select('id', 'name', 'phone')
         ->limit(5)
         ->get();
+
+    $discounts = DiscountTransaction::select('id', 'name', 'code', 'minimal_transaction', 'discount', 'customer_only')
+    ->whereDate('start_date', '<=', Carbon::now()) // sudah mulai
+    ->where(function ($query) {
+        $query->whereDate('end_date', '>=', Carbon::now()) // belum berakhir
+            ->orWhereNull('end_date'); // atau tidak punya tanggal kadaluwarsa
+        })
+    ->latest()
+    ->get();
+    
 
     return Inertia::render('Transactions/index', [
         'products'      => $products,
         'categories'    => $categories,
         'customers'     => $customers,
+        'discounts'     => $discounts,
     ]); 
 }
 
@@ -108,7 +121,7 @@ class TransactionController extends Controller
     
             // Info kasir & customer
             $printer->setJustification(Printer::JUSTIFY_LEFT);
-            $printer->text("Cashier: Budiono Sirergar\n");
+            $printer->text("Cashier: Hai\n");
             $printer->text("Customer: Eric Steer\n");
             $printer->text("--------------------------------\n");
     
@@ -198,7 +211,7 @@ class TransactionController extends Controller
             
             $total_buy_price = $cart->product->buy_price * $cart->qty;
             $total_sell_price = $cart->product->sell_price * $cart->qty;
-            $discount = $cart->product->discount;
+            $discount = $request->discount;
 
             $profits = $total_sell_price - $total_buy_price - $discount;
 

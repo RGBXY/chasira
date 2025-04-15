@@ -11,7 +11,7 @@ class CustomersController extends Controller
 {
     public function index()
     {
-        $customers = Customers::latest()->paginate(12);
+        $customers = Customers::latest()->paginate(1);
 
         return Inertia::render('Customers/index', [
             'customers' => $customers
@@ -21,6 +21,25 @@ class CustomersController extends Controller
     public function searchCustomerName(Request $request)
     {
         $customer = Customers::where('name', 'like', '%' . $request->name . '%')
+                    ->limit(12)  
+                    ->get();       
+
+        if ($customer->count() > 0) {
+            return response()->json([
+                'success' => true,
+                'data'    => $customer
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'data'    => []
+        ]);
+    }
+
+    public function searchCustomerByPhone(Request $request)
+    {
+        $customer = Customers::where('phone', 'like', '%' . $request->phone . '%')
                     ->limit(12)  
                     ->get();       
 

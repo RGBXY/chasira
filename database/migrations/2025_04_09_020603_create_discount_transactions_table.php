@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('end_date');
             $table->string('discount');
             $table->integer('minimal_transaction');  
-            $table->enum('status', ['active', 'inactive']);
+            $table->string('code');
             $table->boolean('customer_only');
             $table->string('description');
             $table->timestamps();

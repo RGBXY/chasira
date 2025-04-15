@@ -125,6 +125,8 @@ const name = ref('');
 const customersData = ref(props.customers.data);
 const loading = ref();
 
+console.log(customersData.value);
+
 // State Modal
 const modalAlert = ref(false);
 const dataId = ref(0);

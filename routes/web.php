@@ -68,6 +68,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::resource('/customers', CustomersController::class)
         ->middleware('permission:customers.index|customers.create|customers.edit|customers.delete');
         Route::post('/customers/searchCustomerName', [CustomersController::class, 'searchCustomerName']);
+        Route::post('/customers/searchCustomerByPhone', [CustomersController::class, 'searchCustomerByPhone']);
         
         // Stock-in Route
         Route::resource('/stock-in', StockInController::class)
@@ -99,10 +100,9 @@ Route::group(['middleware' => ['auth']], function () {
         
         // Discount Transaction Route
         Route::resource('/discount-transactions', DiscountTransactionController::class)
-        ->middleware('permission:discounts.index|discounts.create|discounts.edit|discounts.delete');    
+        ->middleware('permission:discounts.index|discounts.create|discounts.delete');    
         Route::post('/discount-transactions/searchDiscountName', [DiscountTransactionController::class, 'searchDiscountName'])->name('discount.searchDiscountName');
-        Route::get('/discount-transactions/{id}/activate', [DiscountTransactionController::class, 'activate'])->name('discount.activate');
-        Route::get('/discount-transactions/{id}/deactivate', [DiscountTransactionController::class, 'deactivate'])->name('discount.deactivate');
+        Route::post('/discount-transactions/searchDiscountCode', [DiscountTransactionController::class, 'searchDiscountCode'])->name('discount.searchDiscountCode');
         Route::put('/update-discount/{discount}', [DiscountTransactionController::class, 'update'])
         ->name('discount-transactions.update.custom')
         ->middleware('permission:discounts.edit');       

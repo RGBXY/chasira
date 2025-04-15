@@ -18,7 +18,9 @@ const ModalPrint = defineAsyncComponent(() =>
 const receiptStore = useReceiptStore();
 const method = useMethodStore();
 
+const subtotal = ref(null);
 const total = ref(null);
+const discount = ref(0);
 
 const form = useForm({
   products: [
@@ -57,7 +59,6 @@ const preventNonNumber = (event) => {
 const submit = async () => {
   if (receiptStore.products.length > 0) {
     form.products = receiptStore.products;
-    console.log(receiptStore.products);
     form.post('/transactions/addToCart', {
       onSuccess: () => {
         method.modalPaymentFnc();
@@ -74,6 +75,10 @@ onKeyStroke('Tab', () => {
 
 const clearData = () => {
   receiptStore.products = [];
+  receiptStore.customer = null;
+  receiptStore.discountNominal = 0;
+  receiptStore.discountPercent = null;
+  discount.value = 0;
 };
 
 const removeOrder = (id) => {
@@ -100,19 +105,48 @@ const decrement = (id) => {
 };
 
 const totalPrice = () => {
-  total.value = receiptStore.products.reduce(
+  subtotal.value = receiptStore.products.reduce(
     (acc, item) => acc + item.sell_price * item.total,
     0
   );
+
+  total.value = subtotal.value - discount.value;
+};
+
+const totalAfterDiscount = () => {
+  if (receiptStore.discountPercent !== null) {
+    total.value =
+      subtotal.value -
+      subtotal.value * (receiptStore.discountPercent.discount / 100);
+    discount.value = subtotal.value - total.value;
+  }
 };
 
 watch(
-  () => receiptStore.products, // Data yang ingin dipantau
+  () => receiptStore.products,
   () => {
-    // Memanggil totalPrice jika ada perubahan
+    discount.value = 0;
     totalPrice();
+    totalAfterDiscount();
+    receiptStore.subtotal = subtotal.value;
   },
-  { deep: true } // Supaya mendeteksi perubahan elemen dalam array
+  { deep: true }
+);
+
+watch(
+  () => receiptStore.discountNominal,
+  () => {
+    discount.value = receiptStore.discountNominal;
+    total.value = subtotal.value - discount.value;
+    receiptStore.discountPercent = null;
+  }
+);
+
+watch(
+  () => receiptStore.discountPercent,
+  () => {
+    totalAfterDiscount();
+  }
 );
 </script>
 
@@ -209,12 +243,18 @@ watch(
             <div class="flex flex-col gap-2 p-3">
               <div class="flex justify-between">
                 <p>Subtotal</p>
-                <p>Rp 10.000</p>
+                <p>{{ formatPrice(subtotal) }}</p>
               </div>
 
               <div class="flex justify-between">
-                <p>Discount</p>
-                <p>Rp 10.000</p>
+                <p>
+                  {{
+                    receiptStore.discountPercent === null
+                      ? 'Discount'
+                      : `Discont - ${receiptStore.discountPercent.name}`
+                  }}
+                </p>
+                <p>- {{ formatPrice(discount) }}</p>
               </div>
             </div>
 
@@ -230,20 +270,72 @@ watch(
             class="flex items-center border-t font-semibold gap-3 p-3 justify-between h-20"
           >
             <button
+              @click="method.modalCustomerFnc()"
               class="border-2 flex-1 flex gap-2.5 items-center hover:shadow-inner rounded-full p-1.5"
             >
-              <div class="p-1 bg-slate-100 border rounded-full">
-                <Icon icon="ph:user-list" class="text-2xl text-slate-500" />
+              <div
+                :class="
+                  receiptStore.customer !== null
+                    ? ' bg-green-100'
+                    : 'bg-slate-100'
+                "
+                class="p-1 border rounded-full"
+              >
+                <Icon
+                  :icon="
+                    receiptStore.customer !== null
+                      ? 'ph:check-bold'
+                      : 'ph:user-list'
+                  "
+                  :class="
+                    receiptStore.customer !== null
+                      ? ' text-green-500'
+                      : 'text-slate-500'
+                  "
+                  class="text-2xl"
+                />
               </div>
-              <p class="text-sm">Customer</p>
+              <p class="text-sm">
+                {{
+                  receiptStore.customer !== null
+                    ? receiptStore.customer.name
+                    : 'Customer'
+                }}
+              </p>
             </button>
             <button
+              @click="method.modalDiscountFnc()"
               class="border-2 flex-1 flex gap-2.5 items-center hover:shadow-inner rounded-full p-1.5"
             >
-              <div class="p-1 bg-slate-100 border rounded-full">
-                <Icon icon="ph:ticket" class="text-2xl text-slate-500" />
+              <div
+                :class="
+                  receiptStore.discountPercent !== null
+                    ? ' bg-green-100'
+                    : 'bg-slate-100'
+                "
+                class="p-1 border rounded-full"
+              >
+                <Icon
+                  :icon="
+                    receiptStore.discountPercent !== null
+                      ? 'ph:check-bold'
+                      : 'ph:seal-percent'
+                  "
+                  :class="
+                    receiptStore.discountPercent !== null
+                      ? ' text-green-500'
+                      : 'text-slate-500'
+                  "
+                  class="text-2xl"
+                />
               </div>
-              <p class="text-sm">Coupon</p>
+              <p class="text-sm">
+                {{
+                  receiptStore.discountPercent !== null
+                    ? receiptStore.discountPercent.name
+                    : 'Discount'
+                }}
+              </p>
             </button>
           </div>
         </div>
@@ -262,7 +354,7 @@ watch(
     </div>
   </div>
 
-  <ModalPayment :total="total" />
+  <ModalPayment :total="subtotal" :discount="discount" :grand_total="total" />
 
   <ModalPrint />
 </template>

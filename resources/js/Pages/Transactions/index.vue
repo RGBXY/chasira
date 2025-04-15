@@ -15,12 +15,17 @@ import axios from 'axios';
 import { onKeyStroke } from '@vueuse/core';
 import { debounce } from 'lodash';
 import { Icon } from '@iconify/vue/dist/iconify.js';
+import ModalDiscount from '../../components/modal/ModalDiscount.vue';
 
 // Layout
 defineOptions({ layout: MainLayout });
 
 const Pagination = defineAsyncComponent(() =>
   import('../../components/ui/Pagination.vue')
+);
+
+const ModalCustomer = defineAsyncComponent(() =>
+  import('../../components/modal/ModalCustomer.vue')
 );
 
 const Card = defineAsyncComponent(() =>
@@ -43,6 +48,7 @@ const props = defineProps({
   products: Object,
   categories: Object,
   customers: Object,
+  discounts: Object,
 });
 
 // State API
@@ -168,17 +174,9 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (page.url !== '/') {
     receiptStore.products = [];
+    receiptStore.customer = null;
   }
 });
-
-watch(
-  () => props.customers,
-  (newVal) => {
-    if (newVal) {
-      receiptStore.customers = newVal;
-    }
-  }
-);
 </script>
 
 <template>
@@ -255,5 +253,8 @@ watch(
         <Pagination :pagination="productsData" />
       </div>
     </div>
+
+    <ModalCustomer :customers="props.customers" />
+    <ModalDiscount :discounts="props.discounts" />
   </div>
 </template>

@@ -11,13 +11,9 @@ class DiscountTransaction extends Model
         'start_date',
         'end_date',
         'discount',
-        'status',
+        'code',
         'minimal_transaction',
         'customer_only',
         'description',
     ];
-
-    public function CouponCode(){
-        return $this->hasMany(CouponCode::class);
-    }
 }

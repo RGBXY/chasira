@@ -14,6 +14,14 @@
           :message="form.errors.name"
         />
 
+        <TextInput
+          name="Code"
+          type="text"
+          v-model="form.code"
+          placeholder="Your Discount code"
+          :message="form.errors.code"
+        />
+
         <div class="flex justify-between gap-3">
           <TextInput
             name="Start Date"
@@ -38,7 +46,7 @@
           name="Percent Discount"
           type="number"
           v-model="form.discount"
-          placeholder="10%"
+          placeholder="10 (Only Number)"
           :message="form.errors.discount"
         />
 
@@ -51,12 +59,12 @@
         />
 
         <div>
-          <h1 class="text-sm">Chose Coupon Target</h1>
+          <h1 class="text-sm">Customer Only?</h1>
           <el-switch
             v-model="form.customer_only"
             class="mb-2"
-            active-text="Member Customer Only"
-            inactive-text="Every Regular Customer"
+            active-text="Yes"
+            inactive-text="No"
           />
         </div>
 
@@ -105,6 +113,7 @@ defineOptions({
 // Form
 const form = useForm({
   name: '',
+  code: '',
   start_date: '',
   end_date: '',
   discount: '',

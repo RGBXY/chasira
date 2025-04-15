@@ -79,11 +79,6 @@ const MainMenuConfig: Array<MenuItem> = [
         route: '/discount-transactions',
         icon: 'ph:seal-percent',
       },
-      {
-        heading: 'Coupon Code',
-        route: '/coupon-codes',
-        icon: 'ph:ticket',
-      },
     ],
   },
   {

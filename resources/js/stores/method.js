@@ -5,12 +5,12 @@ export const useMethodStore = defineStore('method', {
   state: () => ({
     toasterStat: false,
     toasterMessage: null,
-    modalStat: false,
-    modalParam: null,
     modalPaymentStat: false,
     modalPrintStat: false,
     sideBarStat: false,
     SideModalStat: false,
+    modalCustomerStat: false,
+    modalDiscountStat: false,
     pay: 0,
   }),
 
@@ -26,17 +26,11 @@ export const useMethodStore = defineStore('method', {
       this.modalPrintStat = true;
     },
     modalPrintFncClose() {
-      const receipt = useReceiptStore();
-      receipt.products = [];
       this.modalPrintStat = false;
     },
     modalDeactiveFnc(id) {
       this.modalDeactive = !this.modalDeactive;
       this.deactiveId = id;
-    },
-    modalFnc(id) {
-      this.modalStat = !this.modalStat;
-      this.modalParam = id;
     },
     toasterFnc(message) {
       this.toasterStat = true;
@@ -47,6 +41,18 @@ export const useMethodStore = defineStore('method', {
     },
     sideModalFnc() {
       this.SideModalStat = !this.SideModalStat;
+    },
+    modalCustomerFnc() {
+      this.modalCustomerStat = true;
+    },
+    modalCustomerClose() {
+      this.modalCustomerStat = false;
+    },
+    modalDiscountFnc() {
+      this.modalDiscountStat = true;
+    },
+    modalDiscountClose() {
+      this.modalDiscountStat = false;
     },
   },
 });

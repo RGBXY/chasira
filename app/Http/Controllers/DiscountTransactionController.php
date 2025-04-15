@@ -39,10 +39,53 @@ class DiscountTransactionController extends Controller
         ]);
     }
 
+    public function searchDiscountCode(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string',
+            'subtotal' => 'nullable|numeric',
+        ]);
+
+        $discount = DiscountTransaction::where('code', $request->code)
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->first();
+
+        if (!$discount) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Coupon code is not valid or has expired',
+            ]);
+        }
+
+        // Validasi jika kupon hanya untuk member
+        if ($discount->customer_only && !$request->has('customer_id')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This coupon is for members only',
+            ]);
+        }
+
+        // Validasi minimum transaksi (jika ada)
+        if ($discount->minimal_transaction && $request->subtotal < $discount->minimal_transaction) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Subtotal does not meet the minimum requirement',
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $discount
+        ]);
+    }
+ 
+
     public function store(Request $request){
         $request->validate([
             'name' => ['required', 'max:225', 'unique:discount_transactions,name'],
             'start_date' => ['required', 'date'],
+            'code' => ['required'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'discount' => ['required'],
             'minimal_transaction' => ['required'],
@@ -54,7 +97,7 @@ class DiscountTransactionController extends Controller
             'name' => $request->name,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
-            'status' => 'active',
+            'code' => $request->code,
             'discount' => $request->discount,
             'minimal_transaction' => $request->minimal_transaction,
             'customer_only' => $request->customer_only,
@@ -73,13 +116,12 @@ class DiscountTransactionController extends Controller
     }
 
     public function update(Request $request, DiscountTransaction $discount_transaction){
-        // dd($discount_transaction);
-
         $request->validate([
             'name' => ['required', 'unique:discount_transactions,name,'.$discount_transaction->id],
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'discount' => ['required'],
+            'code' => ['required'],
             'minimal_transaction' => ['required'],
             'customer_only' => ['required'],
             'description' => ['required'],
@@ -90,7 +132,7 @@ class DiscountTransactionController extends Controller
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'discount' => $request->discount,
-            'status' => $request->status,
+            'code' => $request->code,
             'minimal_transaction' => $request->minimal_transaction,
             'customer_only' => $request->customer_only ? '1' : '0',
             'description' => $request->description,
@@ -104,17 +146,6 @@ class DiscountTransactionController extends Controller
         $discount->delete();
 
         return redirect()->back()->with('message', 'Discount Data Deleted Successfully');
-    }
-
-    public function deactivate($id)
-    {
-        $discount = DiscountTransaction::findOrFail($id);
-        $discount->update(['status' => 'inactive']);
-    }
-
-    public function activate($id){
-        $discount = DiscountTransaction::findOrFail($id);
-        $discount->update(['status' => 'active']);
     }
 
 }
