@@ -1,10 +1,10 @@
 <template>
   <div class="py-8 px-7 flex items-center justify-center w-full">
     <div class="px-10 py-8 w-full border bg-white rounded-lg">
-      <div class="mb-7 flex items-center justify-between pb-4">
-        <h1 class="text-3xl font-bold mb-1">Suppliers</h1>
+      <div class="mb-7 flex flex-wrap items-center justify-between pb-4">
+        <h1 class="text-3xl font-bold lg:mb-1 mb-5">Suppliers</h1>
 
-        <div class="flex gap-3 justify-between">
+        <div class="flex gap-3 flex-wrap justify-between">
           <div
             class="w-[250px] h-10 border flex items-center px-3 gap-3 bg-white rounded-lg overflow-hidden"
           >
@@ -20,7 +20,7 @@
 
           <Link
             href="/suppliers/create"
-            class="text-white border rounded-lg bg-violet-400 flex items-center justify-center gap-2 px-4"
+            class="text-white border h-10 rounded-lg bg-violet-400 flex items-center justify-center gap-2 px-4"
           >
             <Icon icon="ph:plus-bold" :ssr="true" class="text-xl" />
             <p>Add Data</p>
@@ -30,8 +30,8 @@
 
       <div class="w-full">
         <DataTable
-          v-if="suppliersData.length > 0"
-          :data="suppliersData"
+          v-if="suppliers.data.length > 0"
+          :data="suppliers.data"
           :header="headerConfig"
         >
           <template v-slot:actions="{ row: i }">
@@ -54,7 +54,7 @@
 
         <el-empty v-else :image-size="200" />
 
-        <Pagination :pagination="suppliersData" />
+        <Pagination :pagination="suppliers" />
       </div>
     </div>
 
@@ -114,8 +114,7 @@ const props = defineProps({
 });
 
 // State API
-const name = ref('');
-const suppliersData = ref(props.suppliers.data);
+const name = ref(new URL(document.location).searchParams.get('name') || '');
 const loading = ref();
 
 // State Modal
@@ -124,31 +123,9 @@ const dataId = ref(0);
 
 // Function Search Suplier by Name (API)
 const searchSupplierName = debounce(() => {
-  if (name.value.trim() == '') {
-    suppliersData.value = props.suppliers.data;
-    return;
-  }
-
-  loading.value = true;
-
-  axios
-    .post('/suppliers/searchSupplierName', {
-      name: name.value,
-    })
-    .then((response) => {
-      console.log(response.data);
-      if (response.data.success && response.data.data.length > 0) {
-        suppliersData.value = response.data.data;
-      } else {
-        suppliersData.value = [];
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    })
-    .finally(() => {
-      loading.value = false;
-    });
+  router.get('/suppliers/searchSupplierName', {
+    name: name.value,
+  });
 }, 500);
 
 // Function Modal ALert

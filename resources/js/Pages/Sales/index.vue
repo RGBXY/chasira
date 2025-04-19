@@ -1,14 +1,16 @@
 <script setup>
 import Layout from '../../Layouts/Layout.vue';
 import formatPrice from '../../../core/helper/formatPrice';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import Pagination from '../../components/ui/Pagination.vue';
 import DataTable from '../../components/layouts/DataTable.vue';
 import ContentDetail from '../../components/ui/ContentDetail.vue';
 import formatDate from '../../../core/helper/formatDate';
 import SideModal from '../../components/modal/SideModal.vue';
 import axios from 'axios';
+import { router } from '@inertiajs/vue3';
 import { debounce } from 'lodash';
+import dayjs from 'dayjs';
 
 defineOptions({
   layout: Layout,
@@ -73,11 +75,10 @@ const saleDetailData = computed(() => [
   },
 ]);
 
-const salesData = ref(props.sales.data);
+const salesData = ref(props.sales);
 const saleDetail = ref({});
 const transactionDetail = ref([]);
 const detailModal = ref(false);
-const date = ref('');
 const loading = ref(false);
 
 const filterTransaction = async (id) => {
@@ -91,6 +92,7 @@ const filterTransaction = async (id) => {
     if (response.data.success) {
       saleDetail.value = response.data.data;
       transactionDetail.value = [response.data.transaction_data];
+      console.log(transactionDetail.value);
       detailModal.value = true;
     } else {
       transactionDetail.value = [];
@@ -104,43 +106,31 @@ const filterTransaction = async (id) => {
   }
 };
 
-const filterDate = debounce(() => {
-  if (date.value == '') {
-    salesData.value = props.sales.data;
-    return;
-  }
+const date = ref([
+  new URL(document.location).searchParams.get('start_date') || '',
+  new URL(document.location).searchParams.get('end_date') || '',
+]);
 
-  axios
-    .post('/sales/filterDate', {
-      start_date: date.value[0],
-      end_date: date.value[1],
-    })
-    .then((response) => {
-      console.log(response.data);
-      if (response.data.success && response.data.data.data.length > 0) {
-        salesData.value = response.data.data.data;
-      } else {
-        salesData.value = [];
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-}, 500);
+const filterDate = () => {
+  router.get('/sales/filterDate', {
+    start_date: dayjs(date.value[0]).format('YYYY-MM-DD'),
+    end_date: dayjs(date.value[1]).format('YYYY-MM-DD'),
+  });
+};
 </script>
 
 <template>
   <div class="w-full py-8 px-7 flex items-center justify-center">
     <div class="px-10 py-8 w-full max-w-7xl border bg-white rounded-lg">
-      <div class="mb-7 flex items-center justify-between pb-4">
-        <h1 class="text-3xl font-bold mb-1">Report Sales</h1>
+      <div class="mb-7 flex flex-wrap items-center justify-between pb-4">
+        <h1 class="text-3xl font-bold lg:mb-1 mb-3">Report Sales</h1>
 
         <div class="">
           <el-date-picker
             v-model="date"
             type="daterange"
-            range-separator="To"
             @change="filterDate()"
+            range-separator="To"
             start-placeholder="Start date"
             end-placeholder="End date"
             size="large"
@@ -150,8 +140,8 @@ const filterDate = debounce(() => {
 
       <div class="w-full">
         <DataTable
-          v-if="salesData.length > 0"
-          :data="salesData"
+          v-if="sales.data.length > 0"
+          :data="sales.data"
           :header="headerConfig"
         >
           <template v-slot:date="{ row: i }">
@@ -237,7 +227,7 @@ const filterDate = debounce(() => {
           </div>
         </SideModal>
 
-        <Pagination :pagination="props.sales" />
+        <Pagination :pagination="sales" />
       </div>
     </div>
   </div>

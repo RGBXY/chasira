@@ -5,7 +5,7 @@
     class="fixed top-0 left-0 bg-black backdrop-blur-sm bg-opacity-40 transition-all duration-500 z-50 w-full h-screen flex justify-center items-center"
   >
     <div
-      class="w-[500px] bg-white rounded-lg border-2 shadow-lg py-5 px-6"
+      class="md:w-[500px] w-[90%] bg-white rounded-lg border-2 shadow-lg py-5 px-6"
       @keydown.esc="active = false"
       tabindex="0"
       ref="modalContent"

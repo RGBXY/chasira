@@ -13,7 +13,7 @@ class SaleController extends Controller
     public function index(){
         $sales = Transaction::with('cashier:id,name')->with('customers:id,name')
         ->whereDate('created_at', Carbon::today())
-        ->paginate(20);
+        ->paginate(10);
 
         return Inertia::render('Sales/index', [
             'sales' => $sales,
@@ -50,25 +50,13 @@ class SaleController extends Controller
         ]);
 
         //get data sales by range date
-        $sales = Transaction::with('cashier')->with('customers')
+        $sales = Transaction::with('cashier:id,name')->with('customers:id,name')
             ->whereDate('created_at', '>=', $request->start_date)
             ->whereDate('created_at', '<=', $request->end_date)
-            ->paginate(20);
+            ->paginate(8);
 
-        $transaction_detail = TransactionDetail::with('product')->latest()->get();
-
-        if ($transaction_detail) {
-            return response()->json([
-                'success'             => true,
-                'data'           => $sales,
-                'transaction_data'    => $transaction_detail,
-            ]);
-        }
-
-        return response()->json([
-            'success'           => false,
-            'data'         => [],
-            'transaction_data'  => [],
+        return Inertia::render('Sales/index', [
+            'sales'    => $sales,
         ]);
     }
 

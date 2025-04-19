@@ -1,10 +1,10 @@
 <template>
   <div class="w-full py-8 px-7 flex items-center justify-center">
     <div class="px-10 py-8 w-full max-w-7xl border bg-white rounded-lg">
-      <div class="mb-7 flex items-center justify-between pb-4">
-        <h1 class="text-3xl font-bold mb-1">Discount Transactions</h1>
+      <div class="mb-7 flex flex-wrap items-center justify-between pb-4">
+        <h1 class="text-3xl font-bold lg:mb-1 mb-3">Discount Transactions</h1>
 
-        <div class="flex gap-3 justify-between">
+        <div class="flex flex-wrap gap-3 justify-between">
           <div
             class="w-[250px] border h-10 flex items-center px-3 gap-3 bg-white rounded-md overflow-hidden"
           >
@@ -20,7 +20,7 @@
 
           <Link
             href="/discount-transactions/create"
-            class="text-white border rounded-lg bg-violet-400 flex items-center justify-center gap-2 px-4"
+            class="text-white border h-10 rounded-lg bg-violet-400 flex items-center justify-center gap-2 px-4"
           >
             <Icon icon="ph:plus-bold" :ssr="true" />
             <p>Add Data</p>
@@ -30,8 +30,8 @@
 
       <div class="w-full">
         <DataTable
-          v-if="discountData.length > 0"
-          :data="discountData"
+          v-if="discount.data.length > 0"
+          :data="discount.data"
           :header="headerConfig"
         >
           <template v-slot:discount="{ row: i }">
@@ -63,7 +63,7 @@
 
         <el-empty v-else :image-size="200" />
 
-        <Pagination :pagination="discountData" />
+        <Pagination :pagination="discount" />
       </div>
     </div>
 
@@ -127,36 +127,15 @@ const modalAlert = ref(false);
 const dataId = ref(0);
 
 // State API
-const discountData = ref(props.discount.data);
-const name = ref('');
+const discountData = ref(props.discount);
+const name = ref(new URL(document.location).searchParams.get('name') || '');
 const loading = ref('');
 
 // Function Search Employee By Name (API)
 const searchDiscountName = debounce(() => {
-  if (name.value.trim() == '') {
-    discountData.value = props.discount.data;
-    return;
-  }
-
-  loading.value = true;
-
-  axios
-    .post('/discount-transactions/searchDiscountName', {
-      name: name.value,
-    })
-    .then((response) => {
-      if (response.data.success && response.data.data.length > 0) {
-        discountData.value = response.data.data;
-      } else {
-        discountData.value = [];
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    })
-    .finally(() => {
-      loading.value = false;
-    });
+  router.get('/discount-transactions/searchDiscountName', {
+    name: name.value,
+  });
 }, 500);
 
 // Function Modal Delete

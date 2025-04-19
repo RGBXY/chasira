@@ -21,68 +21,30 @@ class StockOutController extends Controller
         ]); 
     }
 
-    public function searchProduct(Request $request)
+    public function filterDate(Request $request)
     {
-        // Cek apakah barcode atau name yang dikirim
-        $product = Product::where('name', 'like', '%' . $request->name . '%')
-        ->select(['id', 'name', 'stock'])
-        ->limit(3)  
-        ->get();             
-
-        if ($product) {
-            return response()->json([
-                'success' => true,
-                'data'    => $product
-            ]);
-        }    
-
-        return response()->json([
-            'success' => false,
-            'data'    => null
-        ]);
-    }
-
-    public function filter(Request $request)
-    {
-        $stockOut = StockOut::with('product:id,name,barcode')
+        $stockOut = StockOut::with(['product:id,stock,name,barcode'])
             ->whereDate('created_at', '>=', $request->start_date)
             ->whereDate('created_at', '<=', $request->end_date)
             ->latest()
             ->paginate(12);
 
-        if ($stockOut) {
-            return response()->json([
-                'success' => true,
-                'data'    => $stockOut
-            ]);
-        }  
-
-        return response()->json([
-            'success' => false,
-            'data'    => []
-        ]);
+        return Inertia::render('Stock_out/index', [
+                'stockOut' => $stockOut,
+        ]); 
     }    
 
     public function searchByName(Request $request)
     {
-        $product = StockOut::with(['product:id,name,barcode'])
+        $stockOut = StockOut::with(['product:id,name,barcode'])
             ->whereHas('product', function ($query) use ($request) {
                 $query->where('name', 'like', '%' . $request->name . '%');
             })
-            ->limit(12)
-            ->get();
-
-        if ($product->isNotEmpty()) {
-            return response()->json([
-                'success' => true,
-                'data'    => $product
-            ]);
-        }
-
-        return response()->json([
-            'success' => false,
-            'data'    => []
-        ]);
+            ->paginate(12);
+            
+        return Inertia::render('Stock_out/index', [
+            'stockOut' => $stockOut,
+        ]);     
     }
 
     public function create(){

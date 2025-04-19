@@ -12,7 +12,7 @@
       </button>
 
       <div
-        class="bg-white border h-12 py-2 ps-2 pe-6 gap-3 flex items-center justify-center rounded-full"
+        class="bg-white border hidden h-12 py-2 ps-2 pe-6 gap-3 lg:flex items-center justify-center rounded-full"
       >
         <div class="bg-violet-50 p-2 rounded-full">
           <Icon icon="ph:calendar-dots" class="text-lg text-violet-500" />
@@ -22,7 +22,7 @@
       </div>
 
       <div
-        class="bg-white border h-12 py-2 ps-2 pe-6 gap-3 flex items-center justify-center rounded-full"
+        class="bg-white border hidden h-12 py-2 ps-2 pe-6 gap-3 lg:flex items-center justify-center rounded-full"
       >
         <div class="bg-violet-50 p-2 rounded-full">
           <Icon icon="ph:clock" class="text-lg text-violet-500" />

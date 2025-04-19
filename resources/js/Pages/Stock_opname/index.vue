@@ -1,10 +1,10 @@
 <template>
   <div class="py-8 px-7 flex items-center justify-center w-full">
     <div class="py-8 px-10 w-full border bg-white rounded-lg">
-      <div class="mb-7 flex items-center justify-between flex-wrap pb-4">
-        <h1 class="text-3xl font-bold mb-1">Stock Opname</h1>
+      <div class="mb-7 flex items-center lg:justify-between flex-wrap pb-4">
+        <h1 class="text-3xl font-bold lg:mb-1 mb-3">Stock Opname</h1>
 
-        <div class="flex flex-wrap gap-3 justify-between">
+        <div class="flex flex-wrap gap-3 lg:justify-between">
           <div
             class="w-[250px] border h-10 flex items-center px-3 gap-3 bg-white rounded-md overflow-hidden"
           >
@@ -12,7 +12,7 @@
             <input
               type="text"
               v-model="name"
-              @keydown="searchByName"
+              @keydown="searchStockOpnameName"
               placeholder="Search Stock Opname..."
               class="h-full outline-none w-full placeholder:text-sm"
             />
@@ -42,8 +42,8 @@
 
       <div class="w-full">
         <DataTable
-          v-if="stockOpnameData.length > 0"
-          :data="stockOpnameData"
+          v-if="stockOpname.data.length > 0"
+          :data="stockOpname.data"
           :header="headerConfig"
         >
           <template v-slot:product="{ row: i }">
@@ -80,7 +80,7 @@
           </div>
         </SideModal>
 
-        <Pagination :pagination="stockOpnameData" />
+        <Pagination :pagination="stockOpname" />
       </div>
     </div>
   </div>
@@ -96,7 +96,8 @@ import ContentDetail from '../../components/ui/ContentDetail.vue';
 import SideModal from '../../components/modal/SideModal.vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { debounce } from 'lodash';
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
+import dayjs from 'dayjs';
 
 // Layout
 defineOptions({ layout: Layout });
@@ -145,57 +146,28 @@ const stockDetail = computed(() => [
 
 // State API
 const stockOpnameDetail = ref(null);
-const date = ref('');
-const stockOpnameData = ref(props.stockOpname.data);
-const name = ref('');
+const name = ref(new URL(document.location).searchParams.get('name') || '');
+const date = ref([
+  new URL(document.location).searchParams.get('start_date') || '',
+  new URL(document.location).searchParams.get('end_date') || '',
+]);
+const stockOpnameData = ref(props.stockOpname);
 const detailModal = ref(false);
 
 // Function Search Stock Opname  (API)
-const searchByName = debounce(() => {
-  if (name.value.trim() == '') {
-    stockOpnameData.value = props.stockOpname.data;
-    return;
-  }
-
-  axios
-    .post('/stock-opname/searchByName', {
-      name: name.value,
-    })
-    .then((response) => {
-      if (response.data.success && response.data.data.length > 0) {
-        stockOpnameData.value = response.data.data;
-      } else {
-        stockOpnameData.value = [];
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+const searchStockOpnameName = debounce(() => {
+  router.get('/stock-opname/searchByName', {
+    name: name.value,
+  });
 }, 500);
 
-// Function Filter (API)
-const filterDate = debounce(() => {
-  if (date.value == '') {
-    stockOpnameData.value = props.stockOut.data;
-    return;
-  }
-
-  axios
-    .post('/stock-opname/filterDate', {
-      start_date: date.value[0],
-      end_date: date.value[1],
-    })
-    .then((response) => {
-      if (response.data.success && response.data.data.data.length > 0) {
-        stockOpnameData.value = response.data.data.data;
-      } else {
-        stockOpnameData.value = [];
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-}, 500);
+// Filter Stock in data (API)
+const filterDate = () => {
+  router.get('/stock-opname/filterDate', {
+    start_date: dayjs(date.value[0]).format('YYYY-MM-DD'),
+    end_date: dayjs(date.value[1]).format('YYYY-MM-DD'),
+  });
+};
 
 // Function Modal
 const modalButtonFnc = (id) => {

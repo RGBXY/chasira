@@ -11,29 +11,24 @@ use Inertia\Inertia;
 class SupplierController extends Controller
 {
     public function index(){
-        $suppliers = Supplier::latest()->paginate(10);
-         return Inertia::render('Suppliers/index', [
-        'suppliers' => $suppliers,
-    ]); 
+
+        $suppliers = Supplier::latest()->paginate(12);
+
+        return Inertia::render('Suppliers/index', [
+            'suppliers' => $suppliers,
+        ]); 
     }
 
     public function searchSupplierName(Request $request)
     {
         $supplier = Supplier::where('name', 'like', '%' . $request->name . '%')
-                    ->limit(12)  
-                    ->get();       
-
-        if ($supplier->count() > 0) {
-            return response()->json([
-                'success' => true,
-                'data'    => $supplier
-            ]);
-        }
-
-        return response()->json([
-            'success' => false,
-            'data'    => []
-        ]);
+                    ->paginate(12); 
+                       
+        return Inertia::render('Suppliers/index', [
+            'suppliers' => $supplier,
+        ]); 
+       
+                    
     }
 
     public function create(){

@@ -24,7 +24,7 @@ class StockInController extends Controller
         ]);
     }
 
-    public function filter(Request $request)
+    public function filterDate(Request $request)
     {
         $stockIn = StockIn::with('product:id,name,barcode')->with('supplier:id,name')
             ->whereDate('created_at', '>=', $request->start_date)
@@ -32,80 +32,21 @@ class StockInController extends Controller
             ->latest()
             ->paginate(20);
 
-        if ($stockIn) {
-            return response()->json([
-                'success' => true,
-                'data'    => $stockIn
-            ]);
-        }  
-
-        return response()->json([
-            'success' => false,
-            'data'    => []
+        return Inertia::render('Stock_in/index', [
+            'stockIn' => $stockIn,
         ]);
     }    
 
-    public function searchProduct(Request $request)
-    {
-        // Cek apakah barcode atau name yang dikirim
-        $product = Product::where('name', 'like', '%' . $request->name . '%')
-        ->select(['id', 'name', 'stock'])
-        ->limit(3)  
-        ->get();             
-
-        if ($product) {
-            return response()->json([
-                'success' => true,
-                'data'    => $product
-            ]);
-        }    
-
-        return response()->json([
-            'success' => false,
-            'data'    => null
-        ]);
-    }
-
-    public function searchSupplier(Request $request)
-    {
-        // Cek apakah barcode atau name yang dikirim
-        $supplier = Supplier::where('name', 'like', '%' . $request->name . '%')
-        ->select(['id', 'name'])
-        ->limit(3)  
-        ->get();             
-
-        if ($supplier) {
-            return response()->json([
-                'success' => true,
-                'data'    => $supplier
-            ]);
-        }    
-
-        return response()->json([
-            'success' => false,
-            'data'    => null
-        ]);
-    }
-
     public function searchByName(Request $request)
     {
-        $product = StockIn::with(['product:id,name,barcode'])
+        $stockIn = StockIn::with(['product:id,name,barcode'])
             ->whereHas('product', function ($query) use ($request) {
                 $query->where('name', 'like', '%' . $request->name . '%');
             })
-            ->limit(12)
-            ->get();
+            ->paginate(2);
 
-        if ($product->isNotEmpty()) {
-            return response()->json([
-                'success' => true,
-                'data'    => $product
-            ]);
-        }
-
-        return response()->json([
-            'success' => false,
-            'data'    => []
+        return Inertia::render('Stock_in/index', [
+            'stockIn' => $stockIn,
         ]);
     }
 

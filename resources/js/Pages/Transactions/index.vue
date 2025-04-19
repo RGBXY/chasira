@@ -1,14 +1,8 @@
 <script setup>
 import CategoryCard from '../../components/card/CategoryCard.vue';
 import MainLayout from '../../Layouts/MainLayout.vue';
-import {
-  defineAsyncComponent,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  watch,
-} from 'vue';
-import { usePage } from '@inertiajs/vue3';
+import { defineAsyncComponent, onBeforeUnmount, onMounted, ref } from 'vue';
+import { usePage, router } from '@inertiajs/vue3';
 import { useReceiptStore } from '../../stores/receipt';
 import { useMethodStore } from '../../stores/method';
 import axios from 'axios';
@@ -52,12 +46,11 @@ const props = defineProps({
 });
 
 // State API
-const productsData = ref(props.products.data);
 
 const loading = ref(false);
 
 const barcode = ref('');
-const name = ref('');
+const name = ref(new URL(document.location).searchParams.get('name') || '');
 
 const searchInput = ref(null);
 const searchBarcode = ref(null);
@@ -96,40 +89,32 @@ const addOrder = (order) => {
     }
 
     barcode.value = '';
-    searchBarcode.value.focus();
+
+    if (window.innerWidth > 1024) {
+      searchBarcode.value.focus();
+    }
   } else if (order.stock === 0) {
     method.toasterFnc('Product stock is empty');
     barcode.value = '';
-    searchBarcode.value.focus();
+
+    if (window.innerWidth > 1024) {
+      searchBarcode.value.focus();
+    }
   }
 };
 
 // Search By Name
-const searchByName = debounce(() => {
-  if (name.value.trim() == '') {
-    productsData.value = props.products.data;
-    return;
-  }
-
-  loading.value = true;
-
-  axios
-    .post('/products/searchProductName', {
+const searchProductsName = debounce(() => {
+  router.get(
+    '/transactions/searchProductName',
+    {
       name: name.value,
-    })
-    .then((response) => {
-      if (response.data.success && response.data.data.length > 0) {
-        productsData.value = response.data.data;
-      } else {
-        productsData.value = [];
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    })
-    .finally(() => {
-      loading.value = false;
-    });
+    },
+    {
+      preserveState: true,
+      only: ['products'],
+    }
+  );
 }, 500);
 
 // Search By Barcode
@@ -158,15 +143,6 @@ const searchByBarcode = debounce(() => {
     });
 }, 200);
 
-// const printReceipt = async () => {
-//     try {
-//         const response = await axios.get("/transactions/printReceipt");
-//         alert(response.data.message || response.data.error);
-//     } catch (error) {
-//         alert(error);
-//     }
-// };
-
 onMounted(() => {
   method.sideBarStat = false;
 });
@@ -182,14 +158,30 @@ onBeforeUnmount(() => {
 <template>
   <div class="px-7 w-full">
     <div
-      class="flex items-center w-full gap-2.5 py-3 overflow-x-auto no-scrollbar"
+      class="flex items-center w-full mb-5 lg:mb-0 gap-2.5 py-3 overflow-x-auto no-scrollbar"
     >
       <CategoryCard :data="props.categories" />
     </div>
 
-    <div class="flex gap-3">
+    <div
+      v-if="
+        receiptStore.products.length > 0 && receiptStore.receiptStat == false
+      "
+      class="fixed bottom-0 left-0 right-0 z-40"
+    >
+      <button
+        @click="receiptStore.receiptStatFnc()"
+        class="flex items-center lg:hidden font-semibold text-white text-xl justify-center gap-2 w-full h-14 bg-gradient-to-b from-violet-500 bg-primary"
+      >
+        <Icon ssr="true" icon="ph:shopping-cart-bold" />
+        <p class="">Cart</p>
+        {{ receiptStore.products.length }}
+      </button>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-3">
       <div
-        class="w-[70%] mb-3.5 h-14 border flex items-center justify-between bg-white rounded-xl overflow-hidden"
+        class="lg:w-[70%] md:flex-1 md:mb-3.5 h-14 border flex items-center justify-between bg-white rounded-xl overflow-hidden"
       >
         <input
           type="text"
@@ -197,7 +189,7 @@ onBeforeUnmount(() => {
           class="w-[95%] h-full outline-none px-5"
           v-model="name"
           ref="searchInput"
-          @keyup="searchByName()"
+          @keyup="searchProductsName()"
         />
 
         <div
@@ -208,7 +200,7 @@ onBeforeUnmount(() => {
       </div>
 
       <div
-        class="w-[30%] mb-3.5 h-14 border flex items-center justify-between bg-white rounded-xl overflow-hidden"
+        class="lg:w-[30%] md:flex-1 mb-3.5 h-14 border flex items-center justify-between bg-white rounded-xl overflow-hidden"
       >
         <input
           type="text"
@@ -230,11 +222,11 @@ onBeforeUnmount(() => {
     <div class="w-full min-h-[70vh] flex flex-col justify-between">
       <div v-if="loading === false">
         <div
-          v-if="productsData.length > 0"
+          v-if="products.data.length > 0"
           class="mt-2 flex justify-center gap-3 flex-wrap"
         >
           <Card
-            v-for="product in productsData"
+            v-for="product in products.data"
             :key="product.id"
             :product="product"
             @click="addOrder(product)"
@@ -250,7 +242,7 @@ onBeforeUnmount(() => {
       </div>
 
       <div>
-        <Pagination :pagination="productsData" />
+        <Pagination :pagination="products" />
       </div>
     </div>
 

@@ -87,11 +87,12 @@
           </div>
 
           <div class="flex justify-end gap-3">
-            <button
-              class="h-10 px-3 bg-violet-100 rounded-lg font-semibold text-violet-400"
+            <Link
+              href="/employees"
+              class="h-10 px-3 bg-violet-100 flex items-center rounded-lg font-semibold text-violet-400"
             >
               Back
-            </button>
+            </Link>
             <button
               type="submit"
               :disabled="form.processing"
@@ -114,7 +115,7 @@
 <script setup>
 import Layout from '../../Layouts/Layout.vue';
 import TextInput from '../../components/ui/TextInput.vue';
-import { useForm } from '@inertiajs/vue3';
+import { Link, useForm } from '@inertiajs/vue3';
 
 const props = defineProps({
   user: Object,

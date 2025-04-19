@@ -39,7 +39,7 @@
 
         <div class="flex justify-end gap-3">
           <Link
-            href="/suppliers"
+            href="/stock-out"
             class="h-10 px-3 flex items-center bg-violet-100 rounded-lg font-semibold text-violet-400"
           >
             Back
@@ -75,18 +75,18 @@ defineOptions({
   layout: Layout,
 });
 
+const props = defineProps({
+  products: Array,
+});
+
 const name = ref('');
 const productsData = ref(props.products);
 const loading = ref(false);
 const selectedProduct = ref(null);
 
-const props = defineProps({
-  products: Array,
-});
-
 const debouncedSearch = debounce(() => {
   if (!name.value) {
-    productsData.value = [];
+    productsData.value = props.products;
     return;
   }
 
@@ -94,7 +94,7 @@ const debouncedSearch = debounce(() => {
   loading.value = true;
 
   axios
-    .post('/stock-out/searchProduct', { name: name.value })
+    .post('/products/dropDownProduct', { name: name.value })
     .then((response) => {
       if (response.data.success && response.data.data.length > 0) {
         productsData.value = response.data.data;

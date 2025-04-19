@@ -1,10 +1,10 @@
 <template>
   <div class="py-8 px-7 flex items-center justify-center w-full">
     <div class="py-8 px-10 w-full border bg-white rounded-lg">
-      <div class="mb-7 flex items-center justify-between flex-wrap pb-4">
-        <h1 class="text-3xl font-bold mb-1">Stock Out</h1>
+      <div class="mb-7 flex items-center lg:justify-between flex-wrap pb-4">
+        <h1 class="text-3xl font-bold lg:mb-1 mb-3">Stock Out</h1>
 
-        <div class="flex flex-wrap gap-3 justify-between">
+        <div class="flex flex-wrap gap-3 lg:justify-between">
           <div
             class="w-[250px] border h-10 flex items-center px-3 gap-3 bg-white rounded-md overflow-hidden"
           >
@@ -12,7 +12,7 @@
             <input
               type="text"
               v-model="name"
-              @keydown="searchByName"
+              @keydown="searchStockOutName"
               placeholder="Search Stock Out..."
               class="h-full outline-none w-full placeholder:text-sm"
             />
@@ -23,7 +23,7 @@
               v-model="date"
               type="daterange"
               range-separator="To"
-              @change="filterDate()"
+              @change="filter()"
               start-placeholder="Start date"
               end-placeholder="End date"
               size="large"
@@ -42,8 +42,8 @@
 
       <div class="w-full">
         <DataTable
-          v-if="stockOutData.length > 0"
-          :data="stockOutData"
+          v-if="stockOut.data.length > 0"
+          :data="stockOut.data"
           :header="headerConfig"
         >
           <template v-slot:barcode="{ row: i }">
@@ -83,7 +83,7 @@
           </div>
         </SideModal>
 
-        <Pagination :pagination="stockOutData" />
+        <Pagination :pagination="stockOut" />
       </div>
     </div>
   </div>
@@ -99,7 +99,7 @@ import ContentDetail from '../../components/ui/ContentDetail.vue';
 import SideModal from '../../components/modal/SideModal.vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { debounce } from 'lodash';
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 
 defineOptions({ layout: Layout });
 
@@ -108,9 +108,12 @@ const props = defineProps({
 });
 
 const stockOutDetail = ref(null);
-const date = ref('');
-const stockOutData = ref(props.stockOut.data);
-const name = ref('');
+const name = ref(new URL(document.location).searchParams.get('name') || '');
+const date = ref([
+  new URL(document.location).searchParams.get('start_date') || '',
+  new URL(document.location).searchParams.get('end_date') || '',
+]);
+const stockOutData = ref(props.stockOut);
 const detailModal = ref(false);
 
 const headerConfig = [
@@ -143,50 +146,20 @@ const stockDetail = computed(() => [
   },
 ]);
 
-const searchByName = debounce(() => {
-  if (name.value.trim() == '') {
-    stockOutData.value = props.stockOut.data;
-    return;
-  }
-
-  axios
-    .post('/stock-out/searchByName', {
-      name: name.value,
-    })
-    .then((response) => {
-      if (response.data.success && response.data.data.length > 0) {
-        stockOutData.value = response.data.data;
-      } else {
-        stockOutData.value = [];
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+// Search Stock in data (API)
+const searchStockOutName = debounce(() => {
+  router.get('/stock-out/searchByName', {
+    name: name.value,
+  });
 }, 500);
 
-const filterDate = debounce(() => {
-  if (date.value == '') {
-    stockOutData.value = props.stockOut.data;
-    return;
-  }
-
-  axios
-    .post('/stock-out/filterDate', {
-      start_date: date.value[0],
-      end_date: date.value[1],
-    })
-    .then((response) => {
-      if (response.data.success && response.data.data.data.length > 0) {
-        stockOutData.value = response.data.data.data;
-      } else {
-        stockOutData.value = [];
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-}, 500);
+// Filter Stock in data (API)
+const filter = () => {
+  router.get('/stock-out/filterDate', {
+    start_date: date.value[0],
+    end_date: date.value[1],
+  });
+};
 
 const modalButtonFnc = (id) => {
   detailModal.value = true;

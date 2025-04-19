@@ -47,22 +47,14 @@ class RoleController extends Controller
     public function searchRoles(Request $request)
     {
         // Cek apakah barcode atau name yang dikirim
-        $product = Role::where('name', 'like', '%' . $request->name . '%')
+        $roles = Role::where('name', 'like', '%' . $request->name . '%')
         ->with('permissions') 
         ->select(['id', 'name'])
         ->latest()
         ->paginate(12);             
 
-        if ($product) {
-            return response()->json([
-                'success' => true,
-                'data'    => $product
-            ]);
-        }    
-
-        return response()->json([
-            'success' => false,
-            'data'    => null
+        return Inertia::render("Roles/index", [
+            'roles' => $roles
         ]);
     }
     

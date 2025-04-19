@@ -21,7 +21,7 @@ class EmployeeController extends Controller
     }
 
     public function create(){
-       $roles = Role::with('permissions') 
+        $roles = Role::with('permissions') 
         ->select(['id', 'name'])
         ->latest()
         ->limit(12)
@@ -33,23 +33,15 @@ class EmployeeController extends Controller
         ]);
     }
 
-    public function searchEmployeeName(Request $request)
+    public function searchEmployeesName(Request $request)
     {
         $employee = User::where('name', 'like', '%' . $request->name . '%')
+                    ->where('id', '!=', 1)
                     ->with('roles:id,name')
-                    ->limit(12)  
-                    ->get();       
+                    ->paginate(12);     
 
-        if ($employee->count() > 0) {
-            return response()->json([
-                'success' => true,
-                'data'    => $employee
-            ]);
-        }
-
-        return response()->json([
-            'success' => false,
-            'data'    => []
+        return Inertia::render("Employees/index", [
+            'user' => $employee
         ]);
     }
 

@@ -76,11 +76,12 @@
         />
 
         <div class="flex justify-end gap-3">
-          <button
-            class="h-10 px-3 bg-violet-100 rounded-lg font-semibold text-violet-400"
+          <Link
+            href="/discount-transactions"
+            class="h-10 px-3 flex items-center bg-violet-100 rounded-lg font-semibold text-violet-400"
           >
-            Back
-          </button>
+            <p>Back</p>
+          </Link>
           <button
             type="submit"
             :disabled="form.processing"

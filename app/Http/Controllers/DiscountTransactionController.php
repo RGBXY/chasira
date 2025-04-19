@@ -23,19 +23,10 @@ class DiscountTransactionController extends Controller
     public function searchDiscountName(Request $request)
     {
         $discount = DiscountTransaction::where('name', 'like', '%' . $request->name . '%')
-                    ->limit(12)  
-                    ->get();       
+                    ->paginate(12);      
 
-        if ($discount->count() > 0) {
-            return response()->json([
-                'success' => true,
-                'data'    => $discount
-            ]);
-        }
-
-        return response()->json([
-            'success' => false,
-            'data'    => []
+        return Inertia::render("Discount_Transaction/index", [
+            'discount' => $discount
         ]);
     }
 

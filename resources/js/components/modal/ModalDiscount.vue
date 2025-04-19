@@ -8,7 +8,7 @@
   >
     <div
       @click.stop
-      class="w-[30%] max-h-[550px] overflow-y-auto bg-white border rounded-lg"
+      class="lg:w-[30%] md:w-[50%] w-[90%] max-h-[550px] overflow-y-auto bg-white border rounded-lg"
     >
       <div
         class="h-20 border-b sticky top-0 bg-white flex items-center justify-between px-6"
@@ -161,12 +161,14 @@ const searchDiscountCode = debounce(() => {
 }, 500);
 
 const discountNominalFnc = () => {
+  receipt.discountNominal = 0;
   receipt.discountNominal = discountNominal.value;
   discountNominal.value = 0;
   method.modalDiscountClose();
 };
 
 const discountPercentFnc = (discount) => {
+  receipt.discountPercent = null;
   code.value = discount.code;
   searchDiscountCode();
 };

@@ -10,6 +10,12 @@ export const useReceiptStore = defineStore('receipt', {
     subtotal: 0,
 
     change: 0,
+    transaction_id: 18,
+    receiptStat: false,
   }),
-  actions: {},
+  actions: {
+    receiptStatFnc() {
+      this.receiptStat = !this.receiptStat;
+    },
+  },
 });

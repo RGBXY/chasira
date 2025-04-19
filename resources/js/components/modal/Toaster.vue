@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="method.toasterStat ? 'right-5' : '-right-1/2'"
+    :class="method.toasterStat ? 'right-5' : '-right-full'"
     class="fixed bottom-5 z-50 bg-gradient-to-b from-violet-200 via-violet-50 to-primary-bg transition-all delay-200 duration-300 ease-in-out border-2 rounded-xl shadow-lg w-[350px] max-h-[400px] min-h-[100px] overflow-y-auto"
   >
     <div class="w-full h-full relative">

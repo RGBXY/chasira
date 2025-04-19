@@ -36,7 +36,7 @@ const productDropdown = debounce(() => {
   loading.value = true;
 
   axios
-    .post('/product/dropDownProduct', { name: name.value })
+    .post('/products/dropDownProduct', { name: name.value })
     .then((response) => {
       if (response.data.success && response.data.data.length > 0) {
         productsData.value = response.data.data;

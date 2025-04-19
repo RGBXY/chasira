@@ -1,10 +1,10 @@
 <template>
   <div class="w-full py-8 px-7 flex items-center justify-center">
     <div class="px-10 py-8 w-full max-w-7xl border bg-white rounded-lg">
-      <div class="mb-7 flex items-center justify-between pb-4">
-        <h1 class="text-3xl font-bold mb-1">Employees</h1>
+      <div class="mb-7 flex flex-wrap items-center justify-between pb-4">
+        <h1 class="text-3xl font-bold lg:mb-1 mb-3">Employees</h1>
 
-        <div class="flex gap-3 justify-between">
+        <div class="flex flex-wrap gap-3 justify-between">
           <div
             class="w-[250px] border h-10 flex items-center px-3 gap-3 bg-white rounded-md overflow-hidden"
           >
@@ -12,7 +12,7 @@
             <input
               type="text"
               v-model="name"
-              @keydown="searchEmployeeName"
+              @keydown="searchEmployeesName"
               placeholder="Search Employees..."
               class="h-full outline-none w-full placeholder:text-sm"
             />
@@ -20,7 +20,7 @@
 
           <Link
             href="/employees/create"
-            class="text-white border rounded-lg bg-violet-400 flex items-center justify-center gap-2 px-4"
+            class="text-white h-10 border rounded-lg bg-violet-400 flex items-center justify-center gap-2 px-4"
           >
             <Icon icon="ph:plus-bold" :ssr="true" />
             <p>Add Data</p>
@@ -30,8 +30,8 @@
 
       <div class="w-full">
         <DataTable
-          v-if="employeesData.length > 0"
-          :data="employeesData"
+          v-if="user.data.length > 0"
+          :data="user.data"
           :header="headerConfig"
         >
           <template v-slot:roles="{ row: i }">
@@ -67,7 +67,7 @@
                 <p>{{ i.status === 'active' ? 'Deactive' : 'Active' }}</p>
               </button>
               <Link
-                :href="`/products/${i.id}/edit`"
+                :href="`/employees/${i.id}/edit`"
                 class="py-2 px-4 flex items-center gap-1.5 font-semibold hover:bg-gray-100 border border-gray-200 text-blue-400 text-sm rounded-md"
               >
                 <p>Edit</p>
@@ -176,35 +176,14 @@ const statusRef = ref(null);
 
 // State API
 const employeesData = ref(props.user.data);
-const name = ref('');
+const name = ref(new URL(document.location).searchParams.get('name') || '');
 const loading = ref('');
 
 // Function Search Employee By Name (API)
-const searchEmployeeName = debounce(() => {
-  if (name.value.trim() == '') {
-    employeesData.value = props.user.data;
-    return;
-  }
-
-  loading.value = true;
-
-  axios
-    .post('/employees/searchEmployeeName', {
-      name: name.value,
-    })
-    .then((response) => {
-      if (response.data.success && response.data.data.length > 0) {
-        employeesData.value = response.data.data;
-      } else {
-        employeesData.value = [];
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    })
-    .finally(() => {
-      loading.value = false;
-    });
+const searchEmployeesName = debounce(() => {
+  router.get('/employees/searchEmployeesName', {
+    name: name.value,
+  });
 }, 500);
 
 // Function Modal Delete

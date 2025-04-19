@@ -8,6 +8,7 @@ use App\Models\Customers;
 use App\Models\DiscountTransaction;
 use App\Models\Product;
 use App\Models\Transaction;
+use App\Models\TransactionDetail;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -26,7 +27,7 @@ class TransactionController extends Controller
             $query->where('category_id', request()->category_id);
         })
         ->orderBy('stock', 'desc')
-        ->paginate(10);
+        ->paginate(12);
     
     $categories = Category::withCount('products')
         ->select('id', 'name')
@@ -34,7 +35,7 @@ class TransactionController extends Controller
         ->get();
 
     $customers = Customers::select('id', 'name', 'phone')
-        ->limit(5)
+        ->limit(8)
         ->get();
 
     $discounts = DiscountTransaction::select('id', 'name', 'code', 'minimal_transaction', 'discount', 'customer_only')
@@ -54,6 +55,18 @@ class TransactionController extends Controller
         'discounts'     => $discounts,
     ]); 
 }
+
+    public function searchProductName(Request $request)
+    {
+        $products = Product::where('name', 'like', '%' . $request->name . '%')
+                    ->with('category:id,name')
+                    ->paginate(12);  
+
+       
+        return Inertia::render('Transactions/index', [
+            'products' => $products,
+        ]); 
+    }
 
     public function searchByBarcode(Request $request)
     {
@@ -93,82 +106,11 @@ class TransactionController extends Controller
                 'user_id' => Auth::id(),
                 'product_id' => $item['id'],
                 'qty'        => $item['total'],
+                'unit_price' => $product->sell_price,
                 'price'      => $product->sell_price * $item['total'],
             ]);
         }
     }
-
-    public function printReceipt(){
-        try {
-            function justifyText($left, $right, $width = 32) {
-                $space = $width - mb_strlen($left) - mb_strlen($right);
-                return $left . str_repeat(' ', max(0, $space)) . $right . "\n";
-            }
-    
-            $connector = new WindowsPrintConnector("POS-58"); 
-        
-            $printer = new Printer($connector);
-    
-            // Header
-            $printer->setJustification(Printer::JUSTIFY_CENTER);
-            $printer->selectPrintMode(Printer::MODE_DOUBLE_WIDTH | Printer::MODE_DOUBLE_HEIGHT | Printer::MODE_EMPHASIZED);
-            $printer->text("TOKO SETIA\n");
-    
-            $printer->selectPrintMode();           
-            $printer->text(wordwrap("JL. Bangsri Guyangan", 32, "\n", true) . "\n");
-            $printer->text("TRX-239799234\n");
-            $printer->text("--------------------------------\n");
-    
-            // Info kasir & customer
-            $printer->setJustification(Printer::JUSTIFY_LEFT);
-            $printer->text("Cashier: Hai\n");
-            $printer->text("Customer: Eric Steer\n");
-            $printer->text("--------------------------------\n");
-    
-            // Header Produk
-            $printer->text(justifyText("Nama Produk", "Total Harga"));
-            $printer->text("--------------------------------\n");
-            
-            // Daftar Produk
-            $items = [
-                ["Buku Tulis Sidu 300 Lmbr", "1 PCS x 7000", "7000"],
-                ["Pensil Kenko", "2 PCS x 2000", "4000"],
-                ["Penghapus Faber Castel", "1 PCS x 5000", "5000"]
-            ];
-    
-            foreach ($items as $item) {
-                $printer->text(wordwrap($item[0], 32, "\n", true) . "\n"); // Nama produk wrap
-                $printer->text(justifyText($item[1], $item[2])); // Jumlah x Harga
-            }
-    
-            $printer->text("--------------------------------\n");
-            $printer->text(justifyText("Subtotal", "16.000"));
-            $printer->text(justifyText("Discount", "1.000"));
-            $printer->text("--------------------------------\n");
-            $printer->text(justifyText("Total", "15.000"));
-            $printer->text("--------------------------------\n");
-    
-            // Waktu Transaksi
-            $printer->setJustification(Printer::JUSTIFY_RIGHT);
-            $printer->text(date("d/m/Y H:i") . "\n");
-            $printer->feed(2);
-    
-            // Cetak Barcode
-            $printer->setJustification(Printer::JUSTIFY_CENTER);
-            $printer->feed(2);
-            $printer->barcode("012345678905", Printer::BARCODE_UPCA);
-            $printer->feed(2);
-    
-            // Selesai
-            $printer->cut();
-            $printer->close();
-    
-            return response()->json(["message" => "Receipt printed successfully"]);
-        } catch (\Exception $e) {
-            return response()->json(["error" => $e->getMessage()], 500);
-        }
-    }
-    
 
     public function store(Request $request){
         $length = 8;
@@ -206,6 +148,7 @@ class TransactionController extends Controller
                 'transaction_id'    => $transaction->id,
                 'product_id'        => $cart->product_id,
                 'qty'               => $cart->qty,
+                'unit_price'        => $cart->unit_price,
                 'price'             => $cart->price,
             ]);
             
@@ -226,5 +169,105 @@ class TransactionController extends Controller
         }
 
         Cart::where('user_id', Auth::id())->delete();
+
+        return response()->json([
+            'message' => 'Transaksi berhasil disimpan',
+            'transaction_id' => $transaction->id
+        ]);
     } 
+
+    public function printReceipt(Request $request){
+
+        $request->validate([
+            'id' => 'required'
+        ]);
+
+        $id = $request->id;
+
+        $transaction = Transaction::where('id', $id)
+        ->with('customers', 'cashier')
+        ->first();
+
+        $transaction_detail = TransactionDetail::with('product:id,name,buy_price')
+        ->where('transaction_id', $request->id )->get();
+
+        // \Log::info($transactions);
+
+        function justifyText($left, $right, $width = 32) {
+            $space = $width - mb_strlen($left) - mb_strlen($right);
+            return $left . str_repeat(' ', max(0, $space)) . $right . "\n";
+        }            
+
+        $connector = new WindowsPrintConnector("POS-58"); 
+    
+        $printer = new Printer($connector);
+
+        // Header
+        $printer->setJustification(Printer::JUSTIFY_CENTER);
+        $printer->selectPrintMode(Printer::MODE_DOUBLE_WIDTH | Printer::MODE_DOUBLE_HEIGHT | Printer::MODE_EMPHASIZED);
+        $printer->text("TOKO SETIA\n");
+
+        $printer->selectPrintMode();           
+        $printer->text(wordwrap("JL. Bangsri Guyangan", 32, "\n", true) . "\n");
+        $printer->text( $transaction->invoice . "\n");
+        $printer->text("--------------------------------\n");
+
+        // Info kasir & customer
+        $printer->setJustification(Printer::JUSTIFY_LEFT);
+        $printer->text("Cashier:" . $transaction->cashier->name . "\n");
+        $printer->text("Customer:" . $transaction->customers->name . " \n");
+        $printer->text("--------------------------------\n");
+
+        // Header Produk
+        $printer->text(justifyText("Nama Produk", "Total Harga"));
+        $printer->text("--------------------------------\n");
+        
+        // Daftar Produk
+        $items = [];
+
+        foreach ($transaction_detail as $detail) {
+            $productName = $detail->product->name;
+            $qty = $detail->qty;
+            $unitPrice = number_format($detail->unit_price); // harga satuan
+            $totalPrice = number_format($detail->price);     // total = unit * qty
+        
+            $items[] = [
+                $productName,
+                "$qty PCS x $unitPrice",
+                $totalPrice,
+            ];
+        }
+
+        foreach ($items as $item) {
+            $printer->text(wordwrap($item[0], 32, "\n", true) . "\n"); // Nama produk wrap
+            $printer->text(justifyText($item[1], $item[2])); // Jumlah x Harga
+        }
+
+
+        $printer->text("--------------------------------\n");
+        $printer->text(justifyText("Subtotal", number_format($transaction->total)));
+        $printer->text(justifyText("Discount", number_format($transaction->discount)));
+        $printer->text("--------------------------------\n");
+        $printer->text(justifyText("Total", number_format($transaction->grand_total)));
+        $printer->text("--------------------------------\n");
+
+        // Waktu Transaksi
+        $printer->setJustification(Printer::JUSTIFY_RIGHT);
+        $printer->text(date("d/m/Y H:i") . "\n");
+        $printer->feed(2);
+
+        // Cetak Barcode
+        $printer->setJustification(Printer::JUSTIFY_CENTER);
+        $printer->feed(2);
+        $printer->barcode("012345678905", Printer::BARCODE_UPCA);
+        $printer->feed(2);
+
+        // Selesai
+        $printer->cut();
+        $printer->close();
+
+        return response()->json(["message" => "Receipt printed successfully"]);    
+      
+    }
+    
 }

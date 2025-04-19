@@ -1,3 +1,102 @@
+<template>
+  <div class="py-8 px-7 flex items-center justify-center w-full">
+    <div class="px-8 py-8 w-full border bg-white rounded-lg">
+      <div
+        class="lg:mb-7 mb-4 flex flex-wrap items-center gap-4 md:justify-between pb-4"
+      >
+        <h1 class="text-3xl font-bold mb-1">Categories</h1>
+
+        <div class="flex gap-3 flex-wrap justify-between">
+          <div
+            class="md:w-[250px] w-full h-10 border flex items-center px-3 gap-3 bg-white rounded-lg overflow-hidden"
+          >
+            <Icon icon="ph:magnifying-glass" :ssr="true" class="text-xl" />
+            <input
+              type="text"
+              v-model="name"
+              @keydown="searchCategoryName()"
+              placeholder="Search Category..."
+              class="h-full outline-none w-full placeholder:text-sm placeholder:font-medium"
+            />
+          </div>
+
+          <PrimarySelect
+            :datas="selectConfig"
+            v-model="filter"
+            @change="filterChange()"
+            class="md:basis-auto basis-[calc(50%-10px)]"
+          />
+
+          <Link
+            href="/categories/create"
+            class="text-white border rounded-lg h-10 md:basis-auto basis-[calc(50%-10px)] bg-violet-400 flex flex-shrink-0 items-center justify-center gap-2 px-4"
+          >
+            <Icon class="flex-shrink-0" icon="ph:plus-bold" :ssr="true" />
+            <p class="flex-shrink-0">Add Data</p>
+          </Link>
+        </div>
+      </div>
+
+      <div class="w-full">
+        <DataTable
+          v-if="categories.data.length > 0"
+          :data="categories.data"
+          :header="headerConfig"
+        >
+          <template v-slot:products_count="{ row: i }">
+            <div
+              class="bg-violet-50 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
+            >
+              {{ i.products_count }}
+            </div>
+          </template>
+          <template v-slot:actions="{ row: i }">
+            <div class="flex items-start gap-1">
+              <Link
+                :href="`/categories/${i.id}/edit`"
+                class="py-2 px-4 flex items-center gap-1.5 font-semibold hover:bg-gray-100 border border-gray-200 text-blue-400 text-sm rounded-md"
+              >
+                <p>Edit</p>
+              </Link>
+
+              <button
+                @click="modalButtonFnc(i.id)"
+                class="py-2 px-4 flex items-center gap-1.5 font-semibold hover:bg-gray-100 border border-gray-200 text-red-400 text-sm rounded-md"
+              >
+                <p>Delete</p>
+              </button>
+            </div>
+          </template>
+        </DataTable>
+
+        <el-empty v-else :image-size="200" />
+
+        <Pagination :pagination="categories" />
+      </div>
+    </div>
+
+    <Modal v-model="modalAlert">
+      <template #header> Are you absolustly sure? </template>
+      <template #description>
+        Are you sure you want to delete this product? Once deleted, this action
+        cannot be undone and the product will be permanently removed.</template
+      >
+      <template #action>
+        <OutlineButton
+          @click="modalAlert = false"
+          text="Cancel"
+          class="border-gray-400 text-gray-600"
+        />
+        <PrimaryButton
+          @click="destroy(dataId)"
+          text="Delete"
+          class="bg-red-500 text-white"
+        />
+      </template>
+    </Modal>
+  </div>
+</template>
+
 <script setup>
 import { Link, router } from '@inertiajs/vue3';
 import { useMethodStore } from '../../stores/method';
@@ -24,9 +123,8 @@ const props = defineProps({
 const method = useMethodStore();
 
 // State API
-const categoriesData = ref(props.categories.data);
 const loading = ref(false);
-const name = ref('');
+const name = ref(new URL(document.location).searchParams.get('name') || '');
 
 // State Modal
 const modalAlert = ref(false);
@@ -47,31 +145,9 @@ const headerConfig = [
 
 // Function Search Category Data (API)
 const searchCategoryName = debounce(() => {
-  if (name.value.trim() == '') {
-    categoriesData.value = props.categories.data;
-    return;
-  }
-
-  loading.value = true;
-
-  axios
-    .post('/categories/searchCategoryName', {
-      name: name.value,
-    })
-    .then((response) => {
-      console.log(response.data.data.data);
-      if (response.data.success && response.data.data.data.length > 0) {
-        categoriesData.value = response.data.data.data;
-      } else {
-        categoriesData.value = [];
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    })
-    .finally(() => {
-      loading.value = false;
-    });
+  router.get('/categories/searchCategoryName', {
+    name: name.value,
+  });
 }, 500);
 
 // State Select Input
@@ -108,99 +184,3 @@ const destroy = (id) => {
   });
 };
 </script>
-
-<template>
-  <div class="py-8 px-7 flex items-center justify-center w-full">
-    <div class="px-8 py-8 w-full border bg-white rounded-lg">
-      <div class="mb-7 flex items-center justify-between pb-4">
-        <h1 class="text-3xl font-bold mb-1">Categories</h1>
-
-        <div class="flex gap-3 justify-between">
-          <div
-            class="w-[250px] h-10 border flex items-center px-3 gap-3 bg-white rounded-lg overflow-hidden"
-          >
-            <Icon icon="ph:magnifying-glass" :ssr="true" class="text-xl" />
-            <input
-              type="text"
-              v-model="name"
-              @keydown="searchCategoryName()"
-              placeholder="Search Category..."
-              class="h-full outline-none w-full placeholder:text-sm placeholder:font-medium"
-            />
-          </div>
-
-          <PrimarySelect
-            :datas="selectConfig"
-            v-model="filter"
-            @change="filterChange()"
-          />
-
-          <Link
-            href="/categories/create"
-            class="text-white border rounded-lg bg-violet-400 flex items-center justify-center gap-2 px-4"
-          >
-            <Icon icon="ph:plus-bold" :ssr="true" />
-            <p>Add Data</p>
-          </Link>
-        </div>
-      </div>
-
-      <div class="w-full">
-        <DataTable
-          v-if="categoriesData.length > 0"
-          :data="categoriesData"
-          :header="headerConfig"
-        >
-          <template v-slot:products_count="{ row: i }">
-            <div
-              class="bg-violet-50 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
-            >
-              {{ i.products_count }}
-            </div>
-          </template>
-          <template v-slot:actions="{ row: i }">
-            <div class="flex items-start gap-1">
-              <Link
-                :href="`/categories/${i.id}/edit`"
-                class="py-2 px-4 flex items-center gap-1.5 font-semibold hover:bg-gray-100 border border-gray-200 text-blue-400 text-sm rounded-md"
-              >
-                <p>Edit</p>
-              </Link>
-
-              <button
-                @click="modalButtonFnc(i.id)"
-                class="py-2 px-4 flex items-center gap-1.5 font-semibold hover:bg-gray-100 border border-gray-200 text-red-400 text-sm rounded-md"
-              >
-                <p>Delete</p>
-              </button>
-            </div>
-          </template>
-        </DataTable>
-
-        <el-empty v-else :image-size="200" />
-
-        <Pagination :pagination="categoriesData" />
-      </div>
-    </div>
-
-    <Modal v-model="modalAlert">
-      <template #header> Are you absolustly sure? </template>
-      <template #description>
-        Are you sure you want to delete this product? Once deleted, this action
-        cannot be undone and the product will be permanently removed.</template
-      >
-      <template #action>
-        <OutlineButton
-          @click="modalAlert = false"
-          text="Cancel"
-          class="border-gray-400 text-gray-600"
-        />
-        <PrimaryButton
-          @click="destroy(dataId)"
-          text="Delete"
-          class="bg-red-500 text-white"
-        />
-      </template>
-    </Modal>
-  </div>
-</template>

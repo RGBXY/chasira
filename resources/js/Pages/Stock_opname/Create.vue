@@ -48,7 +48,7 @@
 
         <div class="flex justify-end gap-3">
           <Link
-            href="/suppliers"
+            href="/stock-opname"
             class="h-10 px-3 flex items-center bg-violet-100 rounded-lg font-semibold text-violet-400"
           >
             Back
@@ -107,7 +107,7 @@ const productDropdown = debounce(() => {
   loading.value = true;
 
   axios
-    .post('/stock-out/searchProduct', { name: name.value })
+    .post('/products/dropDownProduct', { name: name.value })
     .then((response) => {
       if (response.data.success && response.data.data.length > 0) {
         productsData.value = response.data.data;
@@ -131,7 +131,6 @@ const form = useForm({
   system_stock: '',
   description: '',
 });
-
 
 // Function Select Product
 const selectProduct = (product) => {

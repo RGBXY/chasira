@@ -26,28 +26,21 @@ class ProfitController extends Controller
 
     public function filterDate(Request $request)
     {
-        $profit = Profit::with('transaction:id,invoice')
+        $profits = Profit::with('transaction:id,invoice')
             ->whereDate('created_at', '>=', $request->start_date)
             ->whereDate('created_at', '<=', $request->end_date)
             ->latest()
-            ->paginate(20);
+            ->paginate(10);
 
         $total = Profit::whereDate('created_at', '>=', $request->start_date)
         ->whereDate('created_at', '<=', $request->end_date)
         ->sum('total');
 
-        if ($profit) {
-            return response()->json([
-                'success'    => true,
-                'data'    => $profit,
-                'total'      => (int) $total
-            ]);
-        }  
+        // dd($profits);
 
-        return response()->json([
-            'success' => false,
-            'data' => [],
-            'total'   => null
+        return Inertia::render('Profits/index', [
+            'profits' => $profits,
+            'total' => $total,
         ]);
     }    
 }

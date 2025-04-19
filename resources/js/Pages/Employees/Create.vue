@@ -43,11 +43,12 @@
         </DropdownInput>
 
         <div class="flex justify-end gap-3">
-          <button
-            class="h-10 px-3 bg-violet-100 rounded-lg font-semibold text-violet-400"
+          <Link
+            href="/employees"
+            class="h-10 px-3 bg-violet-100 flex items-center rounded-lg font-semibold text-violet-400"
           >
             Back
-          </button>
+          </Link>
           <button
             type="submit"
             :disabled="form.processing"

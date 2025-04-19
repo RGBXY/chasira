@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class CategoryController extends Controller
@@ -20,7 +18,7 @@ class CategoryController extends Controller
             $query->latest();
         }
         
-        $categories = $query->paginate(10);
+        $categories = $query->paginate(12);
         
         return Inertia::render('Categories/index', [
             'categories' => $categories,
@@ -33,16 +31,8 @@ class CategoryController extends Controller
         ->where('name', 'like', '%' . $request->name . '%')
         ->paginate(12);       
 
-        if ($categories->count() > 0) {
-            return response()->json([
-                'success' => true,
-                'data'    => $categories
-            ]);
-        }
-
-        return response()->json([
-            'success' => false,
-            'data'    => []
+        return Inertia::render('Categories/index', [
+            'categories' => $categories,
         ]);
     }
 

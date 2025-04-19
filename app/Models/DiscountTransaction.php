@@ -16,4 +16,4 @@ class DiscountTransaction extends Model
         'customer_only',
         'description',
     ];
-}
+} 

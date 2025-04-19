@@ -1,9 +1,9 @@
 <template>
   <div
-    :class="method.sideBarStat ? 'w-[250px]' : 'w-20'"
-    class="fixed top-0 border-r h-screen z-40 transition-all bg-white"
+    :class="method.sideBarStat ? 'w-[250px]' : 'lg:w-20 lg:left-0 -left-1/2'"
+    class="fixed top-0 border-r h-screen lg:z-40 transition-all bg-white"
   >
-    <div class="h-full w-full bg- z-50 transition-all">
+    <div class="h-full w-full z-50 transition-all">
       <div class="h-[90%]">
         <div
           class="h-20 overflow-hidden min-h-20 border-b flex transition-all items-center justify-between gap-2 py-2"
@@ -63,6 +63,7 @@
             <Link
               v-for="sub in menu.pages"
               :href="sub.route"
+              @click="handleLinkClick"
               :class="[
                 sub.route === page.url
                   ? 'bg-violet-50 text-violet-500'
@@ -117,15 +118,22 @@ const logedUser = page.props.auth.user;
 
 const permissions = page.props.auth.permissions;
 
-// Memfilter MainMenuConfig berdasarkan permissions yang dimiliki pengguna
-const filteredMenu = MainMenuConfig.filter((menu) => {
-  // Mengecek apakah user memiliki permission sesuai dengan menu
-  const hasPermission = permissions[menu.permissions];
-
-  return hasPermission; // Jika true, menu akan dimasukkan ke dalam filteredMenu
-});
+const filteredMenu = MainMenuConfig.map((menu) => {
+  // Create a new menu object with filtered pages
+  return {
+    ...menu,
+    pages: menu.pages.filter((page) => permissions[page.permissions]),
+  };
+}).filter((menu) => menu.pages.length > 0); // Remove menu sections with no accessible pages
 
 const method = useMethodStore();
+
+function handleLinkClick() {
+  // Deteksi jika layar kecil (mobile)
+  if (window.innerWidth < 1024) {
+    method.sideBarStatFnc();
+  }
+}
 </script>
 
 <style lang="scss" scoped></style>

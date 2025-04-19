@@ -1,12 +1,14 @@
 <template>
   <div class="py-8 px-7 flex items-center justify-center w-full">
     <div class="px-10 py-8 w-full border bg-white rounded-lg">
-      <div class="mb-7 flex items-center justify-between pb-4">
+      <div
+        class="mb-7 flex flex-wrap items-center gap-4 md:justify-between pb-4"
+      >
         <h1 class="text-3xl font-bold mb-1">Products</h1>
 
-        <div class="flex gap-3 justify-between">
+        <div class="flex gap-3 flex-wrap md:justify-between">
           <div
-            class="w-[250px] h-10 border flex items-center px-3 gap-3 bg-white rounded-lg overflow-hidden"
+            class="md:w-[250px] w-full h-10 border flex items-center px-3 gap-3 bg-white rounded-lg overflow-hidden"
           >
             <Icon icon="ph:magnifying-glass" :ssr="true" class="text-xl" />
             <input
@@ -22,22 +24,27 @@
             @change="categoryChange"
             :datas="categories"
             v-model="searchCat"
+            class="md:basis-auto basis-[calc(50%-10px)]"
           />
 
           <Link
             href="/products/create"
-            class="text-white border rounded-lg bg-violet-400 flex items-center justify-center gap-2 px-4"
+            class="text-white border rounded-lg md:basis-auto basis-[calc(50%-10px)] h-10 bg-violet-400 flex items-center justify-center gap-2 px-4"
           >
-            <Icon icon="ph:plus-bold" :ssr="true" class="text-xl" />
-            <p>Add Data</p>
+            <Icon
+              icon="ph:plus-bold"
+              :ssr="true"
+              class="text-xl flex-shrink-0"
+            />
+            <p class="flex-shrink-0">Add Data</p>
           </Link>
         </div>
       </div>
 
       <div class="w-full">
         <DataTable
-          v-if="productsData.length > 0"
-          :data="productsData"
+          v-if="products.data.length > 0"
+          :data="products.data"
           :header="headerConfig"
         >
           <template v-slot:image="{ row: i }">
@@ -77,7 +84,7 @@
 
         <el-empty v-else :image-size="200" />
 
-        <Pagination :pagination="productsData" />
+        <Pagination :pagination="products" />
       </div>
     </div>
 
@@ -141,8 +148,7 @@ const headerConfig = [
 const method = useMethodStore();
 
 // State API
-const name = ref('');
-const productsData = ref(props.products.data);
+const name = ref(new URL(document.location).searchParams.get('name') || '');
 const searchCat = ref('');
 const loading = ref();
 
@@ -152,30 +158,9 @@ const dataId = ref(0);
 
 // Function Search Product Data (API)
 const searchProductName = debounce(() => {
-  if (name.value.trim() == '') {
-    productsData.value = props.products.data;
-    return;
-  }
-
-  loading.value = true;
-
-  axios
-    .post('/products/searchProductName', {
-      name: name.value,
-    })
-    .then((response) => {
-      if (response.data.success && response.data.data.length > 0) {
-        productsData.value = response.data.data;
-      } else {
-        productsData.value = [];
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    })
-    .finally(() => {
-      loading.value = false;
-    });
+  router.get('/products/searchProductName', {
+    name: name.value,
+  });
 }, 500);
 
 // Function Filter by Category

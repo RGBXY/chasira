@@ -18,34 +18,25 @@ class ProductController extends Controller
             $query->where('category_id', request()->category_id);
         })
         ->latest()
-        ->paginate(10);
+        ->paginate(12);
 
         $categories = Category::select(['id', 'name'])->limit(4)->get();
 
-         return Inertia::render('Products/index', [
-        'products' => $products,
-        'categories' => $categories,
-    ]); 
+        return Inertia::render('Products/index', [
+            'products' => $products,
+            'categories' => $categories,
+        ]); 
     }
 
     public function searchProductName(Request $request)
     {
         $products = Product::where('name', 'like', '%' . $request->name . '%')
                     ->with('category:id,name')
-                    ->limit(12)  
-                    ->get();       
+                    ->paginate(12);  
 
-        if ($products->count() > 0) {
-            return response()->json([
-                'success' => true,
-                'data'    => $products
-            ]);
-        }
-
-        return response()->json([
-            'success' => false,
-            'data'    => []
-        ]);
+        return Inertia::render('Products/index', [
+            'products' => $products,
+        ]); 
     }
 
     public function dropDownProduct(Request $request)

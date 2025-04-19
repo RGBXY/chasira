@@ -6,8 +6,8 @@
     <div class="w-[80%] flex items-center flex-wrap gap-3">
       <button
         @click="goToPage(link.label)"
-        :is="'button'"
         :disabled="!link.url"
+        :href="link.url"
         class="border px-5 py-2 rounded-lg font-semibold"
         :class="{
           'text-white': link.active,
@@ -29,7 +29,7 @@
 </template>
 
 <script setup>
-import { router } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 
 const props = defineProps({
   pagination: Object,
@@ -46,6 +46,10 @@ const goToPage = (page) => {
     url.searchParams.set('page', page);
   }
 
-  router.get(url.toString(), {}, { preserveState: true, preserveScroll: true });
+  router.visit(
+    url.toString(),
+    {},
+    { preserveState: true, preserveScroll: true }
+  );
 };
 </script>

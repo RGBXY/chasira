@@ -26,88 +26,89 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::group(['middleware' => ['inactive']], function () {
         // Transaction Route
+        Route::get('/transactions/searchProductName', [TransactionController::class, 'searchProductName']);
         Route::resource('/', TransactionController::class);
         Route::post('/transactions/addToCart', [TransactionController::class, 'cart']);
         Route::post('/transactions/searchByBarcode', [TransactionController::class, 'searchByBarcode']);
         Route::post('/transactions/destroyCart', [TransactionController::class, 'destroyCart']);
-        Route::get('/transactions/printReceipt', [TransactionController::class, 'printReceipt']);
+        Route::post('/transactions/printReceipt', [TransactionController::class, 'printReceipt']);
 
         // Products Route
+        Route::get('/products/searchProductName', [ProductController::class, 'searchProductName']);
         Route::resource('/products', ProductController::class)
         ->middleware('permission:products.index|products.create|products.edit|products.delete');
-        Route::post('/products/searchProductName', [ProductController::class, 'searchProductName']);
-        Route::post('/categories/dropDownCategory', [CategoryController::class, 'dropDownCategory']);
+        Route::post('/products/dropDownProduct', [ProductController::class, 'dropDownProduct']);
 
         // Categories Route
+        Route::get('/categories/searchCategoryName', [CategoryController::class, 'searchCategoryName']);
         Route::resource('/categories', CategoryController::class)
         ->middleware('permission:categories.index|categories.create|categories.edit|categories.delete');
-        Route::post('/categories/searchCategoryName', [CategoryController::class, 'searchCategoryName']);
         Route::post('/categories/dropDownCategory', [CategoryController::class, 'dropDownCategory']);
 
         // Sales Route
         Route::get('/sales', [SaleController::class, 'index'])->middleware('permission:sales.index');
-        Route::post('/sales/filterDate', [SaleController::class, 'filterDate']);
+        Route::get('/sales/filterDate', [SaleController::class, 'filterDate']);
         Route::post('/sales/transaction_detail_filter', [SaleController::class, 'transaction_detail_filter']);
 
         // Profits Route
+        Route::get('/profits/filterDate', [ProfitController::class, 'filterDate']);
         Route::get('/profits', [ProfitController::class, 'index'])->middleware('permission:profits.index');
-        Route::post('/profits/filterDate', [ProfitController::class, 'filterDate']);
 
         // Roles Route
+        Route::get('/roles/searchRolesName', [RoleController::class, 'searchRoles'])->name('roles.searchRoles');
         Route::resource('/roles', RoleController::class)
         ->middleware('permission:roles.index|roles.create|roles.edit|roles.delete');
-        Route::post('/roles/searchRoles', [RoleController::class, 'searchRoles'])->name('roles.searchRoles');
         Route::post('/roles/dropDownRole', [RoleController::class, 'dropDownRole']);
 
         // Supplier Route
+        Route::get('/suppliers/searchSupplierName', [SupplierController::class, 'searchSupplierName']);
         Route::resource('/suppliers', SupplierController::class)
         ->middleware('permission:suppliers.index|suppliers.create|suppliers.edit|suppliers.delete');
-        Route::post('/suppliers/searchSupplierName', [SupplierController::class, 'searchSupplierName']);
         
         // Customer Route
+        Route::get('/customers/searchCustomerName', [CustomersController::class, 'searchCustomerName']);
         Route::resource('/customers', CustomersController::class)
         ->middleware('permission:customers.index|customers.create|customers.edit|customers.delete');
-        Route::post('/customers/searchCustomerName', [CustomersController::class, 'searchCustomerName']);
         Route::post('/customers/searchCustomerByPhone', [CustomersController::class, 'searchCustomerByPhone']);
         
         // Stock-in Route
+        Route::get('/stock-in/searchByName', [StockInController::class, 'searchByName'])->name('stockIn.searchByName');
+        Route::get('/stock-in/filterDate', [StockInController::class, 'filterDate']);
         Route::resource('/stock-in', StockInController::class)
         ->middleware('permission:stock_in.index|stock_in.create|stock_in.edit|stock_in.delete')->except(['show']);
-        Route::post('/stock-in/searchByName', [StockInController::class, 'searchByName'])->name('stockIn.searchByName');
-        Route::post('/stock-in/searchProduct', [ProductController::class, 'dropDownProduct'])->name('stockIn.searchProduct');
         Route::post('/stock-in/searchSupplier', [StockInController::class, 'searchSupplier'])->name('stockIn.searchSupplier');
-        Route::post('/stock-in/filterDate', [StockInController::class, 'filter']);
 
         // Stock Out Route
+        Route::get('/stock-out/searchByName', [StockOutController::class, 'searchByName'])->name('stockOut.searchByName');
+        Route::get('/stock-out/filterDate', [StockOutController::class, 'filterDate']);
         Route::resource('/stock-out', StockOutController::class)
         ->middleware('permission:stock_out.index|stock_out.create|stock_out.edit|stock_out.delete')->except(['show']);
-        Route::post('/stock-out/searchProduct', [StockOutController::class, 'searchProduct'])->name('stockOut.searchProduct');
-        Route::post('/stock-out/searchByName', [ProductController::class, 'dropDownProduct'])->name('stockOut.searchByName');
-        Route::post('/stock-out/filterDate', [StockOutController::class, 'filter']);
 
         // Stock Opname Route
+        Route::get('/stock-opname/searchByName', [StockOpnameController::class, 'searchByName'])->name('stockOpname.searchByName');
+        Route::get('/stock-opname/filterDate', [StockOpnameController::class, 'filterDate'])->name('stockIn.filterDate');
         Route::resource('/stock-opname', StockOpnameController::class)
         ->middleware('permission:stock_opname.index|stock_opname.create|stock_opname.edit|stock_opname.delete');
-        Route::post('/stock-opname/searchByName', [StockOpnameController::class, 'searchByName'])->name('stockOpname.searchByName');
-        Route::post('/stock-opname/filterDate', [StockOpnameController::class, 'filter'])->name('stockIn.filterDate');
         
         // Employe Route
+        Route::get('/employees/searchEmployeesName', [EmployeeController::class, 'searchEmployeesName'])->name('employee.searchEmployeeName');
         Route::resource('/employees', EmployeeController::class)
         ->middleware('permission:employees.index|employees.create|employees.edit|employees.delete');     
-        Route::post('/employees/searchEmployeeName', [EmployeeController::class, 'searchEmployeeName'])->name('employee.searchEmployeeName');
         Route::get('/employee/{id}/activate', [EmployeeController::class, 'activate'])->name('employee.activate');
         Route::get('/employee/{id}/deactivate', [EmployeeController::class, 'deactivate'])->name('employee.deactivate');
         
         // Discount Transaction Route
+        Route::get('/discount-transactions/searchDiscountName', [DiscountTransactionController::class, 'searchDiscountName'])->name('discount.searchDiscountName');
         Route::resource('/discount-transactions', DiscountTransactionController::class)
         ->middleware('permission:discounts.index|discounts.create|discounts.delete');    
-        Route::post('/discount-transactions/searchDiscountName', [DiscountTransactionController::class, 'searchDiscountName'])->name('discount.searchDiscountName');
         Route::post('/discount-transactions/searchDiscountCode', [DiscountTransactionController::class, 'searchDiscountCode'])->name('discount.searchDiscountCode');
         Route::put('/update-discount/{discount}', [DiscountTransactionController::class, 'update'])
         ->name('discount-transactions.update.custom')
-        ->middleware('permission:discounts.edit');       
-        // Route::get('/dashboard', [DashboardController::class, 'index'])
-        // ->name('dashboard');
+        ->middleware('permission:discounts.edit'); 
+        
+        // Dashboard Route
+        Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
 
         
     });

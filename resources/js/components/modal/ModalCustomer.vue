@@ -6,7 +6,10 @@
     @click="method.modalCustomerClose()"
     class="fixed top-0 left-0 bg-black backdrop-blur-sm bg-opacity-40 transition-all duration-500 z-50 w-full h-screen flex justify-center items-center"
   >
-    <div @click.stop class="w-[50%] h-[65%] bg-white border rounded-lg">
+    <div
+      @click.stop
+      class="md:w-[50%] w-[90%] h-[65%] bg-white border rounded-lg"
+    >
       <div class="h-20 border-b flex items-center justify-between px-5">
         <h1 class="text-2xl font-bold">List Customer</h1>
         <button @click="method.modalCustomerClose()" class="p-2">

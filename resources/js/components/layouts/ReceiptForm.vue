@@ -126,8 +126,13 @@ watch(
   () => receiptStore.products,
   () => {
     discount.value = 0;
+
     totalPrice();
-    totalAfterDiscount();
+
+    if (receiptStore.discountPercent !== null) {
+      totalAfterDiscount();
+    }
+
     receiptStore.subtotal = subtotal.value;
   },
   { deep: true }
@@ -136,30 +141,44 @@ watch(
 watch(
   () => receiptStore.discountNominal,
   () => {
+    receiptStore.discountPercent = null;
     discount.value = receiptStore.discountNominal;
     total.value = subtotal.value - discount.value;
-    receiptStore.discountPercent = null;
-  }
+  },
+  { deep: true }
 );
 
 watch(
   () => receiptStore.discountPercent,
   () => {
     totalAfterDiscount();
-  }
+  },
+  { deep: true }
 );
 </script>
 
 <template>
-  <div class="w-[25%] border-l bg-white right-0 z-30">
+  <div
+    :class="receiptStore.receiptStat ? 'block' : 'hidden'"
+    class="lg:w-[25%] w-full lg:static fixed h-screen lg:block left-0 border-l bg-white right-0 z-30"
+  >
     <div
-      class="fixed top-0 right-0 overflow-y-auto flex flex-col justify-between w-[25%] h-full"
+      class="fixed top-0 right-0 overflow-y-auto flex flex-col justify-between lg:w-[25%] w-full h-full"
     >
       <div class="flex flex-grow flex-col justify-between">
         <div class="h-20 px-3 border-b flex items-center justify-between">
-          <div class="flex items-center gap-1.5">
-            <Icon icon="ph:receipt" class="text-2xl" />
-            <h1 class="text-xl font-bold">List Order</h1>
+          <div class="flex gap-5">
+            <button
+              @click="receiptStore.receiptStatFnc()"
+              class="border-2 lg:hidden rounded-full p-2 text-xl"
+            >
+              <Icon :ssr="true" icon="ph:x" />
+            </button>
+
+            <div class="flex items-center gap-1.5">
+              <Icon icon="ph:receipt" class="text-2xl" />
+              <h1 class="text-xl font-bold">List Order</h1>
+            </div>
           </div>
           <button
             @click="clearData"

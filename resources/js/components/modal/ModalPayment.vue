@@ -25,44 +25,42 @@ const modalClose = () => {
   });
 };
 
-const form = useForm({
-  cash: 0,
-  change: 0,
-  discount: 0,
-  total: 0,
-  customer_id: '',
-  grand_total: 0,
-});
+const cash = ref(0);
+const change = computed(() => cash.value - props.grand_total);
 
-console.log(props);
-
-// const grandTotal = computed(() => props.total - form.discount);
-const change = computed(() => form.cash - props.grand_total);
-
-const pay = () => {
-  form.change = change;
-  form.total = props.total;
-  form.discount = props.discount;
-  form.grand_total = props.grand_total;
-  form.customer_id = receipt.customer === null ? 1 : receipt.customer.id;
-
+const pay = async () => {
   const isPaymentValid = computed(() => {
-    return cash.value >= props.total;
+    return cash.value >= props.grand_total;
   });
 
   if (isPaymentValid.value) {
-    form.post('/', {
-      onSuccess: () => {
-        receipt.change = cash.value - props.grand_total;
-        form.cash = null;
-        receipt.customer = null;
-        receipt.discountNominal = 0;
-        receipt.discountPercent = null;
-        receipt.products = [];
-        method.modalPrintFnc(cash.value);
-        method.modalPaymentFnc();
-      },
-    });
+    try {
+      const payload = {
+        cash: cash.value,
+        change: change.value,
+        total: props.total,
+        discount: props.discount,
+        grand_total: props.grand_total,
+        customer_id: receipt.customer === null ? 1 : receipt.customer.id,
+      };
+
+      const response = await axios.post('/', payload);
+      method.modalPrintFnc(cash.value);
+      method.modalPaymentFnc();
+
+      receipt.change = cash.value - props.grand_total;
+      cash.value = 0;
+      receipt.transaction_id = response.data.transaction_id;
+      receipt.customer = null;
+      receipt.discountNominal = 0;
+      receipt.discountPercent = null;
+      receipt.products = [];
+    } catch (error) {
+      console.error(
+        'Gagal menyimpan transaksi:',
+        error.response?.data || error
+      );
+    }
   }
 };
 </script>
@@ -76,7 +74,7 @@ const pay = () => {
   >
     <div
       :class="method.modalPyamentStat ? ' h-[85%]' : ' h-0'"
-      class="w-full bg-white flex relative transition-all overflow-y-auto duration-500 justify-center p-10 rounded-t-[80px]"
+      class="w-full bg-white flex relative transition-all overflow-y-auto duration-500 justify-center p-10 rounded-t-[40px] md:rounded-t-[80px]"
     >
       <button
         @click="modalClose"
@@ -109,18 +107,11 @@ const pay = () => {
               <input
                 required
                 type="number"
-                v-model="form.cash"
+                v-model="cash"
                 id="cash"
                 placeholder="Cash Amount"
-                :class="[
-                  form.errors.cash ? 'border-red-600' : 'border-violet-500',
-                ]"
                 class="w-full focus:border-2 text-sm h-11 px-2 border rounded-md outline-none"
               />
-
-              <p v-if="form.errors.cash" class="text-sm mt-1.5 text-red-600">
-                {{ form.errors.cash }}
-              </p>
             </div>
 
             <button

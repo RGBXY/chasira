@@ -1,10 +1,10 @@
 <template>
   <div class="w-full py-8 px-7 flex items-center justify-center">
     <div class="px-8 py-8 w-full border bg-white rounded-lg">
-      <div class="mb-7 flex items-center justify-between pb-4">
-        <h1 class="text-3xl font-bold mb-1">Customers</h1>
+      <div class="mb-7 flex flex-wrap items-center justify-between pb-4">
+        <h1 class="text-3xl font-bold lg:mb-1 mb-3">Customers</h1>
 
-        <div class="flex gap-3 justify-between">
+        <div class="flex flex-wrap gap-3 justify-between">
           <div
             class="w-[250px] h-10 border flex items-center px-3 gap-3 bg-white rounded-lg overflow-hidden"
           >
@@ -20,7 +20,7 @@
 
           <Link
             href="/customers/create"
-            class="text-white border rounded-lg bg-violet-400 flex items-center justify-center gap-2 px-4"
+            class="text-white border h-10 rounded-lg bg-violet-400 flex items-center justify-center gap-2 px-4"
           >
             <Icon icon="ph:plus-bold" :ssr="true" class="text-xl" />
             <p>Add Data</p>
@@ -30,8 +30,8 @@
 
       <div class="w-full">
         <DataTable
-          v-if="customersData.length > 0"
-          :data="customersData"
+          v-if="customersData.data.length > 0"
+          :data="customersData.data"
           :header="headerConfig"
         >
           <template v-slot:products_count="{ row: i }">
@@ -121,11 +121,9 @@ const props = defineProps({
 });
 
 // State API
-const name = ref('');
-const customersData = ref(props.customers.data);
+const name = ref(new URL(document.location).searchParams.get('name') || '');
+const customersData = ref(props.customers);
 const loading = ref();
-
-console.log(customersData.value);
 
 // State Modal
 const modalAlert = ref(false);
@@ -133,31 +131,9 @@ const dataId = ref(0);
 
 // Function Search Customers Data by Name (API)
 const searchCustomerName = debounce(() => {
-  if (name.value.trim() == '') {
-    customersData.value = props.customers.data;
-    return;
-  }
-
-  loading.value = true;
-
-  axios
-    .post('/customers/searchCustomerName', {
-      name: name.value,
-    })
-    .then((response) => {
-      console.log(response.data);
-      if (response.data.success && response.data.data.length > 0) {
-        customersData.value = response.data.data;
-      } else {
-        customersData.value = [];
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    })
-    .finally(() => {
-      loading.value = false;
-    });
+  router.get('/customers/searchCustomerName', {
+    name: name.value,
+  });
 }, 500);
 
 // Function Modal Alert

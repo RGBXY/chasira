@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customers;
 use App\Models\Outlet;
 use App\Models\Product;
 use App\Models\Profit;
@@ -15,37 +16,39 @@ use Inertia\Inertia;
 class DashboardController extends Controller
 {
     public function index(){
-        $total_sales = Transaction::whereDate('created_at', Carbon::today())->sum('grand_total');
+        $sale = Transaction::whereDate('created_at', Carbon::today())->sum('grand_total');
 
         $profit = Profit::whereDate('created_at', Carbon::today())->sum('total');
         
-        $total_employees = User::where('parent_id', Auth::user()->family_id)->count();
-        $total_outlets = Outlet::where('family_id', Auth::user()->family_id)->count();
-        $stock_product = Product::where('family_id', Auth::user()->family_id)->where('stock', '<=', '10')->limit(5)->get();
+        $total_employees = User::where('id', '!=', 1)->count();
 
-        $week = Carbon::now()->subDays(7);
+        $total_customers = Customers::where('id', '!=', 1)->count();
 
-        // Chart Sales Seminggu Terakhir
-        $chart_sales_week = DB::table('transactions')->
-        where('family_id', Auth::user()->family_id)
-        ->addSelect(DB::raw('DATE(created_at) as date, SUM(grand_total) as grand_total'))
-        ->where('created_at', '>=', $week)
-        ->groupBy('date')
-        ->get();
+        $stock_product = Product::where('stock', '<=', '10')->select(['id', 'name', 'stock'])->limit(5)->get();
 
-        if(count($chart_sales_week)) {
+        $week = Carbon::now()->subWeek();
+        $week = Carbon::now()->subMonth();
+
+        $chart_sales_week = DB::table('transactions')
+            ->where('created_at', '>=', $week)
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(grand_total) as grand_total'))
+            ->groupBy('date')
+            ->get();
+
+        $sales_date_week = [];
+        $grand_total = [];
+
+        if ($chart_sales_week->count()) {
             foreach ($chart_sales_week as $result) {
-                $sales_date[]    = $result->date;
-                $grand_total[]   = (int)$result->grand_total;
+                $sales_date_week[]  = $result->date;
+                $grand_total[] = (int) $result->grand_total;
             }
-        }else {
-            $sales_date[]   = "";
-            $grand_total[]  = "";
+        } else {
+            $sales_date_week[]  = "";
+            $grand_total[] = "";
         }
 
-        // Chart Profits Seminggu Terakhir
         $chart_profits_week = DB::table('profits')
-        ->where('family_id', Auth::user()->family_id)
         ->addSelect(DB::raw('DATE(created_at) as date, SUM(total) as profits_total'))
         ->where('created_at', '>=', $week)
         ->groupBy('date')
@@ -61,87 +64,33 @@ class DashboardController extends Controller
             $profits_total[]  = "";
         }
 
-        // Best Outltes
-        $best_outlets = DB::table('outlets')
-        ->select(
-            'outlets.name as outlet_name',  // Mengambil nama outlet
-            DB::raw('COUNT(transactions.id) as transaction_count')  // Menghitung jumlah transaksi
-        )
-        ->join('users', 'outlets.id', '=', 'users.outlet_id')  // Menggabungkan tabel outlets dengan users berdasarkan outlet_id
-        ->join('transactions', 'users.id', '=', 'transactions.chasier_id')  // Menggabungkan tabel users dengan transactions berdasarkan cashier_id
-        ->where('users.family_id', Auth::user()->family_id)  // Menyebutkan tabel users untuk menghindari ambiguitas
-        ->groupBy('outlets.id', 'outlets.name')  // Kelompokkan berdasarkan id outlet dan nama outlet
-        ->orderByDesc('transaction_count')  // Urutkan berdasarkan jumlah transaksi terbanyak
-        ->limit(5)  // Batasi hasilnya hanya 5 yang terbanyak
-        ->get();  // Ambil hasil query
-    
-    
-        if(count($best_outlets)) {
-            foreach ($best_outlets as $result) {
-                $outlet_name[]    = $result->outlet_name;
-                $transaction_count[]   = (int)$result->transaction_count;
-            }
-        }else {
-            $outlet_name[]   = "";
-            $transaction_count[]  = "";
-        }
-
-        // Best Product
         $best_products = DB::table('transaction_details')
-        ->where('transaction_details.family_id', Auth::user()->family_id)  // Menyebutkan tabel transaction_details untuk menghindari ambiguitas
-        ->addSelect(DB::raw('products.name as name, SUM(transaction_details.qty) as total'))
+        ->select(DB::raw('products.name as name, SUM(transaction_details.qty) as total'))
         ->join('products', 'products.id', '=', 'transaction_details.product_id')
-        ->groupBy('transaction_details.product_id')
-        ->orderBy('total', 'DESC')
+        ->groupBy('transaction_details.product_id', 'products.name')
+        ->whereDate('transaction_details.created_at', '>=', $week)
+        ->orderByDesc('total')
         ->limit(5)
         ->get();
-    
-        // Best Employees
-        $best_employees = DB::table('transactions')
-        ->where('transactions.family_id', Auth::user()->family_id)  // Menyebutkan tabel transactions untuk menghindari ambiguitas
-        ->select(
-            'users.name as name',
-            DB::raw('COUNT(transactions.id) as total')  // Menghitung jumlah transaksi yang dilakukan oleh karyawan
-        )
-        ->join('users', 'users.id', '=', 'transactions.chasier_id')  // Menggabungkan tabel users dengan transaksi berdasarkan cashier_id
-        ->groupBy('users.id')  // Mengelompokkan berdasarkan ID karyawan
-        ->orderBy('total', 'DESC')  // Mengurutkan berdasarkan jumlah transaksi terbanyak
-        ->limit(5)
-        ->get();
-    
-        
-        
-        if(count($best_employees)) {
-            foreach ($best_employees as $result) {
-                $employees_name[]    = $result->name;
-                $transaction_count_employees[]   = (int)$result->total;
-            }
-        }else {
-            $employees_name[]   = "";
-            $transaction_count_employees[]  = "";
-        }
 
-        return Inertia::render("Dashboard/index", [
-            'total_sales' => $total_sales,
-            'profit' => $profit,
-            'total_employees' => $total_employees,
-            'total_outlets' => $total_outlets,
 
-            'sales_date_week' =>  $sales_date,
-            'grand_total_week' => $grand_total,
+        return Inertia::render('Dashboard/index', [
+            'sale'             => $sale,
+            'profit'           => $profit,
+            'total_employees'  => $total_employees,
+            'total_customers'  => $total_customers,
 
-            'profits_date_week' =>  $sales_date,
-            'profits_total_week' => $profits_total,
+            'sales_date_week'  => $sales_date_week,
+            'grand_total_week'  => $grand_total,
 
-            'best_outlets' => $outlet_name,
-            'best_outlets_transaction' => $transaction_count,
+            'profits_date_week'  => $profits_date,
+            'profits_total_week'  => $profits_total,
 
-            'best_employees' => $employees_name,
-            'transaction_count_employees' => $transaction_count_employees,
-
-            'best_product' => $best_products,
+            'best_products'  => $best_products,
 
             'stock_product' => $stock_product
-        ]);
+        ]); 
     }
+
+    
 }

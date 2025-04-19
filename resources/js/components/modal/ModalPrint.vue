@@ -3,9 +3,21 @@ import { useMethodStore } from '../../stores/method';
 import formatPrice from '../../../core/helper/formatPrice';
 import { useReceiptStore } from '../../stores/receipt';
 import { Icon } from '@iconify/vue/dist/iconify.js';
+import axios from 'axios';
 
 const method = useMethodStore();
 const receipt = useReceiptStore();
+
+const printReceipt = async () => {
+  try {
+    const response = await axios.post('/transactions/printReceipt', {
+      id: receipt.transaction_id,
+    });
+    alert(response.data.message || response.data.error);
+  } catch (error) {
+    console.error(error);
+  }
+};
 </script>
 
 <template>
@@ -17,7 +29,7 @@ const receipt = useReceiptStore();
   >
     <div
       :class="method.modalPrintStat ? ' h-[700px]' : ' h-0'"
-      class="w-full bg-white flex relative transition-all overflow-y-auto duration-500 justify-center p-10 rounded-t-[80px]"
+      class="w-full bg-white flex relative transition-all overflow-y-auto duration-500 justify-center p-10 rounded-t-[40px] md:rounded-t-[80px]"
     >
       <button
         @click="method.modalPrintFncClose()"
@@ -50,6 +62,7 @@ const receipt = useReceiptStore();
 
           <div class="flex flex-col items-center gap-3 justify-center">
             <button
+              @click="printReceipt()"
               class="h-14 text-lg w-full px-4 bg-violet-400 rounded- font-semibold text-white"
             >
               Print Receipt

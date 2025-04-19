@@ -1,87 +1,3 @@
-<script setup>
-import Layout from '../../Layouts/Layout.vue';
-import TextInput from '../../components/ui/TextInput.vue';
-import TextAreaInput from '../../components/ui/TextAreaInput.vue';
-import { Link, useForm } from '@inertiajs/vue3';
-import DropdownInput from '../../components/ui/DropdownInput.vue';
-import { ref } from 'vue';
-import { debounce } from 'lodash';
-
-// Layout
-defineOptions({
-  layout: Layout,
-});
-
-// Props
-const props = defineProps({
-  categories: Object,
-  outlets: Object,
-});
-
-// State API
-const name = ref('');
-const categoriesData = ref(props.categories);
-const selectedCategories = ref(null);
-const loading = ref(false);
-
-// Form
-const form = useForm({
-  name: '',
-  category_id: '',
-  barcode: '',
-  buy_price: null,
-  sell_price: null,
-  stock: 0,
-  description: '',
-  image: null,
-});
-
-// Function Image
-const change = (e) => {
-  form.image = e.target.files[0];
-};
-
-// Function Dropdown Categories
-const debouncedSearch = debounce(() => {
-  if (!name.value) {
-    categoriesData.value = props.categories;
-    return;
-  }
-
-  form.product_id = '';
-  loading.value = true;
-
-  axios
-    .post('/categories/dropDownCategory', { name: name.value })
-    .then((response) => {
-      if (response.data.success && response.data.data.length > 0) {
-        categoriesData.value = response.data.data;
-      } else {
-        categoriesData.value = [];
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-      categoriesData.value = [];
-    })
-    .finally(() => {
-      loading.value = false;
-    });
-}, 500);
-
-// Function Select Categories Dropdown
-const selectCategories = (category) => {
-  selectedCategories.value = category;
-  name.value = category.name;
-  form.category_id = category.id;
-};
-
-// Function Submit Form
-const submit = () => {
-  form.post('/products');
-};
-</script>
-
 <template>
   <div class="w-full py-8 px-7 flex items-center justify-center">
     <div class="px-10 py-8 w-full max-w-7xl border bg-white rounded-lg">
@@ -179,3 +95,87 @@ const submit = () => {
     </div>
   </div>
 </template>
+
+<script setup>
+import Layout from '../../Layouts/Layout.vue';
+import TextInput from '../../components/ui/TextInput.vue';
+import TextAreaInput from '../../components/ui/TextAreaInput.vue';
+import { Link, useForm } from '@inertiajs/vue3';
+import DropdownInput from '../../components/ui/DropdownInput.vue';
+import { ref } from 'vue';
+import { debounce } from 'lodash';
+
+// Layout
+defineOptions({
+  layout: Layout,
+});
+
+// Props
+const props = defineProps({
+  categories: Object,
+  outlets: Object,
+});
+
+// State API
+const name = ref('');
+const categoriesData = ref(props.categories);
+const selectedCategories = ref(null);
+const loading = ref(false);
+
+// Form
+const form = useForm({
+  name: '',
+  category_id: '',
+  barcode: '',
+  buy_price: null,
+  sell_price: null,
+  stock: 0,
+  description: '',
+  image: null,
+});
+
+// Function Image
+const change = (e) => {
+  form.image = e.target.files[0];
+};
+
+// Function Dropdown Categories
+const debouncedSearch = debounce(() => {
+  if (!name.value) {
+    categoriesData.value = props.categories;
+    return;
+  }
+
+  form.product_id = '';
+  loading.value = true;
+
+  axios
+    .post('/categories/dropDownCategory', { name: name.value })
+    .then((response) => {
+      if (response.data.success && response.data.data.length > 0) {
+        categoriesData.value = response.data.data;
+      } else {
+        categoriesData.value = [];
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      categoriesData.value = [];
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}, 500);
+
+// Function Select Categories Dropdown
+const selectCategories = (category) => {
+  selectedCategories.value = category;
+  name.value = category.name;
+  form.category_id = category.id;
+};
+
+// Function Submit Form
+const submit = () => {
+  form.post('/products');
+};
+</script>

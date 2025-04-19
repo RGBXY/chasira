@@ -29,27 +29,18 @@ class StockOpnameController extends Controller
 
     public function searchByName(Request $request)
     {
-        $product = StockOpname::with(['product:id,name,barcode'])
+        $stockOpname = StockOpname::with(['product:id,name,barcode'])
             ->whereHas('product', function ($query) use ($request) {
                 $query->where('name', 'like', '%' . $request->name . '%');
             })
-            ->limit(12)
-            ->get();
+            ->paginate(12);
 
-        if ($product->isNotEmpty()) {
-            return response()->json([
-                'success' => true,
-                'data'    => $product
-            ]);
-        }
-
-        return response()->json([
-            'success' => false,
-            'data'    => []
-        ]);
+        return Inertia::render('Stock_opname/index', [
+            'stockOpname' => $stockOpname,
+        ]); 
     }
 
-    public function filter(Request $request)
+    public function filterDate(Request $request)
     {
         $stockOpname = StockOpname::with('product:id,name,barcode')
             ->whereDate('created_at', '>=', $request->start_date)
@@ -57,17 +48,9 @@ class StockOpnameController extends Controller
             ->latest()
             ->paginate(12);
 
-        if ($stockOpname) {
-            return response()->json([
-                'success' => true,
-                'data'    => $stockOpname
-            ]);
-        }  
-
-        return response()->json([
-            'success' => false,
-            'data'    => []
-        ]);
+        return Inertia::render('Stock_opname/index', [
+            'stockOpname' => $stockOpname,
+        ]); 
     }    
 
     public function store(Request $request){

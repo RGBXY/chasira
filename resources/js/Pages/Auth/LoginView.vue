@@ -37,12 +37,6 @@
             <input type="checkbox" v-model="form.remember" />
             <label class="text-xs font-semibold">Remember me</label>
           </div>
-
-          <Link>
-            <p class="text-xs text-violet-700 font-semibold underline">
-              Forgot Password?
-            </p>
-          </Link>
         </div>
 
         <button

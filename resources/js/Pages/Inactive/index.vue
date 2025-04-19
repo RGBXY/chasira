@@ -20,7 +20,7 @@
             >
               <h1 class="font-semibold">Log out</h1>
               <button class="text-lg">
-                <PhSignOut />
+                <Icon :ssr="true" icon="ph:sign-out" />
               </button>
             </Link>
             <a
@@ -29,7 +29,7 @@
             >
               <h1 class="font-semibold">Contact us</h1>
               <button class="text-lg">
-                <PhEnvelopeSimple />
+                <Icon :ssr="true" icon="ph:envelope-simple" />
               </button>
             </a>
           </div>
@@ -100,8 +100,8 @@
 </template>
 
 <script setup>
+import { Icon } from '@iconify/vue/dist/iconify.js';
 import { Link, usePage } from '@inertiajs/vue3';
-import { PhEnvelopeSimple, PhSignOut } from '@phosphor-icons/vue';
 
 const page = usePage();
 const user_name = page.props.auth.user.name;

@@ -6,8 +6,8 @@
   >
     <div
       @click.stop
-      :class="isOpen ? 'right-2.5' : '-right-1/2'"
-      class="w-1/3 h-[98%] overflow-y-auto flex flex-col bg-white rounded-xl fixed transition-all border border-gray-400"
+      :class="isOpen ? 'right-2.5 ' : '-right-1/2'"
+      class="lg:w-1/3 md:w-[70%] w-[95%] h-[98%] overflow-y-auto flex flex-col bg-white rounded-xl fixed transition-all border border-gray-400"
     >
       <div
         class="h-20 flex-shrink-0 flex items-center px-5 sticky top-0 bg-white shadow-sm justify-between border-b"
