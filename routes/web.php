@@ -35,6 +35,7 @@ Route::group(['middleware' => ['auth']], function () {
 
         // Products Route
         Route::get('/products/searchProductName', [ProductController::class, 'searchProductName']);
+        Route::get('/products/data', [ProductController::class, 'data']);
         Route::resource('/products', ProductController::class)
         ->middleware('permission:products.index|products.create|products.edit|products.delete');
         Route::post('/products/dropDownProduct', [ProductController::class, 'dropDownProduct']);

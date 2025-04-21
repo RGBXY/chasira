@@ -8,7 +8,7 @@ const props = defineProps({
 
 <template>
   <div
-    class="w-[240px] flex flex-col gap-2.5 p-3 rounded-xl shadow bg-white relative border cursor-pointer overflow-hidden"
+    class="w-[245px] flex flex-col gap-2.5 p-3 rounded-xl shadow bg-white relative border cursor-pointer overflow-hidden"
   >
     <div
       class="rounded-xl overflow-hidden w-full h-[200px] flex-shrink-0 border relative"

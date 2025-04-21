@@ -28,6 +28,25 @@ class ProductController extends Controller
         ]); 
     }
 
+    public function data(){
+        $products = Product::with('category:id,name')
+        ->orderBy('stock', 'desc')
+        ->latest()
+        ->paginate(2);             
+
+        if ($products) {
+            return response()->json([
+                'success' => true,
+                'data'    => $products
+            ]);
+        }    
+
+        return response()->json([
+            'success' => false,
+            'data'    => null
+        ]);
+    }
+
     public function searchProductName(Request $request)
     {
         $products = Product::where('name', 'like', '%' . $request->name . '%')

@@ -50,7 +50,7 @@ class DiscountTransactionController extends Controller
         }
 
         // Validasi jika kupon hanya untuk member
-        if ($discount->customer_only && !$request->has('customer_id')) {
+        if ($discount->customer_only && !$request->has('customer_id') || $request->customer_id == 1) {
             return response()->json([
                 'success' => false,
                 'message' => 'This coupon is for members only',

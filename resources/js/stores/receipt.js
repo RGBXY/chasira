@@ -12,6 +12,8 @@ export const useReceiptStore = defineStore('receipt', {
     change: 0,
     transaction_id: 18,
     receiptStat: false,
+
+    refresh: false,
   }),
   actions: {
     receiptStatFnc() {

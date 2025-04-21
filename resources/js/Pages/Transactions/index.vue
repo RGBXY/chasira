@@ -1,7 +1,13 @@
 <script setup>
 import CategoryCard from '../../components/card/CategoryCard.vue';
 import MainLayout from '../../Layouts/MainLayout.vue';
-import { defineAsyncComponent, onBeforeUnmount, onMounted, ref } from 'vue';
+import {
+  defineAsyncComponent,
+  onBeforeUnmount,
+  onMounted,
+  onUnmounted,
+  ref,
+} from 'vue';
 import { usePage, router } from '@inertiajs/vue3';
 import { useReceiptStore } from '../../stores/receipt';
 import { useMethodStore } from '../../stores/method';
@@ -10,6 +16,7 @@ import { onKeyStroke } from '@vueuse/core';
 import { debounce } from 'lodash';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import ModalDiscount from '../../components/modal/ModalDiscount.vue';
+import { watch } from 'vue';
 
 // Layout
 defineOptions({ layout: MainLayout });
@@ -46,7 +53,6 @@ const props = defineProps({
 });
 
 // State API
-
 const loading = ref(false);
 
 const barcode = ref('');
@@ -147,12 +153,26 @@ onMounted(() => {
   method.sideBarStat = false;
 });
 
+const localProducts = ref(props.products);
+
 onBeforeUnmount(() => {
   if (page.url !== '/') {
     receiptStore.products = [];
     receiptStore.customer = null;
   }
 });
+
+watch(
+  () => receiptStore.refresh,
+  () => {
+    if (receiptStore.refresh == true) {
+      // Gunakan Inertia untuk reload data
+      router.reload({ only: ['products'] });
+      receiptStore.refresh = false;
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -226,7 +246,7 @@ onBeforeUnmount(() => {
           class="mt-2 flex justify-center gap-3 flex-wrap"
         >
           <Card
-            v-for="product in products.data"
+            v-for="product in props.products.data"
             :key="product.id"
             :product="product"
             @click="addOrder(product)"
@@ -242,7 +262,7 @@ onBeforeUnmount(() => {
       </div>
 
       <div>
-        <Pagination :pagination="products" />
+        <Pagination :pagination="localProducts" />
       </div>
     </div>
 

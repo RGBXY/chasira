@@ -62,6 +62,7 @@ const submit = async () => {
     form.post('/transactions/addToCart', {
       onSuccess: () => {
         method.modalPaymentFnc();
+        receiptStore.refresh = false;
       },
     });
   }
@@ -200,7 +201,6 @@ watch(
             <div
               v-for="product in receiptStore.products"
               :key="product.id"
-              v-memo="[product.id, product.total]"
               class="p-3 flex gap-2.5"
             >
               <div class="w-[150px] h-[80px]">

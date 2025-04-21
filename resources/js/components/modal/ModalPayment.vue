@@ -55,6 +55,7 @@ const pay = async () => {
       receipt.discountNominal = 0;
       receipt.discountPercent = null;
       receipt.products = [];
+      receipt.refresh = true;
     } catch (error) {
       console.error(
         'Gagal menyimpan transaksi:',

@@ -162,9 +162,13 @@ const searchDiscountCode = debounce(() => {
 
 const discountNominalFnc = () => {
   receipt.discountNominal = 0;
-  receipt.discountNominal = discountNominal.value;
-  discountNominal.value = 0;
-  method.modalDiscountClose();
+  if (discountNominal.value > receipt.subtotal) {
+    method.toasterFnc('Discount cannot exceed total purchases');
+  } else {
+    receipt.discountNominal = discountNominal.value;
+    discountNominal.value = 0;
+    method.modalDiscountClose();
+  }
 };
 
 const discountPercentFnc = (discount) => {

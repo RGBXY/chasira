@@ -13,7 +13,7 @@ const printReceipt = async () => {
     const response = await axios.post('/transactions/printReceipt', {
       id: receipt.transaction_id,
     });
-    alert(response.data.message || response.data.error);
+    method.toasterFnc(response.data.message || response.data.error);
   } catch (error) {
     console.error(error);
   }

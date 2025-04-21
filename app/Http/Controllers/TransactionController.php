@@ -39,10 +39,10 @@ class TransactionController extends Controller
         ->get();
 
     $discounts = DiscountTransaction::select('id', 'name', 'code', 'minimal_transaction', 'discount', 'customer_only')
-    ->whereDate('start_date', '<=', Carbon::now()) // sudah mulai
+    ->whereDate('start_date', '<=', Carbon::now()) 
     ->where(function ($query) {
-        $query->whereDate('end_date', '>=', Carbon::now()) // belum berakhir
-            ->orWhereNull('end_date'); // atau tidak punya tanggal kadaluwarsa
+        $query->whereDate('end_date', '>=', Carbon::now())
+            ->orWhereNull('end_date');
         })
     ->latest()
     ->get();
@@ -254,12 +254,6 @@ class TransactionController extends Controller
         // Waktu Transaksi
         $printer->setJustification(Printer::JUSTIFY_RIGHT);
         $printer->text(date("d/m/Y H:i") . "\n");
-        $printer->feed(2);
-
-        // Cetak Barcode
-        $printer->setJustification(Printer::JUSTIFY_CENTER);
-        $printer->feed(2);
-        $printer->barcode("012345678905", Printer::BARCODE_UPCA);
         $printer->feed(2);
 
         // Selesai
