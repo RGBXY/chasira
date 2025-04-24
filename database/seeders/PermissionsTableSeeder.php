@@ -13,71 +13,185 @@ class PermissionsTableSeeder extends Seeder
      */
     public function run(): void
     {
-        Permission::create(['name' => 'categories.index']);
-        Permission::create(['name' => 'categories.create']);
-        Permission::create(['name' => 'categories.edit']);
-        Permission::create(['name' => 'categories.delete']);
+        // Permission Categories
+        Permission::create([
+            'name' => 'categories.index',
+            'description' => 'Izin untuk mengakses halaman categories'
+        ]);
+        Permission::create([
+            'name' => 'categories.create',
+            'description' => 'Izin untuk membuat data categories'
+        ]);
+        Permission::create([
+            'name' => 'categories.edit',
+            'description' => 'Izin untuk mengedit data categories'
+        ]);
+        Permission::create([
+            'name' => 'categories.delete',
+            'description' => 'Izin untuk menghapus data categories'
+        ]);
 
-        Permission::create(['name' => 'products.index']);
-        Permission::create(['name' => 'products.create']);
-        Permission::create(['name' => 'products.edit']);
-        Permission::create(['name' => 'products.delete']);
-
-        Permission::create(['name' => 'roles.index']);
-        Permission::create(['name' => 'roles.create']);
-        Permission::create(['name' => 'roles.edit']);
-        Permission::create(['name' => 'roles.delete']);
-
-        Permission::create(['name' => 'employees.index']);
-        Permission::create(['name' => 'employees.create']);
-        Permission::create(['name' => 'employees.edit']);
-        Permission::create(['name' => 'employees.delete']);
-
-        Permission::create(['name' => 'stock_out.index']);
-        Permission::create(['name' => 'stock_out.create']);
-        Permission::create(['name' => 'stock_out.edit']);
-        Permission::create(['name' => 'stock_out.delete']);
-
-        Permission::create(['name' => 'stock_in.index']);
-        Permission::create(['name' => 'stock_in.create']);
-        Permission::create(['name' => 'stock_in.edit']);
-        Permission::create(['name' => 'stock_in.delete']);
-
-        Permission::create(['name' => 'suppliers.index']);
-        Permission::create(['name' => 'suppliers.create']);
-        Permission::create(['name' => 'suppliers.edit']);
-        Permission::create(['name' => 'suppliers.delete']);
-
-        Permission::create(['name' => 'stock_opname.index']);
-        Permission::create(['name' => 'stock_opname.create']);
-        Permission::create(['name' => 'stock_opname.edit']);
-        Permission::create(['name' => 'stock_opname.delete']);
-
-        Permission::create(['name' => 'customers.index']);
-        Permission::create(['name' => 'customers.create']);
-        Permission::create(['name' => 'customers.edit']);
-        Permission::create(['name' => 'customers.delete']);
-
-        Permission::create(['name' => 'discounts.index']);
-        Permission::create(['name' => 'discounts.create']);
-        Permission::create(['name' => 'discounts.edit']);
-        Permission::create(['name' => 'discounts.delete']);
+        // Permission Product
+        Permission::create([
+            'name' => 'products.index',
+            'description' => 'Izin untuk mengakses halaman products'
+        ]);
+        Permission::create([
+            'name' => 'products.create',
+            'description' => 'Izin untuk membuat data products'
+        ]);
+        Permission::create([
+            'name' => 'products.edit',
+            'description' => 'Izin untuk mengedit data products'
+        ]);
+        Permission::create([
+            'name' => 'products.delete',
+            'description' => 'Izin untuk menghapus data products'
+        ]);
         
-        Permission::create(['name' => 'coupon.index']);
+        // Permission Roles
+        Permission::create([
+            'name' => 'roles.index',
+            'description' => 'Izin untuk mengakses halaman roles'
+        ]);
+        Permission::create([
+            'name' => 'roles.create',
+            'description' => 'Izin untuk membuat data roles'
+        ]);
+        Permission::create([
+            'name' => 'roles.edit',
+            'description' => 'Izin untuk mengedit data roles'
+        ]);
+        Permission::create([
+            'name' => 'roles.delete',
+            'description' => 'Izin untuk menghapus data roles'
+        ]);
 
-        Permission::create(['name' => 'sales.index']);
+        // Permission Employees
+        Permission::create([
+            'name' => 'employees.index',
+            'description' => 'Izin untuk mengakses halaman employees'
+        ]);
+        Permission::create([
+            'name' => 'employees.create',
+            'description' => 'Izin untuk membuat data employees'
+        ]);
+        Permission::create([
+            'name' => 'employees.edit',
+            'description' => 'Izin untuk mengedit data employees'
+        ]);
+        Permission::create([
+            'name' => 'employees.delete',
+            'description' => 'Izin untuk menghapus data employees'
+        ]);
 
-        Permission::create(['name' => 'discount.index']);
+        // Permission Stock_out
+        Permission::create([
+            'name' => 'stock_out.index',
+            'description' => 'Izin untuk mengakses halaman stock_out'
+        ]);
+        Permission::create([
+            'name' => 'stock_out.create',
+            'description' => 'Izin untuk membuat data stock_out'
+        ]);
 
-        Permission::create(['name' => 'voucher.index']);
+        // Permission Stock_in
+        Permission::create([
+            'name' => 'stock_in.index',
+            'description' => 'Izin untuk mengakses halaman stock_in'
+        ]);
+        Permission::create([
+            'name' => 'stock_in.create',
+            'description' => 'Izin untuk membuat data stock_in'
+        ]);
 
-        Permission::create(['name' => 'profile.index']);
+        // Permission Stock_opname
+        Permission::create([
+            'name' => 'stock_opname.index',
+            'description' => 'Izin untuk mengakses halaman stock_opname'
+        ]);
+        Permission::create([
+            'name' => 'stock_opname.create',
+            'description' => 'Izin untuk membuat data stock_opname'
+        ]);
 
-        Permission::create(['name' => 'transactions.index']);
+        // Permission Suppliers
+        Permission::create([
+            'name' => 'suppliers.index',
+            'description' => 'Izin untuk mengakses halaman suppliers'
+        ]);
+        Permission::create([
+            'name' => 'suppliers.create',
+            'description' => 'Izin untuk membuat data suppliers'
+        ]);
+        Permission::create([
+            'name' => 'suppliers.edit',
+            'description' => 'Izin untuk mengedit data suppliers'
+        ]);
+        Permission::create([
+            'name' => 'suppliers.delete',
+            'description' => 'Izin untuk menghapus data suppliers'
+        ]);
 
-        Permission::create(['name' => 'profits.index']);
+        // Permission Suppliers
+        Permission::create([
+            'name' => 'customers.index',
+            'description' => 'Izin untuk mengakses halaman customers'
+        ]);
+        Permission::create([
+            'name' => 'customers.create',
+            'description' => 'Izin untuk membuat data customers'
+        ]);
+        Permission::create([
+            'name' => 'customers.edit',
+            'description' => 'Izin untuk mengedit data customers'
+        ]);
+        Permission::create([
+            'name' => 'customers.delete',
+            'description' => 'Izin untuk menghapus data customers'
+        ]);
 
-        Permission::create(['name' => 'dashboard.index']);
+        // Permission Discounts
+        Permission::create([
+            'name' => 'discounts.index',
+            'description' => 'Izin untuk mengakses halaman discounts'
+        ]);
+        Permission::create([
+            'name' => 'discounts.create',
+            'description' => 'Izin untuk membuat data discounts'
+        ]);
+        Permission::create([
+            'name' => 'discounts.edit',
+            'description' => 'Izin untuk mengedit data discounts'
+        ]);
+        Permission::create([
+            'name' => 'discounts.delete',
+            'description' => 'Izin untuk menghapus data discounts'
+        ]);
+        
+        // Permission Sales
+        Permission::create([
+            'name' => 'sales.index',
+            'description' => 'Izin untuk mengakses halaman sales'
+        ]);
+
+        // Permission Sales
+        Permission::create([
+            'name' => 'transactions.index',
+            'description' => 'Izin untuk mengakses halaman transactions'
+        ]);
+
+        // Permission Profits
+        Permission::create([
+            'name' => 'profits.index',
+            'description' => 'Izin untuk mengakses halaman profits'
+        ]);
+
+        // Permission Dashboard
+        Permission::create([
+            'name' => 'dashboard.index',
+            'description' => 'Izin untuk mengakses halaman dashboard'
+        ]);
 
         
     }

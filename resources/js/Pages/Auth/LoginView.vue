@@ -6,11 +6,11 @@
       <div
         class="border-b-gray-300 flex flex-col justify-center items-center pt-8"
       >
-        <img
+        <!-- <img
           class="w-12 rounded-xl mb-4 shadow-sm border-[1.5px]"
           :src="'/assets/image/logo.png'"
           alt="hai"
-        />
+        /> -->
         <h1 class="text-xl font-semibold">Welcome back</h1>
         <p class="text-sm">Please enter your details to sign in</p>
       </div>

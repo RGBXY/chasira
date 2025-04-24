@@ -41,6 +41,7 @@ class CategoryController extends Controller
         $categories = Category::where('name', 'like', '%' . $request->name . '%')
         ->select(['id', 'name'])
         ->limit(3)  
+        ->latest()
         ->get();         
 
         if ($categories->count() > 0) {

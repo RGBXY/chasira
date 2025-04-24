@@ -53,6 +53,7 @@ class SaleController extends Controller
         $sales = Transaction::with('cashier:id,name')->with('customers:id,name')
             ->whereDate('created_at', '>=', $request->start_date)
             ->whereDate('created_at', '<=', $request->end_date)
+            ->latest()
             ->paginate(8);
 
         return Inertia::render('Sales/index', [

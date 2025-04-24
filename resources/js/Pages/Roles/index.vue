@@ -18,6 +18,7 @@ const props = defineProps({
 const headerConfig = [
   { key: 'name', label: 'Name' },
   { key: 'permissions', label: 'Permissions' },
+  { key: 'permissions_description', label: 'Permissions Description' },
 ];
 
 const name = ref(new URL(document.location).searchParams.get('name') || '');
@@ -71,11 +72,22 @@ const searchRolesName = debounce(() => {
           :data="roles.data"
           :header="headerConfig"
         >
+          <template v-slot:name="{ row: i }">
+            <div class="flex flex-col h-full items-start gap-2">
+              <div
+                class="bg-gray-100 px-2.5 py-1.5 uppercase font-semibold text-gray-500 text-sm rounded-md"
+              >
+                <p>
+                  {{ i.name }}
+                </p>
+              </div>
+            </div>
+          </template>
           <template v-slot:permissions="{ row: i }">
-            <div class="flex gap-2 flex-wrap">
+            <div class="flex flex-wrap items-start gap-2">
               <div
                 v-for="permissions in i.permissions"
-                class="bg-gray-100 px-2.5 py-1.5 uppercase font-semibold inline-block text-gray-500 text-sm rounded-md"
+                class="bg-gray-100 px-2.5 py-1.5 inline-block uppercase font-semibold text-gray-500 text-sm rounded-md"
               >
                 <p>
                   {{ permissions.name }}

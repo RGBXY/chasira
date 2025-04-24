@@ -161,10 +161,10 @@ watch(
 <template>
   <div
     :class="receiptStore.receiptStat ? 'block' : 'hidden'"
-    class="lg:w-[25%] w-full lg:static fixed h-screen lg:block left-0 border-l bg-white right-0 z-30"
+    class="lg:w-[25%] w-full lg:static fixed h-screen lg:block left-0 border-l right-0 z-30"
   >
     <div
-      class="fixed top-0 right-0 overflow-y-auto flex flex-col justify-between lg:w-[25%] w-full h-full"
+      class="fixed top-0 right-0 overflow-y-auto flex flex-col bg-white justify-between lg:w-[25%] w-full h-full"
     >
       <div class="flex flex-grow flex-col justify-between">
         <div class="h-20 px-3 border-b flex items-center justify-between">

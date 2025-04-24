@@ -10,15 +10,15 @@
         >
           <div class="flex items-center gap-3 flex-1 h-full px-3">
             <div class="w-12 h-12 rounded-xl border overflow-hidden">
-              <img
+              <!-- <img
                 :src="'/assets/image/logo.png'"
                 class="w-full h-full"
                 alt=""
+              /> -->
+              <img
+                :src="`https://ui-avatars.com/api/?name=${$page.props.auth.user.name}&background=4e73df&color=ffffff&size=100`"
+                alt=""
               />
-              <!-- <img
-                                :src="`https://ui-avatars.com/api/?name=${$page.props.auth.user.name}&background=4e73df&color=ffffff&size=100`"
-                                alt=""
-                            /> -->
             </div>
             <transition
               enter-active-class="transition-all duration-300 ease-out"
@@ -116,20 +116,18 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 const page = usePage();
 const logedUser = page.props.auth.user;
 
+const method = useMethodStore();
+
 const permissions = page.props.auth.permissions;
 
 const filteredMenu = MainMenuConfig.map((menu) => {
-  // Create a new menu object with filtered pages
   return {
     ...menu,
     pages: menu.pages.filter((page) => permissions[page.permissions]),
   };
-}).filter((menu) => menu.pages.length > 0); // Remove menu sections with no accessible pages
-
-const method = useMethodStore();
+}).filter((menu) => menu.pages.length > 0);
 
 function handleLinkClick() {
-  // Deteksi jika layar kecil (mobile)
   if (window.innerWidth < 1024) {
     method.sideBarStatFnc();
   }

@@ -76,14 +76,14 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/stock-in/searchByName', [StockInController::class, 'searchByName'])->name('stockIn.searchByName');
         Route::get('/stock-in/filterDate', [StockInController::class, 'filterDate']);
         Route::resource('/stock-in', StockInController::class)
-        ->middleware('permission:stock_in.index|stock_in.create|stock_in.edit|stock_in.delete')->except(['show']);
+        ->middleware('permission:stock_in.index|stock_in.create')->except(['show']);
         Route::post('/stock-in/searchSupplier', [StockInController::class, 'searchSupplier'])->name('stockIn.searchSupplier');
 
         // Stock Out Route
         Route::get('/stock-out/searchByName', [StockOutController::class, 'searchByName'])->name('stockOut.searchByName');
         Route::get('/stock-out/filterDate', [StockOutController::class, 'filterDate']);
         Route::resource('/stock-out', StockOutController::class)
-        ->middleware('permission:stock_out.index|stock_out.create|stock_out.edit|stock_out.delete')->except(['show']);
+        ->middleware('permission:stock_out.index|stock_out.create')->except(['show']);
 
         // Stock Opname Route
         Route::get('/stock-opname/searchByName', [StockOpnameController::class, 'searchByName'])->name('stockOpname.searchByName');

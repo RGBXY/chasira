@@ -1,6 +1,6 @@
 <template>
   <Layout>
-    <div class="py-8 px-7 flex items-center justify-center">
+    <div class="w-full py-8 px-7 flex items-center justify-center">
       <div class="px-10 py-8 w-full max-w-7xl border bg-white rounded-lg">
         <div class="mb-6 flex items-center justify-between">
           <h1 class="text-3xl font-bold mb-1">Add Roles</h1>
@@ -21,21 +21,22 @@
               :class="form.errors.permissions ? 'border-red-500' : ''"
               class="flex flex-wrap gap-5 border p-2 rounded-lg"
             >
-              <div
-                v-for="permission in permissions"
-                class="flex items-center gap-1"
+              <DataTable
+                v-if="permissions.length > 0"
+                :data="permissions"
+                :header="headerConfig"
               >
-                <input
-                  :id="`check-${permission.id}`"
-                  type="checkbox"
-                  :value="permission.name"
-                  v-model="form.permissions"
-                />
-                <label :for="`check-${permission.id}`">{{
-                  permission.name
-                }}</label>
-              </div>
+                <template v-slot:actions="{ row: i }">
+                  <input
+                    :id="`check-${i.id}`"
+                    type="checkbox"
+                    :value="i.name"
+                    v-model="form.permissions"
+                  />
+                </template>
+              </DataTable>
             </div>
+
             <small v-if="form.errors.permissions" class="text-red-500">{{
               form.errors.permissions
             }}</small>
@@ -69,6 +70,7 @@
 
 <script setup>
 import Layout from '../../Layouts/Layout.vue';
+import DataTable from '../../components/layouts/DataTable.vue';
 import TextInput from '../../components/ui/TextInput.vue';
 import { Link, useForm } from '@inertiajs/vue3';
 
@@ -77,13 +79,18 @@ const form = useForm({
   permissions: [],
 });
 
+const props = defineProps({
+  permissions: Object,
+});
+
 const submit = () => {
   form.post('/roles');
 };
 
-const props = defineProps({
-  permissions: Object,
-});
+const headerConfig = [
+  { key: 'name', label: 'Name' },
+  { key: 'description', label: 'Description' },
+];
 </script>
 
 <style lang="scss" scoped></style>
