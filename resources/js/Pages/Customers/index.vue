@@ -50,6 +50,7 @@
                 <p>Edit</p>
               </Link>
               <button
+                v-if="i.id !== 1"
                 @click="modalButtonFnc(i.id)"
                 class="py-2 px-4 flex items-center gap-1.5 font-semibold hover:bg-gray-100 border border-gray-200 text-red-400 text-sm rounded-md"
               >

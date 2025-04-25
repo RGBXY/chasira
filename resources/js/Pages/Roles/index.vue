@@ -18,7 +18,6 @@ const props = defineProps({
 const headerConfig = [
   { key: 'name', label: 'Name' },
   { key: 'permissions', label: 'Permissions' },
-  { key: 'permissions_description', label: 'Permissions Description' },
 ];
 
 const name = ref(new URL(document.location).searchParams.get('name') || '');

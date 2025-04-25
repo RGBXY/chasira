@@ -178,7 +178,7 @@ watch(
 <template>
   <div class="px-7 w-full">
     <div
-      class="flex items-center w-full mb-5 lg:mb-0 gap-2.5 py-3 overflow-x-auto no-scrollbar"
+      class="flex items-center flex-1 mb-5 lg:mb-0 gap-2.5 py-3 overflow-x-auto no-scrollbar"
     >
       <CategoryCard :data="props.categories" />
     </div>
