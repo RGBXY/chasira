@@ -189,7 +189,9 @@ watch(
           </button>
         </div>
 
-        <div class="h-[60%] max-h-[500px] w-full overflow-y-auto">
+        <div
+          class="h-[60%] short:max-h-[350px] max-h-[500px] w-full overflow-y-auto"
+        >
           <div
             v-if="!receiptStore.products.length"
             class="flex items-center justify-center h-full"

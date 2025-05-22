@@ -79,7 +79,7 @@ onKeyStroke('b', (event) => {
 });
 
 // Function
-const addOrder = (order) => {
+const addOrder = (order, click) => {
   if (order && order.stock > 0) {
     const existingProduct = receiptStore.products.find(
       (p) => p.id === order.id
@@ -96,14 +96,14 @@ const addOrder = (order) => {
 
     barcode.value = '';
 
-    if (window.innerWidth > 1024) {
+    if (click !== true) {
       searchBarcode.value.focus();
     }
   } else if (order.stock === 0) {
     method.toasterFnc('Product stock is empty');
     barcode.value = '';
 
-    if (window.innerWidth > 1024) {
+    if (click !== true) {
       searchBarcode.value.focus();
     }
   }
@@ -249,7 +249,7 @@ watch(
             v-for="product in props.products.data"
             :key="product.id"
             :product="product"
-            @click="addOrder(product)"
+            @click="addOrder(product, true)"
           />
 
           <!-- <button @click="printReceipt()">Print</button> -->

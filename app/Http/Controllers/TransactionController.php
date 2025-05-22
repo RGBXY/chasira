@@ -31,7 +31,7 @@ class TransactionController extends Controller
     
     $categories = Category::withCount('products')
         ->select('id', 'name')
-        ->limit(5)
+        ->limit(2)
         ->get();
 
     $customers = Customers::select('id', 'name', 'phone')

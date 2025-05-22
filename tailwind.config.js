@@ -17,6 +17,9 @@ export default {
         'primary-bg': '#f3f4f7',
         primary: '#8d78e5',
       },
+      screens: {
+        short: { raw: '(max-height: 850px)' }, // Breakpoint untuk tinggi
+      },
     },
   },
   plugins: [],
